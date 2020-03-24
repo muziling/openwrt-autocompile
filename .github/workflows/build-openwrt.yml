@@ -1,39 +1,45 @@
-#=================================================
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
 # https://github.com/P3TERX/Actions-OpenWrt
 # Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
+#
+# sed -i "/tristate /a\           default \$(shell if [ '\$(lang)' == 'zh-cn' ]\; then echo y\; else echo n\; fi))" feeds/luci/luci.mk
+# echo 'rm -f package/lean/openwrt-fullconenat/Makefile'
+# echo 'wget https://github.com/coolsnowwolf/lede/raw/076c3b7e49282832df2ac8f80f6da4f0004383cc/package/lean/openwrt-fullconenat/Makefile  --no-check-certificate -O package/lean/openwrt-fullconenat/Makefile'
 
 name: Build OpenWrt
 
 on:
-  release:
-    types: published
-  push:
-    branches:
-      - master
-    paths:
-      - '.config'
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
 #  schedule:
 #    - cron: 0 8 * * 5
-#  watch:
-#    types: started
+  watch:
+    types: started
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL: https://github.com/openwrt/openwrt.git
   REPO_BRANCH: master
   CONFIG_FILE: .config
   DIY_SH: diy.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
+  UPLOAD_COWTRANSFER: true
   TZ: Asia/Shanghai
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build_openwrt:
+    runs-on: ubuntu-18.04
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
@@ -44,40 +50,161 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo swapoff /swapfile
-        sudo rm -rf /swapfile /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
-        curl -fsSL https://raw.githubusercontent.com/P3TERX/dotfiles/master/.bashrc >> ~/.bashrc
+        docker rmi `docker images -q`
+        sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
+        sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php* android*
+        sudo -E apt-get update
+        sudo -E apt-get -y install diffutils build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
 
     - name: Clone source code
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone --depth 2 $REPO_URL -b $REPO_BRANCH openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        cd openwrt
+        COMMIT2ID=`git log -2 --pretty=format:"%H" |sed -n '2p'`
+        sed -i 's/REBOOT=.*/REBOOT='"${COMMIT2ID}"'/g' scripts/getver.sh
+        cd ..
+
+    - name: Clone 3rd code
+      run: |
+        cd openwrt
+        
+        git clone --depth 1 -b master https://github.com/coolsnowwolf/lede.git leanop
+        mv leanop/package/lean package
+        [ -d package/lean/luci-app-autoreboot/po/zh-cn ] && mv package/lean/luci-app-autoreboot/po/zh-cn package/lean/luci-app-autoreboot/po/zh_Hans
+        [ -d package/lean/luci-app-filetransfer/po/zh-cn ] && mv package/lean/luci-app-filetransfer/po/zh-cn package/lean/luci-app-filetransfer/po/zh_Hans
+        [ -d package/lean/luci-app-flowoffload/po/zh-cn ] && mv package/lean/luci-app-flowoffload/po/zh-cn package/lean/luci-app-flowoffload/po/zh_Hans
+        [ -d package/lean/luci-app-ramfree/po/zh-cn ] && mv package/lean/luci-app-ramfree/po/zh-cn package/lean/luci-app-ramfree/po/zh_Hans
+        [ -d package/lean/luci-app-v2ray-server/po/zh-cn ] && mv package/lean/luci-app-v2ray-server/po/zh-cn package/lean/luci-app-v2ray-server/po/zh_Hans
+        [ -d package/lean/luci-app-vlmcsd/po/zh-cn ] && mv package/lean/luci-app-vlmcsd/po/zh-cn package/lean/luci-app-vlmcsd/po/zh_Hans
+        [ -d package/lean/luci-app-vsftpd/po/zh-cn ] && mv package/lean/luci-app-vsftpd/po/zh-cn package/lean/luci-app-vsftpd/po/zh_Hans
+        
+        mkdir -p package/mycustom
+        git clone --depth 1 -b master https://github.com/pymumu/openwrt-smartdns.git package/mycustom/smartdns
+        LATESCOMMIT=`curl --silent -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/pymumu/smartdns/commits/master/branches-where-head"|grep sha|awk -F '"' '{print $4}'`
+        sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:='"${LATESCOMMIT}"'/g' package/mycustom/smartdns/Makefile
+        sed -i '/PKG_MIRROR_HASH/d' package/mycustom/smartdns/Makefile
+        git clone --depth 1 -b master https://github.com/pymumu/luci-app-smartdns.git package/mycustom/luci-app-smartdns
+        [ -d package/mycustom/luci-app-smartdns/po/zh-cn ] && mv package/mycustom/luci-app-smartdns/po/zh-cn package/mycustom/luci-app-smartdns/po/zh_Hans
+        sed -i 's|include ../../luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|' package/mycustom/luci-app-smartdns/Makefile
+        
+        git clone --depth 1 -b master https://github.com/jerrykuku/luci-theme-argon package/mycustom/luci-theme-argon
+        git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
+        git clone --depth 1 -b master https://github.com/brvphoenix/luci-app-wrtbwmon package/mycustom/luci-app-wrtbwmon
+        git clone --depth 1 -b master https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/mycustom/luci-app-jd-dailybonus
+        git clone --depth 1 -b master https://github.com/jerrykuku/luci-app-vssr.git package/mycustom/luci-app-vssr
+        git clone --depth 1 -b master https://github.com/jerrykuku/lua-maxminddb.git package/mycustom/lua-maxminddb
+        sed -i 's/PKG_NAME:=luci-app-vssr/PKG_NAME:=luci-app-vssr\nLUCI_PKGARCH:=all/' package/mycustom/luci-app-vssr/Makefile
+        cat package/mycustom/luci-app-vssr/Makefile
+
+        git clone --depth 1 -b master https://github.com/pexcn/openwrt-chinadns-ng.git package/mycustom/openwrt-chinadns-ng
+        LATESCOMMIT=`curl --silent -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/zfl9/chinadns-ng/commits/master/branches-where-head"|grep sha|awk -F '"' '{print $4}'`
+        sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:='"${LATESCOMMIT}"'/g' package/mycustom/openwrt-chinadns-ng/Makefile
+        sed -i '/PKG_SOURCE:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
+        sed -i '/PKG_SOURCE_SUBDIR:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
+        sed -i '/PKG_BUILD_DIR:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
+        
+        git clone --depth 1 -b luci https://github.com/pexcn/openwrt-chinadns-ng.git package/mycustom/luci-app-chinadns-ng
+        
+        mkdir -p package/network/config/firewall/patches
+        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/config/firewall/patches/fullconenat.patch -q --no-check-certificate -O package/network/config/firewall/patches/9999-fullconenat.patch
+        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/services/dnsmasq/patches/900-filter-aaaa.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/900-filter-aaaa.patch
+        wget https://raw.githubusercontent.com/muziling/dnsmasq-chnroute/master/0000-Add-feature-to-support-chnroutes.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/800-Add-feature-to-support-chnroutes.patch
+
+        mkdir -p tools/upx
+        mkdir -p tools/ucl
+        wget https://raw.githubusercontent.com/Lienol/openwrt/19.07/tools/upx/Makefile -q --no-check-certificate -O tools/upx/Makefile
+        wget https://raw.githubusercontent.com/Lienol/openwrt/19.07/tools/ucl/Makefile -q --no-check-certificate -O tools/ucl/Makefile
+        sed -i '/^$(curdir)\/bison\/compile/itools-y += ucl upx\n$(curdir)/upx\/compile := $(curdir)\/ucl\/compile' tools/Makefile
+        cd ..
 
     - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
+      run: |
+        cd openwrt
+        cp feeds.conf.default feeds.conf.default.o
+        > feeds.conf.default
+        grep luci feeds.conf.default.o >> feeds.conf.default
+        echo 'src-git lienol https://github.com/Lienol/openwrt-packages.git;19.07' >> feeds.conf.default
+        echo 'src-git wrtbwmon https://github.com/brvphoenix/wrtbwmon' >> feeds.conf.default
+        echo 'src-git OpenAppFilter https://github.com/destan19/OpenAppFilter' >> feeds.conf.default
+        echo 'src-git OpenClash https://github.com/vernesong/OpenClash' >> feeds.conf.default
+        echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
+        echo 'src-git xiaorouji https://github.com/xiaorouji/openwrt-package'
+        grep -v luci feeds.conf.default.o >> feeds.conf.default
+        echo 'xxxxxxxxxxxx'
+        cat feeds.conf.default
+        ./scripts/feeds update -a
+        echo 'aaaaaaaaaaaaa'
+        rm -rf package/lean/luci-app-unblockmusic
+        rm -rf package/lean/luci-theme-argon
+        rm -rf package/lean/luci-app-wrtbwmon
+        rm -rf package/lean/autosamba
+        rm -rf package/lean/qt5
+        rm -rf feeds/packages/net/smartdns
+        rm -rf feeds/luci/applications/luci-app-smartdns
+        rm -rf feeds/packages/net/shadowsocks-libev
+        rm -rf package/lean/shadowsocks-libev
+        echo 'rm -rf feeds/xiaorouji/package/shadowsocks-libev'
+        sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
+        sed -i '/"luci-base"/i\\t"uci-access": {\n\t\t"description": "Grant uci write access to all configurations",\n\t\t"read": {\n\t\t\t"uci": [ "*" ]\n\t\t},\n\t\t"write": {\n\t\t\t"uci": [ "*" ]\n\t\t}\n\t},\n' feeds/luci/modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json
+        sed -i 's/DEFAULT_SERVERS=.*/DEFAULT_SERVERS="ntp1.aliyun.com time1.cloud.tencent.com time.ustc.edu.cn"/' feeds/packages/net/ntpd/files/ntpdate.init
+        sed -i "/tristate /a\\\t   default \$(shell if [ '\$(lang)' == 'zh_Hans' ]\; then echo y\; else echo n\; fi))" feeds/luci/luci.mk
+        sed -i 's|($(lang))")|($(lang))"|' feeds/luci/luci.mk
+        echo 'bbbbbbbbbbbbbbbbb'
+        [ -d feeds/OpenAppFilter/luci-app-oaf/po/zh-cn ] && mv feeds/OpenAppFilter/luci-app-oaf/po/zh-cn feeds/OpenAppFilter/luci-app-oaf/po/zh_Hans
+        rm -f feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
+        [ -d feeds/helloworld/luci-app-ssr-plus/po/zh-cn ] && mv feeds/helloworld/luci-app-ssr-plus/po/zh-cn feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
+        cd ..
 
     - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
+      run: |
+        cd openwrt
+        ./scripts/feeds install -a
+
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
 
     - name: Load custom configuration
       run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_SH
         cd openwrt
-        ../$DIY_SH
-
-    - name: SSH connection to Actions
-      uses: P3TERX/debugger-action@master
-      if: env.SSH_ACTIONS == 'true'
+        sed -i '/Target System/{n;s/default .*/default TARGET_x86/;}' scripts/target-metadata.pl
+        sed -i '/GRUB_TIMEOUT/{n;n;n;s/5/0/;}' config/Config-images.in
+        sed -i '/TARGET_ROOTFS_PARTSIZE/{n;n;n;s/256/160/;}' config/Config-images.in
+        sed -i '/^config KERNEL_MIPS_FPU_EMULATOR/{n;n;s/ if TARGET_pistachio//;}' config/Config-kernel.in
+        sed -i 's/net.netfilter.nf_conntrack_max=.*/net.netfilter.nf_conntrack_max=65535/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
+        sed -i 's/dnsmasq /dnsmasq-full /' include/target.mk
+        sed -i '/^#/d' package/network/services/dnsmasq/files/dnsmasq.conf
+        sed -i '/^$/d' package/network/services/dnsmasq/files/dnsmasq.conf
+        sed -i '/log-facility/d' package/network/services/dnsmasq/files/dnsmasq.conf
+        echo '' >> package/network/services/dnsmasq/files/dnsmasq.conf
+        echo "log-facility=/dev/null" >> package/network/services/dnsmasq/files/dnsmasq.conf
+        sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' package/base-files/files/etc/shadow
+        sed -i "s/add_list system.ntp.server='0.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='1.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='2.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='3.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
+        sed -i 's/192.168.1.1/192.168.222.1/g' package/base-files/files/bin/config_generate
+        sed -i "s/option redirect_https.*/option redirect_https\t 0/" package/network/services/uhttpd/files/uhttpd.config
+        sed -i "s/option max_requests.*/option max_requests\t 20/" package/network/services/uhttpd/files/uhttpd.config
+        mkdir -p package/network/config/firewall/patches
 
     - name: Download package
       id: package
       run: |
+        [ -e Makefile ] && mv -f Makefile openwrt/target/linux/x86/Makefile
         cd openwrt
         make defconfig
+        grep zh-cn .config
+        grep LUCI .config
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
@@ -85,16 +212,27 @@ jobs:
     - name: Compile the firmware
       id: compile
       run: |
+        [ -e files ] && mv files openwrt/files
+        chmod +x $DIY_SH
         cd openwrt
+        $GITHUB_WORKSPACE/$DIY_SH
+        
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 V=s
+        make -j$(nproc) V=sc || make -j1 V=s || make -j1
         echo "::set-output name=status::success"
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "::set-env name=DEVICE_NAME::_$(cat DEVICE_NAME)"
+        echo "::set-env name=FILE_DATE::_$(date +"%Y%m%d%H%M")"
+
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
 
     - name: Upload bin directory
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: OpenWrt_bin
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
 
     - name: Organize files
@@ -105,6 +243,7 @@ jobs:
         rm -rf packages
         echo "::set-env name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
+        cp ../../../../.config .
 
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
@@ -112,3 +251,10 @@ jobs:
       with:
         name: OpenWrt_firmware
         path: ${{ env.FIRMWARE }}
+
+    - name: Upload firmware to cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
