@@ -112,6 +112,7 @@ jobs:
         sed -i '/PKG_BUILD_DIR:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
         
         git clone --depth 1 -b luci https://github.com/pexcn/openwrt-chinadns-ng.git package/mycustom/luci-app-chinadns-ng
+        [ -d package/mycustom/luci-app-chinadns-ng/po/zh-cn ] && mv package/mycustom/luci-app-chinadns-ng/po/zh-cn package/mycustom/luci-app-chinadns-ng/po/zh_Hans
         
         mkdir -p package/network/config/firewall/patches
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/config/firewall/patches/fullconenat.patch -q --no-check-certificate -O package/network/config/firewall/patches/9999-fullconenat.patch
