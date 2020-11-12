@@ -21,11 +21,11 @@ KERNELNAME:=bzImage
 include $(INCLUDE_DIR)/target.mk
 # luci-theme-edge
 DEFAULT_PACKAGES += mkf2fs fdisk e2fsprogs kmod-e1000e kmod-vmxnet3 kmod-r8125 kmod-8139cp kmod-8139too kmod-fs-ext4 \
-htop lm-sensors luci-proto-bonding ddns-scripts_aliyun ddns-scripts_dnspod ca-certificates \
+htop lm-sensors luci-proto-bonding ca-certificates \
 iptables-mod-extra iptables-mod-conntrack-extra bash curl tcpdump v2ray smartdns luci-app-smartdns luci-app-ssr-plus luci-app-v2ray-server \
-luci-theme-argon luci-app-jd-dailybonus luci-app-vssr https-dns-proxy naiveproxy luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload \
+luci-theme-argon luci-app-jd-dailybonus naiveproxy luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload \
 luci luci-compat \
-kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-raw wget luci-app-chinadns-ng \
+kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-raw wget luci-app-chinadns-ng dns2tcp \
 luci-app-ddns luci-app-upnp luci-app-autoreboot luci-app-filetransfer luci-app-vsftpd luci-app-vlmcsd luci-app-ramfree
 
 $(eval $(call BuildTarget))

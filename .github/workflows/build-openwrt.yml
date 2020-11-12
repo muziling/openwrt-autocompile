@@ -10,6 +10,18 @@
 # sed -i "/tristate /a\           default \$(shell if [ '\$(lang)' == 'zh-cn' ]\; then echo y\; else echo n\; fi))" feeds/luci/luci.mk
 # echo 'rm -f package/lean/openwrt-fullconenat/Makefile'
 # echo 'wget https://github.com/coolsnowwolf/lede/raw/076c3b7e49282832df2ac8f80f6da4f0004383cc/package/lean/openwrt-fullconenat/Makefile  --no-check-certificate -O package/lean/openwrt-fullconenat/Makefile'
+# 
+# cp feeds.conf.default feeds.conf.default.o
+# > feeds.conf.default
+# grep luci feeds.conf.default.o >> feeds.conf.default
+# echo 'src-git lienol https://github.com/Lienol/openwrt-packages.git;19.07' >> feeds.conf.default
+# echo 'src-git wrtbwmon https://github.com/brvphoenix/wrtbwmon' >> feeds.conf.default
+# echo 'src-git OpenAppFilter https://github.com/destan19/OpenAppFilter' >> feeds.conf.default
+# echo 'src-git OpenClash https://github.com/vernesong/OpenClash' >> feeds.conf.default
+# echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
+# echo 'src-git xiaorouji https://github.com/xiaorouji/openwrt-package'
+# grep -v luci feeds.conf.default.o >> feeds.conf.default
+# cat feeds.conf.default
 
 name: Build OpenWrt
 
@@ -78,6 +90,12 @@ jobs:
         
         git clone --depth 1 -b master https://github.com/coolsnowwolf/lede.git leanop
         mv leanop/package/lean package
+        rm -rf package/lean/luci-app-unblockmusic
+        rm -rf package/lean/luci-theme-argon
+        rm -rf package/lean/luci-app-wrtbwmon
+        rm -rf package/lean/autosamba
+        rm -rf package/lean/qt5
+        rm -rf package/lean/shadowsocks-libev
         [ -d package/lean/luci-app-autoreboot/po/zh-cn ] && mv package/lean/luci-app-autoreboot/po/zh-cn package/lean/luci-app-autoreboot/po/zh_Hans
         [ -d package/lean/luci-app-filetransfer/po/zh-cn ] && mv package/lean/luci-app-filetransfer/po/zh-cn package/lean/luci-app-filetransfer/po/zh_Hans
         [ -d package/lean/luci-app-flowoffload/po/zh-cn ] && mv package/lean/luci-app-flowoffload/po/zh-cn package/lean/luci-app-flowoffload/po/zh_Hans
@@ -85,6 +103,9 @@ jobs:
         [ -d package/lean/luci-app-v2ray-server/po/zh-cn ] && mv package/lean/luci-app-v2ray-server/po/zh-cn package/lean/luci-app-v2ray-server/po/zh_Hans
         [ -d package/lean/luci-app-vlmcsd/po/zh-cn ] && mv package/lean/luci-app-vlmcsd/po/zh-cn package/lean/luci-app-vlmcsd/po/zh_Hans
         [ -d package/lean/luci-app-vsftpd/po/zh-cn ] && mv package/lean/luci-app-vsftpd/po/zh-cn package/lean/luci-app-vsftpd/po/zh_Hans
+        
+        git clone --depth 1 -b master https://github.com/vernesong/OpenClash OpenClash
+        mv OpenClash/luci-app-openclash package/mycustom
         
         mkdir -p package/mycustom
         git clone --depth 1 -b master https://github.com/pymumu/openwrt-smartdns.git package/mycustom/smartdns
@@ -97,12 +118,11 @@ jobs:
         
         git clone --depth 1 -b master https://github.com/jerrykuku/luci-theme-argon package/mycustom/luci-theme-argon
         git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
-        git clone --depth 1 -b master https://github.com/brvphoenix/luci-app-wrtbwmon package/mycustom/luci-app-wrtbwmon
+        
         git clone --depth 1 -b master https://github.com/jerrykuku/luci-app-jd-dailybonus.git package/mycustom/luci-app-jd-dailybonus
         git clone --depth 1 -b master https://github.com/jerrykuku/luci-app-vssr.git package/mycustom/luci-app-vssr
         git clone --depth 1 -b master https://github.com/jerrykuku/lua-maxminddb.git package/mycustom/lua-maxminddb
         sed -i 's/PKG_NAME:=luci-app-vssr/PKG_NAME:=luci-app-vssr\nLUCI_PKGARCH:=all/' package/mycustom/luci-app-vssr/Makefile
-        cat package/mycustom/luci-app-vssr/Makefile
 
         git clone --depth 1 -b master https://github.com/pexcn/openwrt-chinadns-ng.git package/mycustom/openwrt-chinadns-ng
         LATESCOMMIT=`curl --silent -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/zfl9/chinadns-ng/commits/master/branches-where-head"|grep sha|awk -F '"' '{print $4}'`
@@ -110,58 +130,36 @@ jobs:
         sed -i '/PKG_SOURCE:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
         sed -i '/PKG_SOURCE_SUBDIR:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
         sed -i '/PKG_BUILD_DIR:=/d' package/mycustom/openwrt-chinadns-ng/Makefile
-        
         git clone --depth 1 -b luci https://github.com/pexcn/openwrt-chinadns-ng.git package/mycustom/luci-app-chinadns-ng
         [ -d package/mycustom/luci-app-chinadns-ng/po/zh-cn ] && mv package/mycustom/luci-app-chinadns-ng/po/zh-cn package/mycustom/luci-app-chinadns-ng/po/zh_Hans
+        git clone --depth 1 -b master https://github.com/pexcn/openwrt-dns2tcp.git package/mycustom/dns2tcp
         
         mkdir -p package/network/config/firewall/patches
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/config/firewall/patches/fullconenat.patch -q --no-check-certificate -O package/network/config/firewall/patches/9999-fullconenat.patch
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/services/dnsmasq/patches/900-filter-aaaa.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/900-filter-aaaa.patch
         wget https://raw.githubusercontent.com/muziling/dnsmasq-chnroute/master/0000-Add-feature-to-support-chnroutes.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/800-Add-feature-to-support-chnroutes.patch
 
-        mkdir -p tools/upx
-        mkdir -p tools/ucl
-        wget https://raw.githubusercontent.com/Lienol/openwrt/19.07/tools/upx/Makefile -q --no-check-certificate -O tools/upx/Makefile
-        wget https://raw.githubusercontent.com/Lienol/openwrt/19.07/tools/ucl/Makefile -q --no-check-certificate -O tools/ucl/Makefile
-        sed -i '/^$(curdir)\/bison\/compile/itools-y += ucl upx\n$(curdir)/upx\/compile := $(curdir)\/ucl\/compile' tools/Makefile
         cd ..
 
     - name: Update feeds
       run: |
         cd openwrt
-        cp feeds.conf.default feeds.conf.default.o
-        > feeds.conf.default
-        grep luci feeds.conf.default.o >> feeds.conf.default
-        echo 'src-git lienol https://github.com/Lienol/openwrt-packages.git;19.07' >> feeds.conf.default
         echo 'src-git wrtbwmon https://github.com/brvphoenix/wrtbwmon' >> feeds.conf.default
+        echo 'src-git luciAppWrtbwmon https://github.com/brvphoenix/luci-app-wrtbwmon' >> feeds.conf.default
         echo 'src-git OpenAppFilter https://github.com/destan19/OpenAppFilter' >> feeds.conf.default
-        echo 'src-git OpenClash https://github.com/vernesong/OpenClash' >> feeds.conf.default
         echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
         echo 'src-git xiaorouji https://github.com/xiaorouji/openwrt-package'
-        grep -v luci feeds.conf.default.o >> feeds.conf.default
-        echo 'xxxxxxxxxxxx'
-        cat feeds.conf.default
+
         ./scripts/feeds update -a
-        echo 'aaaaaaaaaaaaa'
-        rm -rf package/lean/luci-app-unblockmusic
-        rm -rf package/lean/luci-theme-argon
-        rm -rf package/lean/luci-app-wrtbwmon
-        rm -rf package/lean/autosamba
-        rm -rf package/lean/qt5
         rm -rf feeds/packages/net/smartdns
         rm -rf feeds/luci/applications/luci-app-smartdns
-        rm -rf feeds/packages/net/shadowsocks-libev
-        rm -rf package/lean/shadowsocks-libev
-        echo 'rm -rf feeds/xiaorouji/package/shadowsocks-libev'
-        sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
-        sed -i '/"luci-base"/i\\t"uci-access": {\n\t\t"description": "Grant uci write access to all configurations",\n\t\t"read": {\n\t\t\t"uci": [ "*" ]\n\t\t},\n\t\t"write": {\n\t\t\t"uci": [ "*" ]\n\t\t}\n\t},\n' feeds/luci/modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json
-        sed -i 's/DEFAULT_SERVERS=.*/DEFAULT_SERVERS="ntp1.aliyun.com time1.cloud.tencent.com time.ustc.edu.cn"/' feeds/packages/net/ntpd/files/ntpdate.init
-        sed -i "/tristate /a\\\t   default \$(shell if [ '\$(lang)' == 'zh_Hans' ]\; then echo y\; else echo n\; fi))" feeds/luci/luci.mk
-        sed -i 's|($(lang))")|($(lang))"|' feeds/luci/luci.mk
-        echo 'bbbbbbbbbbbbbbbbb'
+        
         [ -d feeds/OpenAppFilter/luci-app-oaf/po/zh-cn ] && mv feeds/OpenAppFilter/luci-app-oaf/po/zh-cn feeds/OpenAppFilter/luci-app-oaf/po/zh_Hans
         rm -f feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
         [ -d feeds/helloworld/luci-app-ssr-plus/po/zh-cn ] && mv feeds/helloworld/luci-app-ssr-plus/po/zh-cn feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
+        
+        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}' > feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
         cd ..
 
     - name: Install feeds
@@ -176,6 +174,16 @@ jobs:
     - name: Load custom configuration
       run: |
         cd openwrt
+        mkdir -p tools/upx
+        mkdir -p tools/ucl
+        wget https://raw.githubusercontent.com/Lienol/openwrt/19.07/tools/upx/Makefile -q --no-check-certificate -O tools/upx/Makefile
+        wget https://raw.githubusercontent.com/Lienol/openwrt/19.07/tools/ucl/Makefile -q --no-check-certificate -O tools/ucl/Makefile
+        sed -i '/^$(curdir)\/bison\/compile/itools-y += ucl upx\n$(curdir)/upx\/compile := $(curdir)\/ucl\/compile' tools/Makefile
+        sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
+        sed -i '/"luci-base"/i\\t"uci-access": {\n\t\t"description": "Grant uci write access to all configurations",\n\t\t"read": {\n\t\t\t"uci": [ "*" ]\n\t\t},\n\t\t"write": {\n\t\t\t"uci": [ "*" ]\n\t\t}\n\t},\n' feeds/luci/modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json
+        sed -i 's/DEFAULT_SERVERS=.*/DEFAULT_SERVERS="ntp1.aliyun.com time1.cloud.tencent.com time.ustc.edu.cn"/' feeds/packages/net/ntpd/files/ntpdate.init
+        sed -i "/tristate /a\\\t   default \$(shell if [ '\$(lang)' == 'zh_Hans' ]\; then echo y\; else echo n\; fi))" feeds/luci/luci.mk
+        sed -i 's|($(lang))")|($(lang))"|' feeds/luci/luci.mk
         sed -i '/Target System/{n;s/default .*/default TARGET_x86/;}' scripts/target-metadata.pl
         sed -i '/GRUB_TIMEOUT/{n;n;n;s/5/0/;}' config/Config-images.in
         sed -i '/TARGET_ROOTFS_PARTSIZE/{n;n;n;s/256/160/;}' config/Config-images.in
@@ -196,7 +204,6 @@ jobs:
         sed -i 's/192.168.1.1/192.168.222.1/g' package/base-files/files/bin/config_generate
         sed -i "s/option redirect_https.*/option redirect_https\t 0/" package/network/services/uhttpd/files/uhttpd.config
         sed -i "s/option max_requests.*/option max_requests\t 20/" package/network/services/uhttpd/files/uhttpd.config
-        mkdir -p package/network/config/firewall/patches
 
     - name: Download package
       id: package
