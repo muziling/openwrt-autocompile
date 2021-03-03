@@ -26,7 +26,7 @@ iptables-mod-extra iptables-mod-conntrack-extra bash curl tcpdump \
 luci-theme-argon luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload \
 luci luci-compat \
 kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-raw wget luci-app-chinadns-ng dns2tcp sudo fping\
-luci-app-ddns luci-app-upnp luci-app-autoreboot luci-app-filetransfer luci-app-vsftpd luci-app-vlmcsd luci-app-ramfree
+luci-app-ddns openssl-util luci-app-upnp luci-app-autoreboot luci-app-filetransfer luci-app-vsftpd luci-app-vlmcsd luci-app-ramfree
 
 $(eval $(call BuildTarget))
 
