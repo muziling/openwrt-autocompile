@@ -159,7 +159,9 @@ jobs:
         [ -d feeds/helloworld/luci-app-ssr-plus/po/zh-cn ] && mv feeds/helloworld/luci-app-ssr-plus/po/zh-cn feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
         
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
         echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}' > feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
+        sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
         cd ..
 
     - name: Install feeds
