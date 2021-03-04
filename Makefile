@@ -22,10 +22,10 @@ include $(INCLUDE_DIR)/target.mk
 # luci-theme-edge
 DEFAULT_PACKAGES += mkf2fs fdisk e2fsprogs kmod-e1000e kmod-vmxnet3 kmod-r8125 kmod-8139cp kmod-8139too kmod-fs-ext4 \
 htop lm-sensors luci-proto-bonding ca-certificates \
-iptables-mod-extra iptables-mod-conntrack-extra bash curl tcpdump \
+iptables-mod-extra iptables-mod-conntrack-extra iptables-mod-tproxy bash curl tcpdump \
 luci-theme-argon luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload \
 luci luci-compat \
-kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-raw wget luci-app-chinadns-ng dns2tcp sudo fping\
+kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-tproxy kmod-ipt-raw wget luci-app-chinadns-ng dns2tcp sudo fping\
 luci-app-ddns openssl-util luci-app-upnp luci-app-autoreboot luci-app-filetransfer luci-app-vsftpd luci-app-vlmcsd luci-app-ramfree
 
 $(eval $(call BuildTarget))
