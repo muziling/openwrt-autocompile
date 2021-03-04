@@ -133,6 +133,8 @@ jobs:
         git clone --depth 1 -b luci https://github.com/pexcn/openwrt-chinadns-ng.git package/mycustom/luci-app-chinadns-ng
         [ -d package/mycustom/luci-app-chinadns-ng/po/zh-cn ] && mv package/mycustom/luci-app-chinadns-ng/po/zh-cn package/mycustom/luci-app-chinadns-ng/po/zh_Hans
         git clone --depth 1 -b master https://github.com/pexcn/openwrt-dns2tcp.git package/mycustom/dns2tcp
+        git clone --depth 1 https://github.com/garypang13/luci-app-dnsfilter.git package/mycustom/luci-app-dnsfilter
+        [ -d package/mycustom/luci-app-dnsfilter/po/zh-cn ] && mv package/mycustom/luci-app-dnsfilter/po/zh-cn package/mycustom/luci-app-dnsfilter/po/zh_Hans
         
         mkdir -p package/network/config/firewall/patches
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/config/firewall/patches/fullconenat.patch -q --no-check-certificate -O package/network/config/firewall/patches/9999-fullconenat.patch
