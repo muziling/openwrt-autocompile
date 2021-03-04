@@ -151,6 +151,8 @@ jobs:
         echo 'src-git OpenAppFilter https://github.com/destan19/OpenAppFilter' >> feeds.conf.default
         echo 'src-git helloworld https://github.com/fw876/helloworld' >> feeds.conf.default
         echo 'src-git xiaorouji https://github.com/xiaorouji/openwrt-package'
+        echo 'src-git mosdns https://github.com/QiuSimons/openwrt-mos' >> feeds.conf.default
+        echo 'src-git muzipkg https://github.com/muziling/openwrt-package' >> feeds.conf.default
 
         ./scripts/feeds update -a
         rm -rf feeds/packages/net/smartdns
@@ -159,6 +161,9 @@ jobs:
         [ -d feeds/OpenAppFilter/luci-app-oaf/po/zh-cn ] && mv feeds/OpenAppFilter/luci-app-oaf/po/zh-cn feeds/OpenAppFilter/luci-app-oaf/po/zh_Hans
         rm -f feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
         [ -d feeds/helloworld/luci-app-ssr-plus/po/zh-cn ] && mv feeds/helloworld/luci-app-ssr-plus/po/zh-cn feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
+        
+        LATESMOSDNSVER=`curl -s "https://api.github.com/repos/IrineSistiana/mosdns/releases/latest" | awk -F '"' '/tag_name/{print $4}'|sed 's/v//'`
+        sed -i 's/PKG_VERSION:=.*/PKG_VERSION:='"${LATESMOSDNSVER}"'/g' feeds/mosdns/mosdns/Makefile
         
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
         chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
@@ -200,6 +205,8 @@ jobs:
         echo '' >> package/network/services/dnsmasq/files/dnsmasq.conf
         echo "log-facility=/dev/null" >> package/network/services/dnsmasq/files/dnsmasq.conf
         sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' package/base-files/files/etc/shadow
+        echo 'proxy:x:0:0:99999:7:::'  package/base-files/files/etc/shadow
+        echo 'proxy:x:953:953:proxy:/var:/bin/false'  package/base-files/files/etc/passwd
         sed -i "s/add_list system.ntp.server='0.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
         sed -i "s/add_list system.ntp.server='1.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
         sed -i "s/add_list system.ntp.server='2.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
