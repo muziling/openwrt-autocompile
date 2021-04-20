@@ -22,7 +22,7 @@ include $(INCLUDE_DIR)/target.mk
 # luci-theme-edge luci-app-chinadns-ng dns2tcp luci-app-dnsfilter
 DEFAULT_PACKAGES += mkf2fs fdisk e2fsprogs kmod-e1000e kmod-vmxnet3 kmod-r8125 kmod-8139cp kmod-8139too kmod-fs-ext4 \
 htop lm-sensors luci-proto-bonding ca-certificates \
-iptables-mod-extra iptables-mod-conntrack-extra iptables-mod-tproxy bash curl tcpdump \
+ipset iptables-mod-extra iptables-mod-conntrack-extra iptables-mod-tproxy bash curl tcpdump \
 luci-theme-argon luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload luci-app-mosdns xray-core ss-tproxy-lite autocf\
 luci luci-compat \
 kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-tproxy kmod-ipt-raw wget sudo fping\
