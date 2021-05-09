@@ -25,7 +25,7 @@ htop lm-sensors luci-proto-bonding ca-certificates \
 ipset iptables-mod-extra iptables-mod-conntrack-extra iptables-mod-tproxy bash curl tcpdump \
 luci-theme-argon luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload luci-app-mosdns xray-core ss-tproxy-lite autocf\
 luci luci-compat \
-kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-tproxy kmod-ipt-raw wget sudo fping\
+kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-tproxy kmod-ipt-raw wget sudo fping socat\
 luci-app-ddns openssl-util luci-app-upnp luci-app-autoreboot luci-app-filetransfer luci-app-vsftpd luci-app-vlmcsd luci-app-ramfree
 
 $(eval $(call BuildTarget))
