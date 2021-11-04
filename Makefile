@@ -1,17 +1,16 @@
 #
+# SPDX-License-Identifier: GPL-2.0-only
+#
 # Copyright (C) 2006-2011 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
 # autocore会覆盖/usr/lib/lua/luci/view/admin_status/index.htm，如果luci-base版本不一样会有问题
-#
+
 include $(TOPDIR)/rules.mk
 
 ARCH:=i386
 BOARD:=x86
 BOARDNAME:=x86
-FEATURES:=squashfs vdi vmdk pcmcia fpu boot-part rootfs-part
-SUBTARGETS:=64 generic legacy geode
+FEATURES:=squashfs ext4 vdi vmdk pcmcia targz fpu boot-part rootfs-part
+SUBTARGETS:=generic legacy geode 64
 
 KERNEL_PATCHVER:=5.4
 KERNEL_TESTING_PATCHVER:=5.4
@@ -19,14 +18,8 @@ KERNEL_TESTING_PATCHVER:=5.4
 KERNELNAME:=bzImage
 
 include $(INCLUDE_DIR)/target.mk
-# luci-theme-edge luci-app-chinadns-ng dns2tcp luci-app-dnsfilter
-DEFAULT_PACKAGES += mkf2fs fdisk e2fsprogs kmod-e1000e kmod-vmxnet3 kmod-r8125 kmod-8139cp kmod-8139too kmod-fs-ext4 \
-htop lm-sensors luci-proto-bonding ca-certificates \
-ipset iptables-mod-extra iptables-mod-conntrack-extra iptables-mod-tproxy bash curl tcpdump \
-luci-theme-argon luci-app-wrtbwmon luci-app-oaf fullconenat luci-app-flowoffload luci-app-mosdns xray-core ss-tproxy-lite autocf\
-luci luci-compat \
-kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-tproxy kmod-ipt-raw wget sudo fping socat\
-luci-app-ddns openssl-util luci-app-upnp luci-app-autoreboot luci-app-filetransfer luci-app-vsftpd luci-app-vlmcsd luci-app-ramfree
+
+DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fast-classifier fdisk fping fullconenat htop ipset ipt2socks iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-e1000e kmod-fs-ext4 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-wrtbwmon luci-compat luci-proto-bonding luci-theme-argon mkf2fs openssl-util shortcut-fe ss-tproxy-lite sudo tcpdump wget xray-core luci-app-nft-qos luci-app-fullconenat
 
 $(eval $(call BuildTarget))
 
