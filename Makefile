@@ -19,7 +19,7 @@ KERNELNAME:=bzImage
 
 include $(INCLUDE_DIR)/target.mk
 
-DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fast-classifier fdisk fping fullconenat htop ipset ipt2socks iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-e1000e kmod-fs-ext4 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-wrtbwmon luci-compat luci-proto-bonding luci-theme-argon mkf2fs openssl-util shortcut-fe ss-tproxy-lite sudo tcpdump wget xray-core luci-app-nft-qos luci-app-fullconenat
+DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fast-classifier fdisk fping fullconenat htop ipset ipt2socks iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-e1000e kmod-fs-ext4 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-wrtbwmon luci-compat luci-proto-bonding luci-theme-argon mkf2fs openssl-util shortcut-fe ss-tproxy-lite sudo tcpdump wget xray-core luci-app-nft-qos luci-app-fullconenat luci-app-smartdns
 
 $(eval $(call BuildTarget))
 
