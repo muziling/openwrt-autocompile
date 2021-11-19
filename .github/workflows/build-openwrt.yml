@@ -108,13 +108,13 @@ jobs:
         mv OpenClash/luci-app-openclash package/mycustom
         
         mkdir -p package/mycustom
-        git clone --depth 1 -b master https://github.com/pymumu/openwrt-smartdns.git package/mycustom/smartdns
+        echo git clone --depth 1 -b master https://github.com/pymumu/openwrt-smartdns.git package/mycustom/smartdns
         LATESCOMMIT=`curl --silent -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/pymumu/smartdns/commits/master/branches-where-head"|grep sha|awk -F '"' '{print $4}'`
-        sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:='"${LATESCOMMIT}"'/g' package/mycustom/smartdns/Makefile
-        sed -i '/PKG_MIRROR_HASH/d' package/mycustom/smartdns/Makefile
-        git clone --depth 1 -b master https://github.com/pymumu/luci-app-smartdns.git package/mycustom/luci-app-smartdns
+        echo sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:='"${LATESCOMMIT}"'/g' package/mycustom/smartdns/Makefile
+        echo sed -i '/PKG_MIRROR_HASH/d' package/mycustom/smartdns/Makefile
+        echo git clone --depth 1 -b master https://github.com/pymumu/luci-app-smartdns.git package/mycustom/luci-app-smartdns
         [ -d package/mycustom/luci-app-smartdns/po/zh-cn ] && mv package/mycustom/luci-app-smartdns/po/zh-cn package/mycustom/luci-app-smartdns/po/zh_Hans
-        sed -i 's|include ../../luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|' package/mycustom/luci-app-smartdns/Makefile
+        echo sed -i 's|include ../../luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|' package/mycustom/luci-app-smartdns/Makefile
         
         git clone --depth 1 -b master https://github.com/jerrykuku/luci-theme-argon package/mycustom/luci-theme-argon
         git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
@@ -158,8 +158,12 @@ jobs:
         echo 'src-git muzipkg https://github.com/muziling/openwrt-package' >> feeds.conf.default
 
         ./scripts/feeds update -a
-        rm -rf feeds/packages/net/smartdns
-        rm -rf feeds/luci/applications/luci-app-smartdns
+        echo rm -rf feeds/packages/net/smartdns
+        echo rm -rf feeds/luci/applications/luci-app-smartdns
+        
+        LATESCOMMIT=`curl --silent -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/pymumu/smartdns/commits/master/branches-where-head"|grep sha|awk -F '"' '{print $4}'`
+        echo sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:='"${LATESCOMMIT}"'/g' feeds/packages/net/smartdns/Makefile
+        echo sed -i '/PKG_MIRROR_HASH/d' feeds/packages/net/smartdns/Makefile
         
         [ -d feeds/OpenAppFilter/luci-app-oaf/po/zh-cn ] && mv feeds/OpenAppFilter/luci-app-oaf/po/zh-cn feeds/OpenAppFilter/luci-app-oaf/po/zh_Hans
         rm -f feeds/helloworld/luci-app-ssr-plus/po/zh_Hans
