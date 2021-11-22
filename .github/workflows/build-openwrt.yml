@@ -172,10 +172,10 @@ jobs:
         LATESMOSDNSVER=`curl -s "https://api.github.com/repos/IrineSistiana/mosdns/releases/latest" | awk -F '"' '/tag_name/{print $4}'|sed 's/v//'`
         sed -i 's/TESTPKG_VERSION:=.*/TESTPKG_VERSION:='"${LATESMOSDNSVER}"'/g' feeds/mosdns/mosdns/Makefile
         
-        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
-        chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
-        echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}' > feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
-        sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
+        echo wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        echo chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}'  feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
+        echo sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
         
         TEST="sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=1.7.4.1/g' feeds/packages/net/socat/Makefile"
         TEST="sed -i 's/PKG_HASH:=.*/PKG_HASH:=3faca25614e89123dff5045680549ecef519d02e331aaf3c4f5a8f6837c675e9/g' feeds/packages/net/socat/Makefile"
