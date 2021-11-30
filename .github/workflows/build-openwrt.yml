@@ -39,7 +39,6 @@ on:
     types: started
 
 env:
-  CONFIG_FILE: .config
   DIY_SH: diy.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
