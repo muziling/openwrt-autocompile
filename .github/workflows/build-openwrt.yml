@@ -170,6 +170,7 @@ jobs:
         
         LATESMOSDNSVER=`curl -s "https://api.github.com/repos/IrineSistiana/mosdns/releases/latest" | awk -F '"' '/tag_name/{print $4}'|sed 's/v//'`
         sed -i 's/TESTPKG_VERSION:=.*/TESTPKG_VERSION:='"${LATESMOSDNSVER}"'/g' feeds/mosdns/mosdns/Makefile
+        [ -d feeds/mosdns/luci-app-mosdns/po/zh-cn ] && mv feeds/mosdns/luci-app-mosdns/po/zh-cn feeds/mosdns/luci-app-mosdns/po/zh_Hans
         
         echo wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
         echo chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
