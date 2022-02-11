@@ -233,6 +233,7 @@ jobs:
       id: package
       run: |
         [ -e Makefile ] && mv -f Makefile openwrt/target/linux/x86/Makefile
+        [ -e 64.mk ] && mv -f 64.mk openwrt/target/linux/x86/image/64.mk
         cd openwrt
         make defconfig
         grep zh-cn .config
