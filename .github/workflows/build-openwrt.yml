@@ -43,7 +43,7 @@ env:
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
+  UPLOAD_COWTRANSFER: false
   TZ: Asia/Shanghai
 
 jobs:
@@ -104,10 +104,11 @@ jobs:
         [ -d package/lean/luci-app-vlmcsd/po/zh-cn ] && mv package/lean/luci-app-vlmcsd/po/zh-cn package/lean/luci-app-vlmcsd/po/zh_Hans
         [ -d package/lean/luci-app-vsftpd/po/zh-cn ] && mv package/lean/luci-app-vsftpd/po/zh-cn package/lean/luci-app-vsftpd/po/zh_Hans
         
-        git clone --depth 1 -b master https://github.com/vernesong/OpenClash OpenClash
-        mv OpenClash/luci-app-openclash package/mycustom
-        
         mkdir -p package/mycustom
+        
+        git clone --depth 1 -b master https://github.com/vernesong/OpenClash OpenClash
+        mv OpenClash/luci-app-openclash package/mycustom/luci-app-openclash
+        
         echo git clone --depth 1 -b master https://github.com/pymumu/openwrt-smartdns.git package/mycustom/smartdns
         LATESCOMMIT=`curl --silent -H "Accept: application/vnd.github.groot-preview+json" "https://api.github.com/repos/pymumu/smartdns/commits/master/branches-where-head"|grep sha|awk -F '"' '{print $4}'`
         echo sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:='"${LATESCOMMIT}"'/g' package/mycustom/smartdns/Makefile

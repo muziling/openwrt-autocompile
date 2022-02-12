@@ -19,7 +19,7 @@ KERNELNAME:=bzImage
 
 include $(INCLUDE_DIR)/target.mk
 
-DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fast-classifier fdisk fping fullconenat htop ipset ipt2socks iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq  kmod-fs-ext4 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-wrtbwmon luci-compat luci-theme-argon mkf2fs openssl-util shortcut-fe ss-tproxy-lite sudo tcpdump wget-ssl xray-core luci-app-nft-qos luci-app-fullconenat luci-app-smartdns ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net r8168 ethtool
+DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fast-classifier fdisk fping fullconenat htop ipset ipt2socks iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq  kmod-fs-ext4 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-wrtbwmon luci-compat luci-theme-argon mkf2fs openssl-util shortcut-fe ss-tproxy-lite sudo tcpdump wget-ssl xray-core luci-app-nft-qos luci-app-fullconenat luci-app-smartdns ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net kmod-r8168 ethtool
 
 $(eval $(call BuildTarget))
 
