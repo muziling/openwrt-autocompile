@@ -35,8 +35,8 @@ on:
         default: 'false'
 #  schedule:
 #    - cron: 0 8 * * 5
-  watch:
-    types: started
+#  watch:
+#    types: started
 
 env:
   DIY_SH: diy.sh
@@ -137,9 +137,12 @@ jobs:
         git clone --depth 1 https://github.com/garypang13/luci-app-dnsfilter.git package/mycustom/luci-app-dnsfilter
         [ -d package/mycustom/luci-app-dnsfilter/po/zh-cn ] && mv package/mycustom/luci-app-dnsfilter/po/zh-cn package/mycustom/luci-app-dnsfilter/po/zh_Hans
         
-        mkdir -p package/network/config/firewall/patches
-        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/config/firewall/patches/fullconenat.patch -q --no-check-certificate -O package/network/config/firewall/patches/9999-fullconenat.patch
-        git clone --depth 1 https://github.com/pexcn-archived/luci-app-fullconenat.git package/mycustom/luci-app-fullconenat
+        echo 'https://github.com/Lienol/openwrt/commit/56f77dda085231046fab32c6854b74272c470340'
+        echo 'https://github.com/Lienol/openwrt/commit/2aa7eef035e173932955e2e63b0c4127d07000fb'
+        echo mkdir -p package/network/config/firewall/patches
+        echo 'Lienol is ok, fullconenat.patch is only part'
+        echo wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/config/firewall/patches/fullconenat.patch -q --no-check-certificate -O package/network/config/firewall/patches/9999-fullconenat.patch
+        echo git clone --depth 1 https://github.com/pexcn-archived/luci-app-fullconenat.git package/mycustom/luci-app-fullconenat
         [ -d package/mycustom/luci-app-fullconenat/po/zh-cn ] && mv package/mycustom/luci-app-fullconenat/po/zh-cn package/mycustom/luci-app-fullconenat/po/zh_Hans
 
         TEST='wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/services/dnsmasq/patches/900-filter-aaaa.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/900-filter-aaaa.patch'
@@ -209,8 +212,12 @@ jobs:
         sed -i '/Target System/{n;s/default .*/default TARGET_x86/;}' scripts/target-metadata.pl
         echo sed -i 's/default "generic" if !HAS_SUBTARGETS/default "64" if !HAS_SUBTARGETS/g' scripts/target-metadata.pl
         sed -i '/GRUB_TIMEOUT/{n;n;n;s/5/0/;}' config/Config-images.in
-        sed -i '/TARGET_ROOTFS_PARTSIZE/{n;n;n;s/256/160/;}' config/Config-images.in
-        sed -i '/^config KERNEL_MIPS_FPU_EMULATOR/{n;n;s/ if TARGET_pistachio//;}' config/Config-kernel.in
+        sed -i '/TARGET_ROOTFS_PARTSIZE/{n;n;n;s/104/160/;}' config/Config-images.in
+        sed -i "s/default y if USES_TARGZ/default n if USES_TARGZ/" config/Config-images.in
+        sed -i "s/default y if USES_EXT4/default n if USES_EXT4/" config/Config-images.in
+        sed -i "s/procd_lock$/#procd_lock/" package/base-files/files/etc/rc.common
+        sed -i "s/procd_lock$/#procd_lock/" package/system/procd/files/procd.sh
+        sed -i '/^config KERNEL_MIPS_FP_SUPPORT/{n;n;s/ if TARGET_pistachio//;}' config/Config-kernel.in
         sed -i 's/net.netfilter.nf_conntrack_max=.*/net.netfilter.nf_conntrack_max=65535/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
         sed -i 's/dnsmasq /dnsmasq-full /' include/target.mk
         sed -i '/^#/d' package/network/services/dnsmasq/files/dnsmasq.conf
@@ -228,7 +235,7 @@ jobs:
         sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
         sed -i 's/192.168.1.1/192.168.222.1/g' package/base-files/files/bin/config_generate
         sed -i "s/option redirect_https.*/option redirect_https\t 0/" package/network/services/uhttpd/files/uhttpd.config
-        sed -i "s/option max_requests.*/option max_requests\t 20/" package/network/services/uhttpd/files/uhttpd.config
+        sed -i "s/option max_requests.*/option max_requests\t 50/" package/network/services/uhttpd/files/uhttpd.config
 
     - name: Download package
       id: package
