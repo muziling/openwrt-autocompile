@@ -23,7 +23,7 @@
 # grep -v luci feeds.conf.default.o >> feeds.conf.default
 # cat feeds.conf.default
 
-name: Build OpenWrt
+name: OpenWrt-CI
 
 on:
   repository_dispatch:
@@ -153,6 +153,7 @@ jobs:
     - name: Update feeds
       run: |
         cd openwrt
+        echo '#mycustom' >> feeds.conf.default
         echo 'src-git wrtbwmon https://github.com/brvphoenix/wrtbwmon' >> feeds.conf.default
         echo 'src-git luciAppWrtbwmon https://github.com/brvphoenix/luci-app-wrtbwmon' >> feeds.conf.default
         echo 'src-git OpenAppFilter https://github.com/destan19/OpenAppFilter' >> feeds.conf.default
@@ -191,10 +192,7 @@ jobs:
       run: |
         cd openwrt
         ./scripts/feeds install -a
-
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
-      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
+        sed -i '/^#mycustom/,$d' feeds.conf.default
 
     - name: Load custom configuration
       run: |
@@ -238,16 +236,12 @@ jobs:
         sed -i "s/option max_requests.*/option max_requests\t 50/" package/network/services/uhttpd/files/uhttpd.config
 
     - name: Download package
-      id: package
       run: |
         [ -e Makefile ] && mv -f Makefile openwrt/target/linux/x86/Makefile
         [ -e 64.mk ] && mv -f 64.mk openwrt/target/linux/x86/image/64.mk
         cd openwrt
         make defconfig
-        grep zh-cn .config
-        grep LUCI .config
         make download -j8
-        find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
     - name: Compile the firmware
@@ -257,6 +251,9 @@ jobs:
         chmod +x $DIY_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_SH
+        
+        grep 'CONFIG_TARGET_x86=y' .config && echo 'begin compile' || runnotexistcommand1
+        grep 'CONFIG_PACKAGE_autocf=y' .config && echo 'begin compile' || runnotexistcommand2
         
         echo -e "$(nproc) thread compile"
         make -j$(nproc) V=sc || make -j1 V=s || make -j1

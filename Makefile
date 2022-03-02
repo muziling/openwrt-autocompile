@@ -1,16 +1,15 @@
-#
-# SPDX-License-Identifier: GPL-2.0-only
-#
-# Copyright (C) 2006-2011 OpenWrt.org
-# autocore会覆盖/usr/lib/lua/luci/view/admin_status/index.htm，如果luci-base版本不一样会有问题 luci-proto-bonding 
-
+# fast-classifier
+# https://github.com/Lienol/openwrt/commit/cd2a138128e5071bb2f924485e6524fa32c6e159
+# https://github.com/Lienol/openwrt/commit/8658a014d516a8384a223ceedfc959befef81b79
+# https://github.com/Lienol/openwrt/commit/f62ddae92be21968d923b651983b15f82d4608f8
+# luci-app-fullconenat fast-classifier
 include $(TOPDIR)/rules.mk
 
 ARCH:=i386
 BOARD:=x86
 BOARDNAME:=x86
-FEATURES:=squashfs ext4 vdi vmdk pcmcia targz fpu boot-part rootfs-part
-SUBTARGETS:=64 generic legacy geode
+FEATURES:=squashfs vdi vmdk vhdx pcmcia fpu boot-part rootfs-part
+SUBTARGETS:=64 generic legacy geode 
 
 KERNEL_PATCHVER:=5.4
 KERNEL_TESTING_PATCHVER:=5.4
@@ -19,7 +18,12 @@ KERNELNAME:=bzImage
 
 include $(INCLUDE_DIR)/target.mk
 
-DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fast-classifier fdisk fping fullconenat htop ipset ipt2socks iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq  kmod-fs-ext4 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-wrtbwmon luci-compat luci-theme-argon mkf2fs openssl-util shortcut-fe ss-tproxy-lite sudo tcpdump wget-ssl xray-core luci-app-nft-qos luci-app-fullconenat luci-app-smartdns ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net kmod-r8168 ethtool
+DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fdisk fping htop ipset ipt2socks \
+iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-gre kmod-fs-ext4 \
+kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns \
+luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd \
+luci-app-wrtbwmon luci-compat luci-theme-argon mkf2fs openssl-util ss-tproxy-lite sudo tcpdump wget-ssl \
+xray-core luci-app-nft-qos  ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net kmod-r8168 ethtool
 
 $(eval $(call BuildTarget))
 

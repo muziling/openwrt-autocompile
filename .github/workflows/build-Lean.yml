@@ -1,0 +1,185 @@
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
+# Copyright (C) 2019 P3TERX
+#
+# Copyright (C) 2020 KFERMercer
+#
+name: Lean-CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+
+#  watch:
+#    types: started
+
+env:
+  DIY_SH: diy.sh
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  UPLOAD_COWTRANSFER: false
+  TZ: Asia/Shanghai
+
+jobs:
+  build_lean:
+    name: Build OpenWrt firmware
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Space cleanup
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          docker rmi `docker images -q`
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
+          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* adoptopenjdk* mysql* php* mongodb* dotnet* moby* snapd* || true
+          sudo -E apt-get update
+          sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+
+      - name: Clone source code
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          git clone --depth 2 https://github.com/coolsnowwolf/lede.git openwrt
+          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+          cd openwrt
+          COMMIT2ID=`git log -2 --pretty=format:"%H" |sed -n '2p'`
+          sed -i 's/REBOOT=.*/REBOOT='"${COMMIT2ID}"'/g' scripts/getver.sh
+          cd ..
+      
+      - name: Clone 3rd code
+        run: |
+          cd openwrt
+          
+          mkdir -p package/mycustom
+          
+          git clone --depth 1 -b master https://github.com/jerrykuku/luci-theme-argon package/mycustom/luci-theme-argon
+          git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
+          git clone --depth 1 https://github.com/pexcn-archived/luci-app-fullconenat.git package/mycustom/luci-app-fullconenat
+          [ -d package/mycustom/luci-app-fullconenat/po/zh-cn ] && ln -s package/mycustom/luci-app-fullconenat/po/zh-cn package/mycustom/luci-app-fullconenat/po/zh_Hans
+
+          cd ..
+      
+      - name: Update feeds
+        run: |
+          cd openwrt
+          echo '#mycustom' >> feeds.conf.default
+          echo 'src-git mosdns https://github.com/QiuSimons/openwrt-mos' >> feeds.conf.default
+          echo 'src-git muzipkg https://github.com/muziling/openwrt-package' >> feeds.conf.default
+          sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+
+          ./scripts/feeds clean
+          ./scripts/feeds update -a
+
+          LATESMOSDNSVER=`curl -s "https://api.github.com/repos/IrineSistiana/mosdns/releases/latest" | awk -F '"' '/tag_name/{print $4}'|sed 's/v//'`
+          sed -i 's/TESTPKG_VERSION:=.*/TESTPKG_VERSION:='"${LATESMOSDNSVER}"'/g' feeds/mosdns/mosdns/Makefile
+          
+          cd ..
+      
+      - name: Install feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds install -a
+          sed -i '/^#mycustom/,$d' feeds.conf.default
+          rm -f ./.config*
+          touch ./.config
+          #
+          # 在 cat >> .config <<EOF 到 EOF 之间粘贴你的编译配置, 需注意缩进关系
+          # 例如:
+          cat >> .config <<EOF
+          CONFIG_TARGET_IMAGES_GZIP=y
+          CONFIG_KERNEL_BUILD_USER="OpenWrt-CI"
+          CONFIG_KERNEL_BUILD_DOMAIN="Azure"
+          EOF
+          #
+          # ===============================================================
+          # 
+          sed -i 's/^[ \t]*//g' ./.config
+          
+      - name: Download package
+        run: |
+          sed -i 's/KERNEL_PATCHVER:=5.4/KERNEL_PATCHVER:=5.15/g' Makefile
+          sed -i 's/ddns-scripts-aliyun/ddns-scripts_aliyun/g' Makefile
+          mv -f Makefile openwrt/target/linux/x86/Makefile
+          mv -f 64.mk openwrt/target/linux/x86/image/64.mk
+          cd openwrt
+          sed -i 's/192.168.1.1/192.168.222.1/g' package/base-files/files/bin/config_generate
+          cat target/linux/x86/Makefile
+          make defconfig
+          echo 11111111111
+          ls -al .config
+          echo 222222222222
+          md5sum .config
+          echo 4444444444444
+          make download -j8
+          find dl -size -1024c -exec rm -f {} \;
+      
+      - name: Compile the firmware
+        id: compile
+        run: |
+          [ -e files ] && mv files openwrt/files
+          chmod +x $DIY_SH
+          cd openwrt
+          $GITHUB_WORKSPACE/$DIY_SH
+          md5sum .config
+          grep 'CONFIG_TARGET_x86=y' .config && echo 'begin compile' || runnotexistcommand1
+          grep 'CONFIG_PACKAGE_autocf=y' .config && echo 'begin compile' || runnotexistcommand2
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) V=sc || make -j1 V=s || make -j1
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+      
+      - name: Check space usage
+        if: (!cancelled())
+        run: df -hT
+      
+      - name: Upload bin directory
+        uses: actions/upload-artifact@master
+        if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+        with:
+          name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+          path: openwrt/bin
+      
+      - name: Organize files
+        id: organize
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        run: |
+          cd openwrt/bin/targets/*/*
+          rm -rf packages
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
+          cp ../../../../.config .
+      
+      - name: Upload firmware directory
+        uses: actions/upload-artifact@master
+        if: steps.organize.outputs.status == 'success' && !cancelled()
+        with:
+          name: OpenWrt_firmware
+          path: ${{ env.FIRMWARE }}
+      
+      - name: Upload firmware to cowtransfer
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+        run: |
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
