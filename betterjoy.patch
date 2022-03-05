@@ -1,0 +1,170 @@
+diff --git a/BetterJoyForCemu/App.config b/BetterJoyForCemu/App.config
+index 8271134..cf022a3 100644
+--- a/BetterJoyForCemu/App.config
++++ b/BetterJoyForCemu/App.config
+@@ -150,5 +150,49 @@
+         <!-- Shake Input = 6 -->
+         <!-- Default: 0 -->
+         <add key="DebugType" value="0" />
++        <add key="_IP" value="IP" />
++        <add key="_Port" value="端口" />
++        <add key="_MotionServer" value="体感服务" />
++        <add key="_LowFreqRumble" value="振动频率下限(强振可设160)" />
++        <add key="_HighFreqRumble" value="振动频率上限(强振可设320,不能高于1200)" />
++        <add key="_EnableRumble" value="启用振动" />
++        <add key="_EnableShakeInput" value="启用晃动输入(仅支持DS4)" />
++        <add key="_ShakeInputSensitivity" value="晃动输入灵敏度" />
++        <add key="_ShakeInputDelay" value="晃动输入时延(不能低于15)" />
++        <add key="_SwapAB" value="互换AB键" />
++        <add key="_SwapXY" value="互换XY键" />
++        <add key="_AllowCalibration" value="允许校准(用于第三方手柄)" />
++        <add key="_acc_sensiti" value="acc_sensiti"/>
++        <add key="_gyr_sensiti" value="gyr_sensiti"/>
++        <add key="_stick_cal" value="stick_cal"/>
++        <add key="_deadzone" value="deadzone"/>
++        <add key="_stick2_cal" value="stick2_cal"/>
++        <add key="_deadzone2" value="deadzone2"/>
++        <add key="_GyroAnalogSliders" value="陀螺仪倾斜控制" />
++        <add key="_GyroAnalogSensitivity" value="陀螺仪倾斜控制(-400反方向)" />
++        <add key="_PurgeAffectedDevices" value="防止退出后手柄不可用" />
++        <add key="_PurgeWhitelist" value="防止被其它程序干扰" />
++        <add key="_UseHIDG" value="false提高steam等程序兼容性,true隐藏pro/joycons以防止冲突" />
++        <add key="_HomeLEDOn" value="Home指示灯常亮"/>
++        <add key="_UseIncrementalLights" value="多个指示灯指示当前手柄" />
++        <add key="_GyroToJoyOrMouse" value="陀螺仪倾斜当作摇杆或鼠标移动"/>
++        <add key="_UseFilteredIMU" value="是否使用过滤后的IMU或原始陀螺仪值(原始更灵敏)"/>
++        <add key="_AHRS_beta" value="AHRS的Beta值,影响滤波器的发散度"/>
++        <add key="_GyroMouseSensitivityX" value="陀螺仪模拟鼠标X轴灵敏度"/>
++        <add key="_GyroMouseSensitivityY" value="陀螺仪模拟鼠标Y轴灵敏度"/>
++        <add key="_GyroStickSensitivityX" value="陀螺仪模拟摇杆X轴灵敏度"/>
++        <add key="_GyroStickSensitivityY" value="陀螺仪模拟摇杆Y轴灵敏度"/>
++        <add key="_GyroStickReduction" value="摇杆范围(1没有变化,1.5范围减半)"/>
++        <add key="_GyroHoldToggle" value="陀螺仪激活(true为需要已映射的按键长按,false为每按一下切换)"/>
++        <add key="_GyroMouseLeftHanded" value="当两个joycon连接时,鼠标移动需要右边joycon的陀螺仪运动"/>
++        <add key="_DragToggle" value="已映射的鼠标按键拖动行为"/>
++        <add key="_ShowAsXInput" value="识别成Xbox 360手柄,否则此软件只能用在支持UDP服务的模拟器" />
++        <add key="_ShowAsDS4" value="ShowAsDS4"/>
++        <add key="_AutoPowerOff" value="退出软件后关闭手柄" />
++        <add key="_PowerOffInactivity" value="控制器不活动后关闭(分钟,-1为不限时间)" />
++        <add key="_HomeLongPowerOff" value="按住Home键两秒以上关闭控制器(只连左手柄时为按拍照键)" />
++        <add key="_ChangeOrientationDoubleClick" value="双击joycon(L3,R3)上的摇杆以更改joycon方向" />
++        <add key="_DoNotRejoinJoycons" value="false为单击左上手柄图标以让手柄分离来垂直使用,true为双击" />
++        <add key="_DebugType" value="日志内容(0不打印,1全部,2通讯,3线程,4IMU,5振动,6摇杆输入)" />
+     </appSettings>
+ </configuration>
+\ No newline at end of file
+
+warning: LF will be replaced by CRLF in BetterJoyForCemu/App.config.
+The file will have its original line endings in your working directory
+diff --git a/BetterJoyForCemu/MainForm.Designer.cs b/BetterJoyForCemu/MainForm.Designer.cs
+index cd01ea2..479dfee 100644
+--- a/BetterJoyForCemu/MainForm.Designer.cs
++++ b/BetterJoyForCemu/MainForm.Designer.cs
+@@ -118,7 +118,7 @@
+             // donationLink
+             // 
+             this.donationLink.AutoSize = true;
+-            this.donationLink.Location = new System.Drawing.Point(196, 239);
++            this.donationLink.Location = new System.Drawing.Point(216, 239);
+             this.donationLink.Name = "donationLink";
+             this.donationLink.Size = new System.Drawing.Size(42, 13);
+             this.donationLink.TabIndex = 5;
+@@ -225,7 +225,7 @@
+             this.con1.Size = new System.Drawing.Size(58, 59);
+             this.con1.TabIndex = 0;
+             this.con1.TabStop = false;
+-            this.btnTip.SetToolTip(this.con1, "Click on Joycons to join/split them");
++            this.btnTip.SetToolTip(this.con1, "点击切换合并/分开来使用");
+             this.con1.UseVisualStyleBackColor = true;
+             // 
+             // foldLbl
+@@ -237,13 +237,13 @@
+             this.foldLbl.TabIndex = 12;
+             this.foldLbl.Text = ">";
+             this.foldLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+-            this.btnTip.SetToolTip(this.foldLbl, "Config");
++            this.btnTip.SetToolTip(this.foldLbl, "配置");
+             this.foldLbl.Click += new System.EventHandler(this.foldLbl_Click);
+             // 
+             // startInTrayBox
+             // 
+             this.startInTrayBox.AutoSize = true;
+-            this.startInTrayBox.Location = new System.Drawing.Point(107, 238);
++            this.startInTrayBox.Location = new System.Drawing.Point(117, 238);
+             this.startInTrayBox.Name = "startInTrayBox";
+             this.startInTrayBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+             this.startInTrayBox.Size = new System.Drawing.Size(83, 17);
+@@ -269,7 +269,7 @@
+             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
+             this.groupBox1.Name = "groupBox1";
+             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
+-            this.groupBox1.Size = new System.Drawing.Size(304, 242);
++            this.groupBox1.Size = new System.Drawing.Size(554, 242);
+             this.groupBox1.TabIndex = 9;
+             this.groupBox1.TabStop = false;
+             this.groupBox1.Text = "Config";
+@@ -279,15 +279,16 @@
+             this.settingsTable.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+             | System.Windows.Forms.AnchorStyles.Right)));
+             this.settingsTable.AutoScroll = true;
+-            this.settingsTable.ColumnCount = 2;
+-            this.settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.90411F));
+-            this.settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.09589F));
++            this.settingsTable.ColumnCount = 3;
++            this.settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
++            this.settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
++            this.settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+             this.settingsTable.Location = new System.Drawing.Point(4, 17);
+             this.settingsTable.Margin = new System.Windows.Forms.Padding(2);
+             this.settingsTable.Name = "settingsTable";
+             this.settingsTable.RowCount = 1;
+             this.settingsTable.RowStyles.Add(new System.Windows.Forms.RowStyle());
+-            this.settingsTable.Size = new System.Drawing.Size(300, 219);
++            this.settingsTable.Size = new System.Drawing.Size(550, 219);
+             this.settingsTable.TabIndex = 1;
+             // 
+             // rightPanel
+@@ -297,7 +298,7 @@
+             this.rightPanel.Location = new System.Drawing.Point(289, 1);
+             this.rightPanel.Margin = new System.Windows.Forms.Padding(2, 2, 12, 2);
+             this.rightPanel.Name = "rightPanel";
+-            this.rightPanel.Size = new System.Drawing.Size(312, 273);
++            this.rightPanel.Size = new System.Drawing.Size(562, 273);
+             this.rightPanel.TabIndex = 11;
+             this.rightPanel.Visible = false;
+             // 
+@@ -305,7 +306,7 @@
+             // 
+             this.settingsApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+             this.settingsApply.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+-            this.settingsApply.Location = new System.Drawing.Point(246, 252);
++            this.settingsApply.Location = new System.Drawing.Point(496, 252);
+             this.settingsApply.Margin = new System.Windows.Forms.Padding(2);
+             this.settingsApply.Name = "settingsApply";
+             this.settingsApply.Size = new System.Drawing.Size(61, 21);
+
+warning: LF will be replaced by CRLF in BetterJoyForCemu/MainForm.Designer.cs.
+The file will have its original line endings in your working directory
+diff --git a/BetterJoyForCemu/MainForm.cs b/BetterJoyForCemu/MainForm.cs
+index f3bab4c..786f65a 100644
+--- a/BetterJoyForCemu/MainForm.cs
++++ b/BetterJoyForCemu/MainForm.cs
+@@ -51,6 +51,7 @@ namespace BetterJoyForCemu {
+             string[] myConfigs = ConfigurationManager.AppSettings.AllKeys;
+             Size childSize = new Size(150, 20);
+             for (int i = 0; i != myConfigs.Length; i++) {
++                if (myConfigs[i].Substring(0,1) == "_") continue;
+                 settingsTable.RowCount++;
+                 settingsTable.Controls.Add(new Label() { Text = myConfigs[i], TextAlign = ContentAlignment.BottomLeft, AutoEllipsis = true, Size = childSize }, 0, i);
+ 
+@@ -64,6 +65,7 @@ namespace BetterJoyForCemu {
+ 
+                 childControl.MouseClick += cbBox_Changed;
+                 settingsTable.Controls.Add(childControl, 1, i);
++                settingsTable.Controls.Add(new Label() { Text = ConfigurationManager.AppSettings["_" + myConfigs[i]], TextAlign = ContentAlignment.BottomLeft, AutoEllipsis = true, Size = new Size(290, 20) }, 2, i);
+             }
+         }
+ 
+
+warning: LF will be replaced by CRLF in BetterJoyForCemu/MainForm.cs.
+The file will have its original line endings in your working directory
