@@ -1,0 +1,56 @@
+name: notepadplusplus-CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  
+jobs:
+
+  build_notepadplusplus:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # 下载代码
+    - name: checkout source code
+      shell: cmd
+      run: |
+        git clone --depth 1 -b master --single-branch https://github.com/notepad-plus-plus/notepad-plus-plus.git npp
+        cd npp
+        "C:\Program Files\Git\usr\bin\sed.exe" -i 's/".*IDC_AUTHOR_NAME/"",IDC_AUTHOR_NAME/g' PowerEditor/src/Notepad_plus.rc
+
+    # 安装 .NET Core
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.202
+
+    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+
+    # 安装 NuGet
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.NuGetAPIKey }}
+        nuget-version: '5.x'
+
+    # 还原 NuGet 包
+    - name: NuGet restore
+      run: |
+        cd npp
+        nuget restore
+    # 编译整个项目
+    - name: Build the solution
+      run: |
+        cd npp
+        msbuild .\PowerEditor\visual.net\notepadPlus.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@master
+      with:
+        name: notepadplusplus
+        path: npp
