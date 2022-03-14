@@ -32,23 +32,12 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.1
 
-    # 安装 NuGet
-    - name: Setup NuGet
-      uses: nuget/setup-nuget@v1
-      with:
-        nuget-api-key: ${{ secrets.NuGetAPIKey }}
-        nuget-version: '5.x'
-
-    # 还原 NuGet 包
-    - name: NuGet restore
-      run: |
-        cd npp
-        nuget restore
     # 编译整个项目
     - name: Build the solution
       run: |
         cd npp
         msbuild .\PowerEditor\visual.net\notepadPlus.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
       with:
