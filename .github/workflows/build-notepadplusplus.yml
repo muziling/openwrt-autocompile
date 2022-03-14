@@ -42,4 +42,4 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: notepadplusplus
-        path: npp
+        path: npp/PowerEditor/bin64/notepad++.exe
