@@ -23,7 +23,8 @@ iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-gre 
 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns \
 luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd \
 luci-app-wrtbwmon luci-compat luci-theme-argon mkf2fs openssl-util ss-tproxy-lite sudo tcpdump wget-ssl \
-xray-core luci-app-nft-qos  ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net kmod-r8168 ethtool
+xray-core luci-app-nft-qos  ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net kmod-r8168 ethtool \
+bandwidthd hysteria kmod-bpf-test tc-full
 
 $(eval $(call BuildTarget))
 
