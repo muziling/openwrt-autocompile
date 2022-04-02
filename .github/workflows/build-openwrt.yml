@@ -218,6 +218,7 @@ jobs:
         sed -i "s/procd_lock$/#procd_lock/" package/system/procd/files/procd.sh
         sed -i '/^config KERNEL_MIPS_FP_SUPPORT/{n;n;s/ if TARGET_pistachio//;}' config/Config-kernel.in
         sed -i 's/net.netfilter.nf_conntrack_max=.*/net.netfilter.nf_conntrack_max=65535/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
+        echo 'net.ipv4.tcp_retries2=5' >> package/kernel/linux/files/sysctl-nf-conntrack.conf
         sed -i 's/dnsmasq /dnsmasq-full /' include/target.mk
         sed -i '/^#/d' package/network/services/dnsmasq/files/dnsmasq.conf
         sed -i '/^$/d' package/network/services/dnsmasq/files/dnsmasq.conf
