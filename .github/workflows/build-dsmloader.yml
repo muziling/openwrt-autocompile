@@ -28,7 +28,7 @@ jobs:
     - name: Clone source code
       working-directory: /workdir
       run: |
-        git clone --depth 1 -b develop https://github.com/jumkey/redpill-load.git redpill-load
+        git clone --depth 1 -b master https://github.com/pocopico/redpill-load redpill-load
         git clone --depth 1 -b master https://github.com/RedPill-TTG/redpill-lkm.git
         git clone --depth 1 -b DSM7.0 https://github.com/SynologyOpenSource/pkgscripts-ng.git
 
@@ -66,7 +66,7 @@ jobs:
         echo 'step 4'
         sudo ./ext-manager.sh add 'https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json'
         echo sed -i '2 i \ \ "pocopico.vmxnet3": "https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json",' bundled-exts.json
-        sudo ./build-loader.sh 'DS918+' '7.0.1-42218'
+        sudo ./build-loader.sh 'DS918+' '7.1-42661'
         ls -l images
         mv images/redpill-DS918+*.img images/redpill-DS918+.img
 
