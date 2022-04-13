@@ -70,6 +70,10 @@ jobs:
         cd buildpat
         sudo sh buildpat-918p-7.1-42621.sh
         cd ..
+        newsha=$(sha256sum -b buildpat/ds918p_42621.pat |awk '{print $1}')
+        sed -i "s/1fcb4e2bfcea26e381fc6680198158694ee695e6323a5b8cd9aec6cb411bb562/'$newsha'/g" config/DS918+/7.1.0-42661/config.json
+        [ -d cache ] || mkdir cache
+        mv buildpat/ds918p_42621.pat cache
         sudo ./build-loader.sh 'DS918+' '7.1.0-42661'
         ls -l images
         mv images/redpill-DS918+*.img images/redpill-DS918+.img
