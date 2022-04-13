@@ -67,8 +67,6 @@ jobs:
         export TERM=dumb
         sudo ./ext-manager.sh add 'https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json'
         echo sed -i '2 i \ \ "pocopico.vmxnet3": "https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json",' bundled-exts.json
-        mkdir buildpat
-        wget https://github.com/RedwinX/redpill-load/raw/develop/buildpat/buildpat-918p-7.1-42621.sh
         cd buildpat
         sh buildpat-918p-7.1-42621.sh
         cd ..
