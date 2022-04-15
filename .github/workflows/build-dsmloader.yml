@@ -29,7 +29,7 @@ jobs:
       working-directory: /workdir
       run: |
         git clone --depth 1 -b master https://github.com/pocopico/redpill-load.git redpill-load
-        git clone --depth 1 -b master https://github.com/RedPill-TTG/redpill-lkm.git
+        echo git clone --depth 1 -b master https://github.com/RedPill-TTG/redpill-lkm.git
         git clone --depth 1 -b DSM7.0 https://github.com/SynologyOpenSource/pkgscripts-ng.git
 
     - name: Compile the firmware
@@ -45,14 +45,19 @@ jobs:
         cd ..
         
         echo 'step 2'
-        cd redpill-lkm
-        make prod-v7
-        cd ..
+        echo cd redpill-lkm
+        echo make prod-v7
+        echo cd ..
+        echo mkdir -p redpill-load/ext/rp-lkm
+        echo cp redpill-lkm/redpill.ko redpill-load/ext/rp-lkm/redpill-linux-v4.4.180+.ko
         
         echo 'step 3'
-        mkdir -p redpill-load/ext/rp-lkm
-        cp redpill-lkm/redpill.ko redpill-load/ext/rp-lkm/redpill-linux-v4.4.180+.ko
         cd redpill-load
+        
+        mkdir -p ext/rp-lkm
+        wget https://github.com/pocopico/rp-ext/raw/main/redpill/releases/redpill-4.4.180plus.tgz
+        tar zxvf redpill-4.4.180plus.tgz
+        mv redpill.ko ext/rp-lkm/redpill-linux-v4.4.180+.ko
         
         echo '{' > user_config.json
         echo '  "extra_cmdline": {' >> user_config.json
@@ -66,9 +71,11 @@ jobs:
         echo 'step 4'
         export TERM=dumb
         sudo ./ext-manager.sh add 'https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json'
+        sudo ./ext-manager.sh add 'https://github.com/pocopico/redpill-load/raw/master/redpill-virtio/rpext-index.json'
         echo sed -i '2 i \ \ "pocopico.vmxnet3": "https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json",' bundled-exts.json
         cd buildpat
         sed -i 's/42621/42661/g' buildpat-918p-7.1-42621.sh
+        sed -i 's/42621/42661/g' buildpat-920p-7.1-42621.sh
         sudo sh buildpat-918p-7.1-42621.sh
         cd ..
         newsha=$(sha256sum -b buildpat/ds918p_42661.pat |awk '{print $1}')
@@ -77,10 +84,10 @@ jobs:
         mv buildpat/ds918p_42661.pat cache
         sudo ./build-loader.sh 'DS918+' '7.1.0-42661'
         ls -l images
-        mv images/redpill-DS918+*.img images/redpill-DS918+.img
+        mv images/redpill-DS*.img images/redpill-DS918+.img
 
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
       with:
-        name: dsm918
+        name: dsm
         path: /workdir/redpill-load/images/redpill-DS918+.img

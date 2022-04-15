@@ -1,0 +1,52 @@
+
+name: DB-CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  
+jobs:
+
+  build_db:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # 下载代码
+    - name: checkout source code
+      shell: cmd
+      run: |
+        git clone --depth 1 -b windows --single-branch https://notabug.org/doublesine/navicat-keygen.git workdir
+
+    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+
+    # 添加 vcpkg
+    - name: Setup vcpkg
+      uses: microsoft/vcpkg-tool
+
+    # 编译整个项目
+    - name: Build the solution
+      run: |
+        vcpkg install fmt:x64-windows-static
+        vcpkg install fmt:x86-windows-static
+        vcpkg install openssl:x64-windows-static
+        vcpkg install openssl:x86-windows-static
+        vcpkg install rapidjson:x64-windows-static
+        vcpkg install rapidjson:x86-windows-static
+        vcpkg install keystone:x64-windows-static
+        vcpkg install keystone:x86-windows-static
+        vcpkg install unicorn:x64-windows-static
+        vcpkg install unicorn:x86-windows-static
+        cd workdir
+        msbuild .\navicat-keygen.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@master
+      with:
+        name: navicat-kg
+        path: workdir/bin
