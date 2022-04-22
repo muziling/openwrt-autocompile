@@ -70,6 +70,7 @@ jobs:
 
         echo 'step 4'
         export TERM=dumb
+        sudo ./ext-manager.sh add 'https://github.com/pocopico/redpill-load/raw/develop/redpill-misc/rpext-index.json'
         sudo ./ext-manager.sh add 'https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json'
         sudo ./ext-manager.sh add 'https://github.com/pocopico/redpill-load/raw/master/redpill-virtio/rpext-index.json'
         echo sed -i '2 i \ \ "pocopico.vmxnet3": "https://github.com/pocopico/rp-ext/raw/main/vmxnet3/rpext-index.json",' bundled-exts.json

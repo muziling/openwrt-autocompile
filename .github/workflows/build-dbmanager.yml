@@ -15,6 +15,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    # openssl版本
+    - name: checkout openssl version
+      shell: cmd
+      run: |
+        openssl version
+
     # 下载代码
     - name: checkout source code
       shell: cmd
@@ -26,22 +32,22 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
 
     # 添加 vcpkg
+    #    .\vcpkg\vcpkg install openssl:x64-windows-static
+    #    .\vcpkg\vcpkg install fmt:x64-windows-static
+    #    .\vcpkg\vcpkg install rapidjson:x64-windows-static
+    #    .\vcpkg\vcpkg install keystone:x64-windows-static
+    #    .\vcpkg\vcpkg install unicorn:x64-windows-static
     - name: Setup vcpkg
-      uses: microsoft/vcpkg-tool
+      run: |
+        git clone --depth 1 https://github.com/microsoft/vcpkg vcpkg
+        .\vcpkg\bootstrap-vcpkg.bat
+        echo '{ "name": "dbkg", "version-string": "1.0.0", "dependencies": [ "openssl", "fmt", "rapidjson", "keystone", "unicorn" ], "builtin-baseline": "2ac61f87f69f0484b8044f95ab274038fbaf7bdd", "overrides": [ { "name": "openssl", "version-string": "1.1.1n" } ] }' > vcpkg.json
+        .\vcpkg\vcpkg install
+        .\vcpkg\vcpkg integrate install
 
     # 编译整个项目
     - name: Build the solution
       run: |
-        vcpkg install fmt:x64-windows-static
-        vcpkg install fmt:x86-windows-static
-        vcpkg install openssl:x64-windows-static
-        vcpkg install openssl:x86-windows-static
-        vcpkg install rapidjson:x64-windows-static
-        vcpkg install rapidjson:x86-windows-static
-        vcpkg install keystone:x64-windows-static
-        vcpkg install keystone:x86-windows-static
-        vcpkg install unicorn:x64-windows-static
-        vcpkg install unicorn:x86-windows-static
         cd workdir
         msbuild .\navicat-keygen.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
 
