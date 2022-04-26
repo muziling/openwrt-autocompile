@@ -1,58 +1,102 @@
+name: navicat-keygen builds
+on: workflow_dispatch
 
-name: DB-CI
-
-on:
-  repository_dispatch:
-  workflow_dispatch:
-  
 jobs:
-
-  build_db:
-
+  navicat-keygen-x64:
     runs-on: windows-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          pushd .
+          cd ${env:VCPKG_INSTALLATION_ROOT}
 
-    # openssl版本
-    - name: checkout openssl version
-      shell: cmd
-      run: |
-        openssl version
+          git reset --hard 3b3bd424827a1f7f4813216f6b32b6c61e386b2e
+          vcpkg install openssl:x64-windows-static
 
-    # 下载代码
-    - name: checkout source code
-      shell: cmd
-      run: |
-        git clone --depth 1 -b windows --single-branch https://notabug.org/doublesine/navicat-keygen.git workdir
+          git reset --hard f65d6947c7212618c00dcc99ecd53c47db97f8cd
+          vcpkg install unicorn:x64-windows-static
 
-    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.1
+          git pull
+          vcpkg install fmt:x64-windows-static
+          vcpkg install rapidjson:x64-windows-static
+          vcpkg install keystone:x64-windows-static
+          popd
 
-    # 添加 vcpkg
-    #    .\vcpkg\vcpkg install openssl:x64-windows-static
-    #    .\vcpkg\vcpkg install fmt:x64-windows-static
-    #    .\vcpkg\vcpkg install rapidjson:x64-windows-static
-    #    .\vcpkg\vcpkg install keystone:x64-windows-static
-    #    .\vcpkg\vcpkg install unicorn:x64-windows-static
-    - name: Setup vcpkg
-      run: |
-        git clone --depth 1 https://github.com/microsoft/vcpkg vcpkg
-        .\vcpkg\bootstrap-vcpkg.bat
-        echo '{ "name": "dbkg", "version-string": "1.0.0", "dependencies": [ "openssl", "fmt", "rapidjson", "keystone", "unicorn" ], "builtin-baseline": "2ac61f87f69f0484b8044f95ab274038fbaf7bdd", "overrides": [ { "name": "openssl", "version-string": "1.1.1n" } ] }' > vcpkg.json
-        .\vcpkg\vcpkg install
-        .\vcpkg\vcpkg integrate install
+      - name: Clone source
+        shell: cmd
+        run: |
+          git clone --depth 1 -b windows --single-branch https://notabug.org/doublesine/navicat-keygen.git workdir
 
-    # 编译整个项目
-    - name: Build the solution
-      run: |
-        cd workdir
-        msbuild .\navicat-keygen.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
 
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@master
-      with:
-        name: navicat-kg
-        path: workdir/bin
+      - name: Build project
+        run: |
+          cd workdir
+          vcpkg integrate install
+          msbuild navicat-keygen.sln /p:Configuration=Release /p:Platform=x64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: navicat-keygen-x64.zip
+          path: workdir/bin/x64-Release/*.exe
+
+#name: DB-CI
+#
+#on:
+#  repository_dispatch:
+#  workflow_dispatch:
+#  
+#jobs:
+#
+#  build_db:
+#
+#    runs-on: windows-latest
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v2
+#
+#    # openssl版本
+#    - name: checkout openssl version
+#      shell: cmd
+#      run: |
+#        openssl version
+#
+#    # 下载代码
+#    - name: checkout source code
+#      shell: cmd
+#      run: |
+#        git clone --depth 1 -b windows --single-branch https://notabug.org/doublesine/navicat-keygen.git workdir
+#
+#    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
+#    - name: Setup MSBuild.exe
+#      uses: microsoft/setup-msbuild@v1.1
+#
+#    # 添加 vcpkg
+#    #    .\vcpkg\vcpkg install openssl:x64-windows-static
+#    #    .\vcpkg\vcpkg install fmt:x64-windows-static
+#    #    .\vcpkg\vcpkg install rapidjson:x64-windows-static
+#    #    .\vcpkg\vcpkg install keystone:x64-windows-static
+#    #    .\vcpkg\vcpkg install unicorn:x64-windows-static
+#    - name: Setup vcpkg
+#      run: |
+#        git clone https://github.com/microsoft/vcpkg vcpkg
+#        cd vcpkg
+#        .\bootstrap-vcpkg.bat
+#        echo '{ "name": "dbkg", "version-string": "1.0.0", "dependencies": [ "openssl", "fmt", "rapidjson", "keystone", "unicorn" ], "builtin-baseline": "2ac61f87f69f0484b8044f95ab274038fbaf7bdd", "overrides": [ { "name": "openssl", "version-string": "1.1.1n" } ] }' > vcpkg.json
+#        .\vcpkg install --triplet=x64-windows-static
+#        .\vcpkg integrate install
+#
+#    # 编译整个项目
+#    - name: Build the solution
+#      run: |
+#        cd workdir
+#        msbuild .\navicat-keygen.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+#
+#    - name: Upload firmware directory
+#      uses: actions/upload-artifact@master
+#      with:
+#        name: navicat-kg
+#        path: workdir/bin
