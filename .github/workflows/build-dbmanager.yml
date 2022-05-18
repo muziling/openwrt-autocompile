@@ -29,13 +29,13 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.1
 
+    #    echo '{ "name": "dbkg", "version-string": "1.0.0", "dependencies": [ "openssl", "fmt", "rapidjson", "keystone", "unicorn" ], "builtin-baseline": "2ac61f87f69f0484b8044f95ab274038fbaf7bdd", "overrides": [ { "name": "openssl", "version-string": "1.1.1n" } ] }' > vcpkg.json
+    #    .\vcpkg install --triplet=x64-windows-static
     - name: Setup vcpkg
       run: |
         git clone https://github.com/microsoft/vcpkg vcpkg
         cd vcpkg
         .\bootstrap-vcpkg.bat
-    #    echo '{ "name": "dbkg", "version-string": "1.0.0", "dependencies": [ "openssl", "fmt", "rapidjson", "keystone", "unicorn" ], "builtin-baseline": "2ac61f87f69f0484b8044f95ab274038fbaf7bdd", "overrides": [ { "name": "openssl", "version-string": "1.1.1n" } ] }' > vcpkg.json
-    #    .\vcpkg install --triplet=x64-windows-static
         .\vcpkg\vcpkg install openssl:x64-windows-static
         .\vcpkg\vcpkg install fmt:x64-windows-static
         .\vcpkg\vcpkg install rapidjson:x64-windows-static
@@ -54,6 +54,7 @@ jobs:
       with:
         name: navicat-kg
         path: workdir/bin/x64-Release/*.exe
+
 #name: navicat-keygen builds
 #on: workflow_dispatch
 #
