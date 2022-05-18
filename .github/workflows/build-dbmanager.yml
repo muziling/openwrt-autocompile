@@ -1,47 +1,3 @@
-#name: navicat-keygen builds
-#on: workflow_dispatch
-#
-#jobs:
-#  navicat-keygen-x64:
-#    runs-on: windows-latest
-#    steps:
-#      - name: Install dependencies
-#        run: |
-#          pushd .
-#          cd ${env:VCPKG_INSTALLATION_ROOT}
-#
-#          git reset --hard 3b3bd424827a1f7f4813216f6b32b6c61e386b2e
-#          vcpkg install openssl:x64-windows-static
-#
-#          git reset --hard f65d6947c7212618c00dcc99ecd53c47db97f8cd
-#          vcpkg install unicorn:x64-windows-static
-#
-#          git pull
-#          vcpkg install fmt:x64-windows-static
-#          vcpkg install rapidjson:x64-windows-static
-#          vcpkg install keystone:x64-windows-static
-#          popd
-#
-#      - name: Clone source
-#        shell: cmd
-#        run: |
-#          git clone --depth 1 -b windows --single-branch https://notabug.org/doublesine/navicat-keygen.git workdir
-#
-#      - name: Add msbuild to PATH
-#        uses: microsoft/setup-msbuild@v1.1
-#
-#      - name: Build project
-#        run: |
-#          cd workdir
-#          vcpkg integrate install
-#          msbuild navicat-keygen.sln /p:Configuration=Release /p:Platform=x64
-#
-#      - name: Upload artifacts
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: navicat-keygen-x64.zip
-#          path: workdir/bin/x64-Release/*.exe
-
 name: navicat-keygen builds
 
 on:
@@ -98,3 +54,46 @@ jobs:
       with:
         name: navicat-kg
         path: workdir/bin/x64-Release/*.exe
+#name: navicat-keygen builds
+#on: workflow_dispatch
+#
+#jobs:
+#  navicat-keygen-x64:
+#    runs-on: windows-latest
+#    steps:
+#      - name: Install dependencies
+#        run: |
+#          pushd .
+#          cd ${env:VCPKG_INSTALLATION_ROOT}
+#
+#          git reset --hard 3b3bd424827a1f7f4813216f6b32b6c61e386b2e
+#          vcpkg install openssl:x64-windows-static
+#
+#          git reset --hard f65d6947c7212618c00dcc99ecd53c47db97f8cd
+#          vcpkg install unicorn:x64-windows-static
+#
+#          git pull
+#          vcpkg install fmt:x64-windows-static
+#          vcpkg install rapidjson:x64-windows-static
+#          vcpkg install keystone:x64-windows-static
+#          popd
+#
+#      - name: Clone source
+#        shell: cmd
+#        run: |
+#          git clone --depth 1 -b windows --single-branch https://notabug.org/doublesine/navicat-keygen.git workdir
+#
+#      - name: Add msbuild to PATH
+#        uses: microsoft/setup-msbuild@v1.1
+#
+#      - name: Build project
+#        run: |
+#          cd workdir
+#          vcpkg integrate install
+#          msbuild navicat-keygen.sln /p:Configuration=Release /p:Platform=x64
+#
+#      - name: Upload artifacts
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: navicat-keygen-x64.zip
+#          path: workdir/bin/x64-Release/*.exe
