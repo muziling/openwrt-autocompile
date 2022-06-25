@@ -1,0 +1,38 @@
+name: JustTrustMe CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: set up JDK 8
+      uses: actions/setup-java@v2
+      with:
+        java-version: '8'
+        distribution: 'adopt'
+
+    - name: Clone source code
+      run: |
+        git clone --depth 1 https://github.com/Fuzion24/JustTrustMe.git JustTrustMe
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Support mips64el
+      run: |
+        curl -O https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip
+        unzip -q android-ndk-r17c-linux-x86_64.zip
+        cp -r android-ndk-r17c/toolchains/mips64el-linux-android-4.9 $ANDROID_NDK_HOME/toolchains/mips64el-linux-android-4.9
+
+    - name: Build with Gradle
+      run: ./JustTrustMe/gradlew build
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: JustTrustMe/app/build/outputs/apk
