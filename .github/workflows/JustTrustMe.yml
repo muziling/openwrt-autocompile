@@ -19,6 +19,7 @@ jobs:
     - name: Clone source code
       run: |
         git clone --depth 1 https://github.com/Fuzion24/JustTrustMe.git JustTrustMe
+        sed -i 's/minSdkVersion.*/minSdkVersion 17/' JustTrustMe/app/build.gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x JustTrustMe/gradlew
