@@ -30,7 +30,9 @@ jobs:
         cp -r android-ndk-r17c/toolchains/mips64el-linux-android-4.9 $ANDROID_NDK_HOME/toolchains/mips64el-linux-android-4.9
 
     - name: Build with Gradle
-      run: ./JustTrustMe/gradlew build
+      run: |
+        cd JustTrustMe
+        ./gradlew build
 
     - uses: actions/upload-artifact@v2
       with:
