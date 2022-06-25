@@ -21,7 +21,7 @@ jobs:
         git clone --depth 1 https://github.com/Fuzion24/JustTrustMe.git JustTrustMe
 
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x JustTrustMe/gradlew
 
     - name: Support mips64el
       run: |
