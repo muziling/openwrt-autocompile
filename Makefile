@@ -22,9 +22,9 @@ DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fdisk fping htop 
 iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-gre kmod-fs-ext4 \
 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns \
 luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd \
-luci-app-wrtbwmon luci-compat luci-theme-argon mkf2fs openssl-util ss-tproxy-lite sudo tcpdump wget-ssl \
+luci-app-wrtbwmon luci-compat luci-theme-argon luci-theme-edge mkf2fs openssl-util ss-tproxy-lite sudo tcpdump wget-ssl \
 xray-core luci-app-nft-qos  ddns-scripts-aliyun kmod-vmxnet3 kmod-virtio kmod-virtio-net kmod-r8168 ethtool \
-bandwidthd hysteria bpftool-full iptables-mod-filter kmod-netem iptables-mod-tee tc-full
+bandwidthd hysteria tc-full libbpf0 iptables-mod-filter kmod-netem iptables-mod-tee tc-full
 
 $(eval $(call BuildTarget))
 
