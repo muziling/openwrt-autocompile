@@ -1,0 +1,48 @@
+name: tvbox build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Clone source code
+        run: |
+          git clone --depth 1 https://github.com/takagen99/Box.git boxdir
+          sed -i 's/putDefault(HawkConfig.HOME_REC.*/putDefault(HawkConfig.HOME_REC, 1);/g' boxdir/app/src/main/java/com/github/tvbox/osc/base/App.java
+          #sed -i 's/urlBean.infoList = infoList;/urlBean.infoList = infoList;video.sourceKey=vod_play_from;/g' boxdir/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
+
+          cd boxdir
+          find ../tvbox -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
+          #git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ../tvbox.patch
+          cp -f ../film.png app/src/main/res/drawable/app_icon.png
+
+      - name: Build with Gradle
+        run: |
+          cd boxdir
+          chmod +x gradlew
+          ./gradlew assemblerelease --build-cache --parallel --daemon --warning-mode all
+
+#      - name: Prepare App
+#        run: |
+#          mkdir -p ${{ github.workspace }}/apk/
+#          for file in `find ~ -name "*.apk" -print`; do
+#            mv "$file" ${{ github.workspace }}/apk/
+#          done
+#      - name: Upload App To Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: com.github.tvbox.osc
+#          path: ${{ github.workspace }}/apk/*
+
+      - name: Upload App To Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: com.github.tvbox.osc
+          path: boxdir/app/build/outputs/apk

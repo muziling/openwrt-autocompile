@@ -1,0 +1,66 @@
+From 92f3abe5381e14c17efba3293415f9ff5703dfb1 Mon Sep 17 00:00:00 2001
+From: pieceking <1@1.com>
+Date: Thu, 22 Sep 2022 22:27:13 +0800
+Subject: [PATCH 3/6] auto transform github url to proxy url
+
+---
+ .../tvbox/osc/util/ChangeUrlIntercept.java    | 33 +++++++++++++++++++
+ .../com/github/tvbox/osc/util/OkGoHelper.java |  2 +-
+ 2 files changed, 34 insertions(+), 1 deletion(-)
+ create mode 100644 app/src/main/java/com/github/tvbox/osc/util/ChangeUrlIntercept.java
+
+diff --git a/app/src/main/java/com/github/tvbox/osc/util/ChangeUrlIntercept.java b/app/src/main/java/com/github/tvbox/osc/util/ChangeUrlIntercept.java
+new file mode 100644
+index 0000000..18f0f1d
+--- /dev/null
++++ b/app/src/main/java/com/github/tvbox/osc/util/ChangeUrlIntercept.java
+@@ -0,0 +1,33 @@
++package com.github.tvbox.osc.util;
++
++import java.io.IOException;
++import java.util.ArrayList;
++import java.util.List;
++
++import okhttp3.HttpUrl;
++import okhttp3.Interceptor;
++import okhttp3.Request;
++import okhttp3.Response;
++
++public class ChangeUrlIntercept implements Interceptor {
++    @Override
++    public Response intercept(Chain chain) throws IOException {
++        Request request = chain.request();
++        HttpUrl oldHttpUrl = request.url();
++        if (oldHttpUrl.host().equals("raw.githubusercontent.com") || oldHttpUrl.host().equals("github.com")) {
++            HttpUrl newUrl = HttpUrl.parse("https://ghproxy.com/" + oldHttpUrl);
++            request = request.newBuilder()
++                    .url(newUrl)
++                    .build();
++        } else if (oldHttpUrl.host().endsWith(".github.io")) {
++            String a = "https://ghproxy.com/https://raw.githubusercontent.com/" + oldHttpUrl.host().substring(0, oldHttpUrl.host().length() - 10);
++            List<String> list = new ArrayList<>(oldHttpUrl.pathSegments());
++            list.add(1, "main");
++            HttpUrl newUrl = HttpUrl.parse(a + "/" + String.join("/", list));
++            request = request.newBuilder()
++                    .url(newUrl)
++                    .build();
++        }
++        return chain.proceed(request);
++    }
++}
+diff --git a/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java b/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
+index 89062d2..9ed0a3f 100644
+--- a/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
++++ b/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
+@@ -136,7 +136,7 @@ public class OkGoHelper {
+ 
+         //builder.retryOnConnectionFailure(false);
+ 
+-        builder = builder.addInterceptor(loggingInterceptor)
++        builder = builder.addInterceptor(loggingInterceptor).addInterceptor(new ChangeUrlIntercept())
+                 .readTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
+                 .writeTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
+                 .connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
+-- 
+2.37.1.windows.1
+
