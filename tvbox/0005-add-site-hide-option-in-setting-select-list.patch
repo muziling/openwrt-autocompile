@@ -1,21 +1,20 @@
-From 4083ca8e73d170d460bdc63483ed5a467815ac27 Mon Sep 17 00:00:00 2001
+From f793a1b6349fd0cc93c29c3988a67ab4625af2d7 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Sat, 24 Sep 2022 10:46:54 +0800
-Subject: [PATCH 6/6] add site hide option in setting select list
+Date: Sat, 24 Sep 2022 22:38:42 +0800
+Subject: [PATCH 5/6] add site hide option in setting select list
 
 ---
  .../main/java/com/github/tvbox/osc/api/ApiConfig.java    | 1 +
  .../main/java/com/github/tvbox/osc/bean/SourceBean.java  | 9 +++++++++
- .../com/github/tvbox/osc/ui/activity/DetailActivity.java | 5 +++--
  .../com/github/tvbox/osc/ui/activity/HomeActivity.java   | 5 ++++-
  .../tvbox/osc/ui/fragment/ModelSettingFragment.java      | 5 ++++-
- 5 files changed, 21 insertions(+), 4 deletions(-)
+ 4 files changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-index 6af786a..c305953 100644
+index d34b37d..9401c2f 100644
 --- a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-@@ -248,6 +248,7 @@ public class ApiConfig {
+@@ -253,6 +253,7 @@ public class ApiConfig {
              sb.setSearchable(DefaultConfig.safeJsonInt(obj, "searchable", 1));
              sb.setQuickSearch(DefaultConfig.safeJsonInt(obj, "quickSearch", 1));
              sb.setFilterable(DefaultConfig.safeJsonInt(obj, "filterable", 1));
@@ -50,25 +49,8 @@ index 72554f3..205b0ed 100644
      public String getExt() {
          return ext;
      }
-diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index cfba6ff..67ef8dc 100644
---- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-+++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-@@ -358,9 +358,10 @@ public class DetailActivity extends BaseActivity {
-             @Override
-             public void onClick(View v) {
-                 ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
--                ClipData clipData = ClipData.newPlainText(null, vodId);
-+                String cpContent = "视频ID：" + vodId + "，图片地址：" + (mVideo == null ? "" : mVideo.pic);
-+                ClipData clipData = ClipData.newPlainText(null, cpContent);
-                 clipboard.setPrimaryClip(clipData);
--                Toast.makeText(DetailActivity.this, "已复制视频ID：" + vodId, Toast.LENGTH_SHORT).show();
-+                Toast.makeText(DetailActivity.this, "已复制" + cpContent, Toast.LENGTH_SHORT).show();
-             }
-         });
-     }
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
-index 6c12bab..925e463 100644
+index 30b53c6..d708d8c 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
 @@ -584,7 +584,10 @@ public class HomeActivity extends BaseActivity {
@@ -84,10 +66,10 @@ index 6c12bab..925e463 100644
              String homeSourceKey = ApiConfig.get().getHomeSourceBean().getKey();
              SelectDialog<SourceBean> dialog = new SelectDialog<>(HomeActivity.this);
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java b/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
-index 2afe469..0b4296c 100644
+index 27966f8..0f1a7df 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
-@@ -235,7 +235,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
+@@ -238,7 +238,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
              @Override
              public void onClick(View v) {
                  FastClickCheckUtil.check(v);

@@ -1,13 +1,13 @@
-From 1f7abe5fb4626a4d807c7a4352cb6c02ee9a882c Mon Sep 17 00:00:00 2001
+From d28d5b561c7542bec9d1c97f8d8b40b0df7dac64 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Thu, 22 Sep 2022 22:29:14 +0800
-Subject: [PATCH 4/6] allow video list of one site contain different site video
+Date: Sat, 24 Sep 2022 22:35:30 +0800
+Subject: [PATCH 4/6] allow video list of one site contain different site
 
 ---
- .../main/java/com/github/tvbox/osc/bean/AbsJson.java  |  2 ++
- .../github/tvbox/osc/ui/activity/DetailActivity.java  | 11 +++++++++++
- .../github/tvbox/osc/viewmodel/SourceViewModel.java   |  3 ++-
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ .../main/java/com/github/tvbox/osc/bean/AbsJson.java |  2 ++
+ .../github/tvbox/osc/ui/activity/DetailActivity.java | 12 ++++++++++++
+ .../github/tvbox/osc/viewmodel/SourceViewModel.java  |  5 ++++-
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java b/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
 index ec021be..f2f9e27 100644
@@ -30,7 +30,7 @@ index ec021be..f2f9e27 100644
              video.des = vod_content;// <![CDATA[权来]
              video.tag = vod_tag;
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index ec237d1..068073c 100644
+index 6aebe59..6943161 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 @@ -4,6 +4,8 @@ import android.app.PendingIntent;
@@ -42,7 +42,7 @@ index ec237d1..068073c 100644
  import android.content.Context;
  import android.content.DialogInterface;
  import android.content.Intent;
-@@ -342,6 +344,15 @@ public class DetailActivity extends BaseActivity {
+@@ -342,6 +344,16 @@ public class DetailActivity extends BaseActivity {
              }
          });
          setLoadSir(llLayout);
@@ -50,19 +50,29 @@ index ec237d1..068073c 100644
 +            @Override
 +            public void onClick(View v) {
 +                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
-+                ClipData clipData = ClipData.newPlainText(null, vodId);
++                String cpContent = "视频ID：" + vodId + "，图片地址：" + (mVideo == null ? "" : mVideo.pic);
++                ClipData clipData = ClipData.newPlainText(null, cpContent);
 +                clipboard.setPrimaryClip(clipData);
-+                Toast.makeText(DetailActivity.this, "已复制视频ID：" + vodId, Toast.LENGTH_SHORT).show();
++                Toast.makeText(DetailActivity.this, "已复制" + cpContent, Toast.LENGTH_SHORT).show();
 +            }
 +        });
      }
  
      private List<Runnable> pauseRunnable = null;
 diff --git a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
-index 53be9a6..46a11a2 100644
+index 53be9a6..cbaaa20 100644
 --- a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
 +++ b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
-@@ -821,7 +821,8 @@ public class SourceViewModel extends ViewModel {
+@@ -423,6 +423,8 @@ public class SourceViewModel extends ViewModel {
+     // detailContent
+     public void getDetail(String sourceKey, String id) {
+         SourceBean sourceBean = ApiConfig.get().getSource(sourceKey);
++		if (sourceBean == null)
++			detailResult.postValue(null);
+         int type = sourceBean.getType();
+         if (type == 3) {
+             spThreadPool.execute(new Runnable() {
+@@ -821,7 +823,8 @@ public class SourceViewModel extends ViewModel {
                          urlInfo.beanList = infoBeanList;
                      }
                  }

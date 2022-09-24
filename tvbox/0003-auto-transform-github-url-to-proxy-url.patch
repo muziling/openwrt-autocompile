@@ -1,6 +1,6 @@
-From 92f3abe5381e14c17efba3293415f9ff5703dfb1 Mon Sep 17 00:00:00 2001
+From 3375391202b581ee1ea37a0ef13f5fbc60062adb Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Thu, 22 Sep 2022 22:27:13 +0800
+Date: Sat, 24 Sep 2022 22:33:42 +0800
 Subject: [PATCH 3/6] auto transform github url to proxy url
 
 ---

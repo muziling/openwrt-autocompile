@@ -1,6 +1,6 @@
-From c059b89c71d4bb59bbe65e35ee8b9279d768cf96 Mon Sep 17 00:00:00 2001
+From 905e84a85e81cbc80931a77d339581814cf9a42b Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Thu, 22 Sep 2022 22:26:09 +0800
+Date: Sat, 24 Sep 2022 22:32:56 +0800
 Subject: [PATCH 2/6] set default sites source
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH 2/6] set default sites source
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/app/src/main/res/values-zh/strings.xml b/app/src/main/res/values-zh/strings.xml
-index 8b5acba..c072e8e 100644
+index 77857df..0eea3a7 100644
 --- a/app/src/main/res/values-zh/strings.xml
 +++ b/app/src/main/res/values-zh/strings.xml
 @@ -2,7 +2,7 @@

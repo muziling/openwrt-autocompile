@@ -1,7 +1,7 @@
-From 5cb84adc28a07ce196794c8d9dbf2cc83eb9e6e8 Mon Sep 17 00:00:00 2001
+From 24d4a7cffbe9d8a4557abc45e3b7ef5be007230d Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Thu, 22 Sep 2022 23:36:31 +0800
-Subject: [PATCH 5/6] add push to another tvbox feature
+Date: Sat, 24 Sep 2022 22:49:48 +0800
+Subject: [PATCH 6/6] add push to another tvbox feature
 
 ---
  app/src/main/AndroidManifest.xml              |   5 +
@@ -11,12 +11,13 @@ Subject: [PATCH 5/6] add push to another tvbox feature
  .../github/tvbox/osc/server/DataReceiver.java |   2 +
  .../tvbox/osc/server/InputRequestProcess.java |   5 +
  .../tvbox/osc/ui/activity/DetailActivity.java |  53 ++++++++
- .../tvbox/osc/ui/dialog/PushDialog.java       |  72 +++++++++++
+ .../tvbox/osc/ui/dialog/PushDialog.java       |  86 +++++++++++++
+ .../com/github/tvbox/osc/util/HawkConfig.java |   3 +-
  app/src/main/res/layout/activity_detail.xml   |  13 ++
  app/src/main/res/layout/dialog_push.xml       | 119 ++++++++++++++++++
  app/src/main/res/values-zh/strings.xml        |   1 +
  app/src/main/res/values/strings.xml           |   1 +
- 12 files changed, 322 insertions(+)
+ 13 files changed, 338 insertions(+), 1 deletion(-)
  create mode 100644 app/src/main/java/com/github/tvbox/osc/receiver/DetailReceiver.java
  create mode 100644 app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java
  create mode 100644 app/src/main/res/layout/dialog_push.xml
@@ -153,7 +154,7 @@ index 82d444d..18849db 100644
                  }
                  return RemoteServer.createPlainTextResponse(NanoHTTPD.Response.Status.OK, "ok");
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index 068073c..cfba6ff 100644
+index 6943161..ca057bb 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 @@ -42,6 +42,7 @@ import com.github.tvbox.osc.event.RefreshEvent;
@@ -194,7 +195,7 @@ index 068073c..cfba6ff 100644
          tvPlay.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View v) {
-@@ -609,6 +619,47 @@ public class DetailActivity extends BaseActivity {
+@@ -610,6 +620,47 @@ public class DetailActivity extends BaseActivity {
          }
      }
  
@@ -241,8 +242,8 @@ index 068073c..cfba6ff 100644
 +
      private String searchTitle = "";
      private boolean hadQuickStart = false;
-     private List<Movie.Video> quickSearchData = new ArrayList<>();
-@@ -739,6 +790,7 @@ public class DetailActivity extends BaseActivity {
+     private final List<Movie.Video> quickSearchData = new ArrayList<>();
+@@ -740,6 +791,7 @@ public class DetailActivity extends BaseActivity {
          OkGo.getInstance().cancelTag("fenci");
          OkGo.getInstance().cancelTag("detail");
          OkGo.getInstance().cancelTag("quick_search");
@@ -250,7 +251,7 @@ index 068073c..cfba6ff 100644
          EventBus.getDefault().unregister(this);
      }
  
-@@ -867,6 +919,7 @@ public class DetailActivity extends BaseActivity {
+@@ -870,6 +922,7 @@ public class DetailActivity extends BaseActivity {
          // 全屏下禁用详情页几个按键的焦点 防止上键跑过来 : Disable buttons when full window
          tvPlay.setFocusable(!fullWindows);
          tvSort.setFocusable(!fullWindows);
@@ -260,10 +261,10 @@ index 068073c..cfba6ff 100644
  
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java b/app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java
 new file mode 100644
-index 0000000..d6a4b36
+index 0000000..7b81843
 --- /dev/null
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,86 @@
 +package com.github.tvbox.osc.ui.dialog;
 +
 +import android.content.Context;
@@ -278,6 +279,8 @@ index 0000000..d6a4b36
 +import com.github.tvbox.osc.R;
 +import com.github.tvbox.osc.event.RefreshEvent;
 +import com.github.tvbox.osc.server.RemoteServer;
++import com.github.tvbox.osc.util.HawkConfig;
++import com.orhanobut.hawk.Hawk;
 +
 +import org.greenrobot.eventbus.EventBus;
 +import org.jetbrains.annotations.NotNull;
@@ -300,11 +303,21 @@ index 0000000..d6a4b36
 +        super.onCreate(savedInstanceState);
 +        etAddr = findViewById(R.id.etAddr);
 +        etPort = findViewById(R.id.etPort);
-+        String ipAddress = RemoteServer.getLocalIPAddress(PushDialog.this.getContext());
-+        int lp = ipAddress.lastIndexOf('.');
-+        if (lp > 0)
-+		    etAddr.setText(ipAddress.substring(0, lp + 1));
-+		etPort.setText("" + RemoteServer.serverPort);
++        String cfgAddr = Hawk.get(HawkConfig.PUSH_TO_ADDR, "");
++        String cfgPort = Hawk.get(HawkConfig.PUSH_TO_PORT, "");
++		if (cfgAddr.isEmpty()) {
++            String ipAddress = RemoteServer.getLocalIPAddress(PushDialog.this.getContext());
++            int lp = ipAddress.lastIndexOf('.');
++            if (lp > 0)
++		        etAddr.setText(ipAddress.substring(0, lp + 1));
++		} else {
++			etAddr.setText(cfgAddr);
++		}
++		if (cfgPort.isEmpty()) {
++			etPort.setText("" + RemoteServer.serverPort);
++		} else {
++			etPort.setText(cfgPort);
++		}
 +        findViewById(R.id.btnConfirm).setOnClickListener(new View.OnClickListener() {
 +            @Override
 +            public void onClick(View view) {
@@ -320,6 +333,8 @@ index 0000000..d6a4b36
 +                    Toast.makeText(PushDialog.this.getContext(), "请输入远端tvbox端口", Toast.LENGTH_SHORT).show();
 +                    return;
 +                }
++				Hawk.put(HawkConfig.PUSH_TO_ADDR, addr);
++				Hawk.put(HawkConfig.PUSH_TO_PORT, port);
 +				List<String> list = new ArrayList<>();
 +				list.add(addr);
 +				list.add(port);
@@ -337,8 +352,29 @@ index 0000000..d6a4b36
 +
 +}
 \ No newline at end of file
+diff --git a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
+index 6ec9021..75c85c0 100644
+--- a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
++++ b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
+@@ -8,6 +8,8 @@ import com.orhanobut.hawk.Hawk;
+  * @description:
+  */
+ public class HawkConfig {
++    public static final String PUSH_TO_ADDR = "push_to_addr"; // 推送到地址的IP
++    public static final String PUSH_TO_PORT = "push_to_port"; // 推送到地址的端口
+     public static final String API_URL = "api_url";
+     public static final String SHOW_PREVIEW = "show_preview";
+     public static final String API_HISTORY = "api_history";
+@@ -35,7 +37,6 @@ public class HawkConfig {
+     public static final String HOME_LOCALE = "language"; // 0 中文 1 英文
+     public static final String PIC_IN_PIC = "pic_in_pic"; // true = on, false = off
+ 
+-
+     public static boolean isDebug(){
+         return Hawk.get(DEBUG_OPEN, false);
+     }
 diff --git a/app/src/main/res/layout/activity_detail.xml b/app/src/main/res/layout/activity_detail.xml
-index d36690f..21c5a53 100644
+index def5035..e02bc9d 100644
 --- a/app/src/main/res/layout/activity_detail.xml
 +++ b/app/src/main/res/layout/activity_detail.xml
 @@ -200,6 +200,19 @@
@@ -488,7 +524,7 @@ index 0000000..df9393f
 +</LinearLayout>
 \ No newline at end of file
 diff --git a/app/src/main/res/values-zh/strings.xml b/app/src/main/res/values-zh/strings.xml
-index c072e8e..f6ef726 100644
+index 0eea3a7..b133010 100644
 --- a/app/src/main/res/values-zh/strings.xml
 +++ b/app/src/main/res/values-zh/strings.xml
 @@ -26,6 +26,7 @@
@@ -500,7 +536,7 @@ index c072e8e..f6ef726 100644
      <string name="det_fav_add">已添加收藏</string>
      <string name="det_fav_del">已取消收藏</string>
 diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
-index c39d6b8..1595160 100644
+index 3fa21fc..c4dfdce 100644
 --- a/app/src/main/res/values/strings.xml
 +++ b/app/src/main/res/values/strings.xml
 @@ -26,6 +26,7 @@
