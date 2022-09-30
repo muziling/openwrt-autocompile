@@ -14,14 +14,17 @@ jobs:
 
       - name: Clone source code
         run: |
-          git clone --depth 1 https://github.com/takagen99/Box.git boxdir
-          sed -i 's/putDefault(HawkConfig.HOME_REC.*/putDefault(HawkConfig.HOME_REC, 1);/g' boxdir/app/src/main/java/com/github/tvbox/osc/base/App.java
+          git clone --depth 1 https://github.com/q215613905/TVBoxOS.git boxdir
+          #sed -i 's/putDefault(HawkConfig.HOME_REC.*/putDefault(HawkConfig.HOME_REC, 1);/g' boxdir/app/src/main/java/com/github/tvbox/osc/base/App.java
           #sed -i 's/urlBean.infoList = infoList;/urlBean.infoList = infoList;video.sourceKey=vod_play_from;/g' boxdir/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
 
           cd boxdir
+          sudo -E apt-get -y install dos2unix
+          dos2unix ../tvbox/*.patch
+          dos2unix app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
           find ../tvbox -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
           #git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ../tvbox.patch
-          cp -f ../film.png app/src/main/res/drawable/app_icon.png
+          #cp -f ../film.png app/src/main/res/drawable/app_icon.png
 
       - name: Build with Gradle
         run: |

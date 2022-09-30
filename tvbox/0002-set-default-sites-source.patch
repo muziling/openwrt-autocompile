@@ -1,25 +1,25 @@
-From 905e84a85e81cbc80931a77d339581814cf9a42b Mon Sep 17 00:00:00 2001
+From 829f3324b6cfc80ba33ae99ddad0e324b51ee86f Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Sat, 24 Sep 2022 22:32:56 +0800
+Date: Thu, 29 Sep 2022 23:02:24 +0800
 Subject: [PATCH 2/6] set default sites source
 
 ---
- app/src/main/res/values-zh/strings.xml | 2 +-
+ app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/app/src/main/res/values-zh/strings.xml b/app/src/main/res/values-zh/strings.xml
-index 77857df..0eea3a7 100644
---- a/app/src/main/res/values-zh/strings.xml
-+++ b/app/src/main/res/values-zh/strings.xml
-@@ -2,7 +2,7 @@
- <resources>
-     <string name="app_name">TVBox</string>
-     <string name="app_home">首页</string>
--    <string name="app_source"></string>
-+    <string name="app_source">https://raw.githubusercontent.com/chengxue2020/Cat-ports/main/main.json</string>
+diff --git a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
+index 5e38350..e1a3cbd 100644
+--- a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
++++ b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
+@@ -81,7 +81,7 @@ public class ApiConfig {
+     }
  
-     // Home Page //
-     <string name="hm_ok">加载成功</string>
+     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
+-        String apiUrl = Hawk.get(HawkConfig.API_URL, "");
++        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://raw.githubusercontent.com/chengxue2020/Cat-ports/main/main.json");
+         if (apiUrl.isEmpty()) {
+             callback.error("-1");
+             return;
 -- 
-2.37.1.windows.1
+2.37.3.windows.1
 

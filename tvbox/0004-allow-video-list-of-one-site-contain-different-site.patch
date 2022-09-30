@@ -1,16 +1,16 @@
-From d28d5b561c7542bec9d1c97f8d8b40b0df7dac64 Mon Sep 17 00:00:00 2001
+From c5a3215da5da034c16006660b57821b22ea1985e Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Sat, 24 Sep 2022 22:35:30 +0800
+Date: Fri, 30 Sep 2022 20:27:40 +0800
 Subject: [PATCH 4/6] allow video list of one site contain different site
 
 ---
- .../main/java/com/github/tvbox/osc/bean/AbsJson.java |  2 ++
- .../github/tvbox/osc/ui/activity/DetailActivity.java | 12 ++++++++++++
- .../github/tvbox/osc/viewmodel/SourceViewModel.java  |  5 ++++-
- 3 files changed, 18 insertions(+), 1 deletion(-)
+ .../main/java/com/github/tvbox/osc/bean/AbsJson.java   |  2 ++
+ .../github/tvbox/osc/ui/activity/DetailActivity.java   | 10 ++++++++++
+ .../github/tvbox/osc/viewmodel/SourceViewModel.java    |  5 ++++-
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java b/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
-index ec021be..f2f9e27 100644
+index 336e6b3..262219e 100644
 --- a/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
 +++ b/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
 @@ -104,6 +104,7 @@ public class AbsJson implements Serializable {
@@ -21,28 +21,19 @@ index ec021be..f2f9e27 100644
  
          public Movie.Video toXmlVideo() {
              Movie.Video video = new Movie.Video();
-@@ -141,6 +142,7 @@ public class AbsJson implements Serializable {
+@@ -142,6 +143,7 @@ public class AbsJson implements Serializable {
                  }
                  urlBean.infoList = infoList;
              }
 +            if (vod_play_from_cfg != null) video.sourceKey = vod_play_from_cfg;
              video.urlBean = urlBean;
              video.des = vod_content;// <![CDATA[权来]
-             video.tag = vod_tag;
+             return video;
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index 6aebe59..6943161 100644
+index cf78fe9..db83fb8 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-@@ -4,6 +4,8 @@ import android.app.PendingIntent;
- import android.app.PictureInPictureParams;
- import android.app.RemoteAction;
- import android.content.BroadcastReceiver;
-+import android.content.ClipData;
-+import android.content.ClipboardManager;
- import android.content.Context;
- import android.content.DialogInterface;
- import android.content.Intent;
-@@ -342,6 +344,16 @@ public class DetailActivity extends BaseActivity {
+@@ -361,6 +361,16 @@ public class DetailActivity extends BaseActivity {
              }
          });
          setLoadSir(llLayout);
@@ -60,10 +51,10 @@ index 6aebe59..6943161 100644
  
      private List<Runnable> pauseRunnable = null;
 diff --git a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
-index 53be9a6..cbaaa20 100644
+index 0f0dd17..443013c 100644
 --- a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
 +++ b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
-@@ -423,6 +423,8 @@ public class SourceViewModel extends ViewModel {
+@@ -420,6 +420,8 @@ public class SourceViewModel extends ViewModel {
      // detailContent
      public void getDetail(String sourceKey, String id) {
          SourceBean sourceBean = ApiConfig.get().getSource(sourceKey);
@@ -72,7 +63,7 @@ index 53be9a6..cbaaa20 100644
          int type = sourceBean.getType();
          if (type == 3) {
              spThreadPool.execute(new Runnable() {
-@@ -821,7 +823,8 @@ public class SourceViewModel extends ViewModel {
+@@ -822,7 +824,8 @@ public class SourceViewModel extends ViewModel {
                          urlInfo.beanList = infoBeanList;
                      }
                  }
@@ -83,5 +74,5 @@ index 53be9a6..cbaaa20 100644
          }
      }
 -- 
-2.37.1.windows.1
+2.37.3.windows.1
 

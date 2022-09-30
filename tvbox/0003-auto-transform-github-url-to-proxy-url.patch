@@ -1,6 +1,6 @@
-From 3375391202b581ee1ea37a0ef13f5fbc60062adb Mon Sep 17 00:00:00 2001
+From b87076cdbdc4aea28d621cfdc361e71ed7960612 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Sat, 24 Sep 2022 22:33:42 +0800
+Date: Thu, 29 Sep 2022 23:08:30 +0800
 Subject: [PATCH 3/6] auto transform github url to proxy url
 
 ---
@@ -49,18 +49,18 @@ index 0000000..18f0f1d
 +    }
 +}
 diff --git a/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java b/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
-index 89062d2..9ed0a3f 100644
+index 76bfed5..1914055 100644
 --- a/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
 +++ b/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
-@@ -136,7 +136,7 @@ public class OkGoHelper {
- 
+@@ -132,7 +132,7 @@ public class OkGoHelper {
          //builder.retryOnConnectionFailure(false);
  
--        builder = builder.addInterceptor(loggingInterceptor)
-+        builder = builder.addInterceptor(loggingInterceptor).addInterceptor(new ChangeUrlIntercept())
-                 .readTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
-                 .writeTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
-                 .connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
+         builder.addInterceptor(loggingInterceptor);
+-
++        builder.addInterceptor(new ChangeUrlIntercept());
+         builder.readTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+         builder.writeTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+         builder.connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
 -- 
-2.37.1.windows.1
+2.37.3.windows.1
 

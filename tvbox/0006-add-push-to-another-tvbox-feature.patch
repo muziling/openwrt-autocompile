@@ -1,6 +1,6 @@
-From 24d4a7cffbe9d8a4557abc45e3b7ef5be007230d Mon Sep 17 00:00:00 2001
+From f0974e1e9e453c0853ac4b2a57858e3e09b66401 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Sat, 24 Sep 2022 22:49:48 +0800
+Date: Fri, 30 Sep 2022 20:48:34 +0800
 Subject: [PATCH 6/6] add push to another tvbox feature
 
 ---
@@ -10,23 +10,21 @@ Subject: [PATCH 6/6] add push to another tvbox feature
  .../tvbox/osc/server/ControlManager.java      |  16 +++
  .../github/tvbox/osc/server/DataReceiver.java |   2 +
  .../tvbox/osc/server/InputRequestProcess.java |   5 +
- .../tvbox/osc/ui/activity/DetailActivity.java |  53 ++++++++
+ .../tvbox/osc/ui/activity/DetailActivity.java |  55 +++++++-
  .../tvbox/osc/ui/dialog/PushDialog.java       |  86 +++++++++++++
- .../com/github/tvbox/osc/util/HawkConfig.java |   3 +-
+ .../com/github/tvbox/osc/util/HawkConfig.java |   2 +
  app/src/main/res/layout/activity_detail.xml   |  13 ++
  app/src/main/res/layout/dialog_push.xml       | 119 ++++++++++++++++++
- app/src/main/res/values-zh/strings.xml        |   1 +
- app/src/main/res/values/strings.xml           |   1 +
- 13 files changed, 338 insertions(+), 1 deletion(-)
+ 11 files changed, 337 insertions(+), 1 deletion(-)
  create mode 100644 app/src/main/java/com/github/tvbox/osc/receiver/DetailReceiver.java
  create mode 100644 app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java
  create mode 100644 app/src/main/res/layout/dialog_push.xml
 
 diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
-index b6f3d7a..5ac3c85 100644
+index 9821750..8559f16 100644
 --- a/app/src/main/AndroidManifest.xml
 +++ b/app/src/main/AndroidManifest.xml
-@@ -89,6 +89,11 @@
+@@ -71,6 +71,11 @@
                  <action android:name="android.content.movie.search.Action" />
              </intent-filter>
          </receiver>
@@ -39,13 +37,13 @@ index b6f3d7a..5ac3c85 100644
              <intent-filter>
                  <action android:name="android.content.movie.custom.web.Action" />
 diff --git a/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java b/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
-index eafa4d6..8f15680 100644
+index 2f749bc..3d6e6ba 100644
 --- a/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
 +++ b/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
 @@ -17,6 +17,7 @@ public class RefreshEvent {
      public static final int TYPE_API_URL_CHANGE = 8;
      public static final int TYPE_PUSH_URL = 9;
-     public static final int TYPE_DRIVE_REFRESH = 10;
+     public static final int TYPE_EPG_URL_CHANGE = 10;
 +    public static final int TYPE_PUSH_VOD = 11;
      public int type;
      public Object obj;
@@ -154,10 +152,10 @@ index 82d444d..18849db 100644
                  }
                  return RemoteServer.createPlainTextResponse(NanoHTTPD.Response.Status.OK, "ok");
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index 6943161..ca057bb 100644
+index db83fb8..3d43681 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-@@ -42,6 +42,7 @@ import com.github.tvbox.osc.event.RefreshEvent;
+@@ -37,6 +37,7 @@ import com.github.tvbox.osc.event.RefreshEvent;
  import com.github.tvbox.osc.picasso.RoundTransformation;
  import com.github.tvbox.osc.ui.adapter.SeriesAdapter;
  import com.github.tvbox.osc.ui.adapter.SeriesFlagAdapter;
@@ -165,7 +163,7 @@ index 6943161..ca057bb 100644
  import com.github.tvbox.osc.ui.dialog.QuickSearchDialog;
  import com.github.tvbox.osc.ui.fragment.PlayFragment;
  import com.github.tvbox.osc.util.DefaultConfig;
-@@ -101,6 +102,7 @@ public class DetailActivity extends BaseActivity {
+@@ -104,6 +105,7 @@ public class DetailActivity extends BaseActivity {
      private TextView tvDes;
      private TextView tvPlay;
      private TextView tvSort;
@@ -173,7 +171,7 @@ index 6943161..ca057bb 100644
      private TextView tvQuickSearch;
      private TextView tvCollect;
      private TvRecyclerView mGridViewFlag;
-@@ -153,6 +155,7 @@ public class DetailActivity extends BaseActivity {
+@@ -156,6 +158,7 @@ public class DetailActivity extends BaseActivity {
          tvDes = findViewById(R.id.tvDes);
          tvPlay = findViewById(R.id.tvPlay);
          tvSort = findViewById(R.id.tvSort);
@@ -181,7 +179,7 @@ index 6943161..ca057bb 100644
          tvCollect = findViewById(R.id.tvCollect);
          tvQuickSearch = findViewById(R.id.tvQuickSearch);
          mEmptyPlayList = findViewById(R.id.mEmptyPlaylist);
-@@ -191,6 +194,13 @@ public class DetailActivity extends BaseActivity {
+@@ -197,6 +200,13 @@ public class DetailActivity extends BaseActivity {
                  }
              }
          });
@@ -195,7 +193,16 @@ index 6943161..ca057bb 100644
          tvPlay.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View v) {
-@@ -610,6 +620,47 @@ public class DetailActivity extends BaseActivity {
+@@ -364,7 +374,7 @@ public class DetailActivity extends BaseActivity {
+         tvName.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+-                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
++                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(mContext.CLIPBOARD_SERVICE);
+                 String cpContent = "视频ID：" + vodId + "，图片地址：" + (mVideo == null ? "" : mVideo.pic);
+                 ClipData clipData = ClipData.newPlainText(null, cpContent);
+                 clipboard.setPrimaryClip(clipData);
+@@ -643,6 +653,47 @@ public class DetailActivity extends BaseActivity {
          }
      }
  
@@ -243,7 +250,7 @@ index 6943161..ca057bb 100644
      private String searchTitle = "";
      private boolean hadQuickStart = false;
      private final List<Movie.Video> quickSearchData = new ArrayList<>();
-@@ -740,6 +791,7 @@ public class DetailActivity extends BaseActivity {
+@@ -773,6 +824,7 @@ public class DetailActivity extends BaseActivity {
          OkGo.getInstance().cancelTag("fenci");
          OkGo.getInstance().cancelTag("detail");
          OkGo.getInstance().cancelTag("quick_search");
@@ -251,14 +258,14 @@ index 6943161..ca057bb 100644
          EventBus.getDefault().unregister(this);
      }
  
-@@ -870,6 +922,7 @@ public class DetailActivity extends BaseActivity {
-         // 全屏下禁用详情页几个按键的焦点 防止上键跑过来 : Disable buttons when full window
+@@ -839,6 +891,7 @@ public class DetailActivity extends BaseActivity {
+         //全屏下禁用详情页几个按键的焦点 防止上键跑过来
          tvPlay.setFocusable(!fullWindows);
          tvSort.setFocusable(!fullWindows);
 +        tvPush.setFocusable(!fullWindows);
          tvCollect.setFocusable(!fullWindows);
          tvQuickSearch.setFocusable(!fullWindows);
- 
+     }
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java b/app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java
 new file mode 100644
 index 0000000..7b81843
@@ -353,31 +360,23 @@ index 0000000..7b81843
 +}
 \ No newline at end of file
 diff --git a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
-index 6ec9021..75c85c0 100644
+index 97fcbb3..175e157 100644
 --- a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
-@@ -8,6 +8,8 @@ import com.orhanobut.hawk.Hawk;
+@@ -6,6 +6,8 @@ package com.github.tvbox.osc.util;
   * @description:
   */
  public class HawkConfig {
 +    public static final String PUSH_TO_ADDR = "push_to_addr"; // 推送到地址的IP
 +    public static final String PUSH_TO_PORT = "push_to_port"; // 推送到地址的端口
      public static final String API_URL = "api_url";
+     public static final String EPG_URL = "epg_url";
      public static final String SHOW_PREVIEW = "show_preview";
-     public static final String API_HISTORY = "api_history";
-@@ -35,7 +37,6 @@ public class HawkConfig {
-     public static final String HOME_LOCALE = "language"; // 0 中文 1 英文
-     public static final String PIC_IN_PIC = "pic_in_pic"; // true = on, false = off
- 
--
-     public static boolean isDebug(){
-         return Hawk.get(DEBUG_OPEN, false);
-     }
 diff --git a/app/src/main/res/layout/activity_detail.xml b/app/src/main/res/layout/activity_detail.xml
-index def5035..e02bc9d 100644
+index 0f371c5..ade4249 100644
 --- a/app/src/main/res/layout/activity_detail.xml
 +++ b/app/src/main/res/layout/activity_detail.xml
-@@ -200,6 +200,19 @@
+@@ -207,6 +207,19 @@
                          android:textColor="@android:color/white"
                          android:textSize="@dimen/vs_20" />
  
@@ -387,19 +386,19 @@ index def5035..e02bc9d 100644
 +                        android:layout_height="@dimen/vs_40"
 +                        android:layout_marginEnd="@dimen/vs_10"
 +                        android:layout_marginRight="@dimen/vs_10"
-+                        android:background="@drawable/button_detail_all"
++                        android:background="@drawable/button_detail_collect"
 +                        android:focusable="true"
 +                        android:gravity="center"
-+                        android:text="@string/det_push"
++                        android:text="推送"
 +                        android:textColor="@android:color/white"
 +                        android:textSize="@dimen/vs_20" />
 +
                      <TextView
                          android:id="@+id/tvCollect"
-                         android:layout_width="@dimen/vs_128"
+                         android:layout_width="@dimen/vs_120"
 diff --git a/app/src/main/res/layout/dialog_push.xml b/app/src/main/res/layout/dialog_push.xml
 new file mode 100644
-index 0000000..df9393f
+index 0000000..8f50484
 --- /dev/null
 +++ b/app/src/main/res/layout/dialog_push.xml
 @@ -0,0 +1,119 @@
@@ -433,7 +432,7 @@ index 0000000..df9393f
 +                android:layout_marginRight="@dimen/vs_20"
 +                android:gravity="center_vertical|end"
 +                android:text="远端tvbox地址"
-+                android:textColor="@color/color_FF000000"
++                android:textColor="@color/color_CC000000"
 +                android:textSize="@dimen/ts_20" />
 +
 +            <EditText
@@ -465,7 +464,7 @@ index 0000000..df9393f
 +                android:layout_marginRight="@dimen/vs_20"
 +                android:gravity="center_vertical|end"
 +                android:text="远端tvbox端口"
-+                android:textColor="@color/color_FF000000"
++                android:textColor="@color/color_CC000000"
 +                android:textSize="@dimen/ts_20" />
 +
 +            <EditText
@@ -523,30 +522,6 @@ index 0000000..df9393f
 +
 +</LinearLayout>
 \ No newline at end of file
-diff --git a/app/src/main/res/values-zh/strings.xml b/app/src/main/res/values-zh/strings.xml
-index 0eea3a7..b133010 100644
---- a/app/src/main/res/values-zh/strings.xml
-+++ b/app/src/main/res/values-zh/strings.xml
-@@ -26,6 +26,7 @@
-     <string name="det_expand">全屏</string>
-     <string name="det_search">快搜</string>
-     <string name="det_sort">倒序</string>
-+    <string name="det_push">推送</string>
-     <string name="det_fav">收藏</string>
-     <string name="det_fav_add">已添加收藏</string>
-     <string name="det_fav_del">已取消收藏</string>
-diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
-index 3fa21fc..c4dfdce 100644
---- a/app/src/main/res/values/strings.xml
-+++ b/app/src/main/res/values/strings.xml
-@@ -26,6 +26,7 @@
-     <string name="det_expand">Expand</string>
-     <string name="det_search">Search</string>
-     <string name="det_sort">Sort</string>
-+    <string name="det_push">Push</string>
-     <string name="det_fav">Favorite</string>
-     <string name="det_fav_add">Added to Favorite</string>
-     <string name="det_fav_del">Removed from Favorite</string>
 -- 
-2.37.1.windows.1
+2.37.3.windows.1
 
