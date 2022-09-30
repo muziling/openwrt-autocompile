@@ -1,9 +1,8 @@
 # copy the patches and .config (important!) and subdirectory from unraid server which located at /usr/src (like /usr/src/linux-4.19.94-Unraid/) to step kernel source directory
-# have a look .config, unraid use gcc9
+# have a look .config, unraid use gcc12
 name: Unraid-CI
 
 on:
-  repository_dispatch:
   workflow_dispatch:
 
 env:
@@ -13,13 +12,13 @@ jobs:
   build_unraid:
     name: Build r8168 unraid driver
     runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: master
+          fetch-depth: 0
 
       - name: Install dependency tools
         run: |
@@ -31,27 +30,27 @@ jobs:
       - name: Clone source code
         run: |
           cd /workdir
-          wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.10.28.tar.xz
-          xz -d linux-5.10.28.tar.xz
-          tar xvf linux-5.10.28.tar
+          wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.12.tar.xz
+          xz -d linux-5.19.12.tar.xz
+          tar xvf linux-5.19.12.tar
           git clone --depth 1 https://github.com/mtorromeo/r8168.git r8168
 
       - name: Compile the kernel
         run: |
-          cp linux-5.10.28-Unraid/.config /workdir/linux-5.10.28
-          cp -r linux-5.10.28-Unraid/* /workdir/linux-5.10.28
-          cd /workdir/linux-5.10.28
+          cp linux-5.19.9-Unraid/.config /workdir/linux-5.19.12
+          cp -r linux-5.19.9-Unraid/* /workdir/linux-5.19.12
+          cd /workdir/linux-5.19.12
           ls -l *.patch
           find . -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
-          sed -i '/CONFIG_8139TOO/d' .config
-          sed -i '/CONFIG_R8169/d' .config
-          sed -i '/CONFIG_8139_OLD_RX_RESET/d' .config
-          echo '# CONFIG_8139TOO is not set' >> .config
-          echo '# CONFIG_R8169 is not set' >> .config
+          #sed -i '/CONFIG_8139TOO/d' .config
+          #sed -i '/CONFIG_R8169/d' .config
+          #sed -i '/CONFIG_8139_OLD_RX_RESET/d' .config
+          #echo '# CONFIG_8139TOO is not set' >> .config
+          #echo '# CONFIG_R8169 is not set' >> .config
 
           make oldconfig
           make -j4 bzImage
-          echo /workdir/linux-5.10.28/arch/x86_64/boot/bzImage
+          echo /workdir/linux-5.19.12/arch/x86_64/boot/bzImage
           make -j4 modules
           sudo make modules_install
 
@@ -59,29 +58,29 @@ jobs:
         run: |
           cd /workdir/r8168
           wget https://github.com/coolsnowwolf/lede/raw/master/package/lean/r8168/patches/001-r8168-add-LED-configuration-from-OF.patch
-          wget https://github.com/coolsnowwolf/lede/raw/master/package/lean/r8168/patches/002-r8168-add-support-for-kernel-over-5.10.patch
+          wget https://github.com/coolsnowwolf/lede/raw/master/package/lean/r8168/patches/030-5.19-support.patch
           find . -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
-          make -C /lib/modules/5.10.28-Unraid/build M=$(pwd)/src modules
-          sudo make -C /lib/modules/5.10.28-Unraid/build M=$(pwd)/src INSTALL_MOD_DIR=kernel/drivers/net/ethernet/realtek/ modules_install
+          make -C /lib/modules/5.19.12-Unraid/build M=$(pwd)/src modules
+          sudo make -C /lib/modules/5.19.12-Unraid/build M=$(pwd)/src INSTALL_MOD_DIR=kernel/drivers/net/ethernet/realtek/ modules_install
 
       - name: Compress kernel modules
         run: |
-          cd /lib/modules/5.10.28-Unraid/
+          cd /lib/modules/5.19.12-Unraid/
           sudo rm -f build
           sudo rm -f source
-          sudo ln -s /usr/src/linux-5.10.28-Unraid build
-          sudo ln -s /usr/src/linux-5.10.28-Unraid source
+          sudo ln -s /usr/src/linux-5.19.9-Unraid build
+          sudo ln -s /usr/src/linux-5.19.9-Unraid source
           cd /workdir
-          mksquashfs /lib/modules/5.10.28-Unraid/ bzmodules -keep-as-directory -noappend
+          mksquashfs /lib/modules/5.19.12-Unraid/ bzmodules -keep-as-directory -noappend
 
       - name: Upload bzmodules file
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: bzmodules
           path: /workdir/bzmodules
 
       - name: Upload bzImage file
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: bzImage
-          path: /workdir/linux-5.10.28/arch/x86_64/boot/bzImage
+          path: /workdir/linux-5.19.12/arch/x86_64/boot/bzImage
