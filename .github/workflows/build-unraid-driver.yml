@@ -61,6 +61,7 @@ jobs:
           cd /workdir/r8168
           wget https://github.com/coolsnowwolf/lede/raw/master/package/lean/r8168/patches/001-r8168-add-LED-configuration-from-OF.patch
           wget https://github.com/coolsnowwolf/lede/raw/master/package/lean/r8168/patches/030-5.19-support.patch
+          cp ../r8168p/*.patch .
           find . -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
           make -C /lib/modules/5.19.12-Unraid/build M=$(pwd)/src modules
           sudo make -C /lib/modules/5.19.12-Unraid/build M=$(pwd)/src INSTALL_MOD_DIR=kernel/drivers/net/ethernet/realtek/ modules_install

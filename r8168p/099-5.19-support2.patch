@@ -1,0 +1,35 @@
+diff --git a/src/r8168_n.c b/src/r8168_n.c
+index ee46d9a..a70a649 100644
+--- a/src/r8168_n.c
++++ b/src/r8168_n.c
+@@ -124,6 +124,30 @@ static inline void netif_set_gso_max_size(struct net_device *dev,
+ 	/* dev->gso_max_size is read locklessly from sk_setup_caps() */
+ 	WRITE_ONCE(dev->gso_max_size, size);
+ }
++
++static inline void
++pci_dma_sync_single_for_device(struct pci_dev *hwdev, dma_addr_t dma_handle,
++		    size_t size, int direction)
++{
++	dma_sync_single_for_device(&hwdev->dev, dma_handle, size, (enum dma_data_direction)direction);
++}
++
++#ifdef CONFIG_PCI
++static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask)
++{
++	return dma_set_mask(&dev->dev, mask);
++}
++
++static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
++{
++	return dma_set_coherent_mask(&dev->dev, mask);
++}
++#else
++static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask)
++{ return -EIO; }
++static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
++{ return -EIO; }
++#endif
+ #endif
+ 
+ /* Maximum number of multicast addresses to filter (vs. Rx-all-multicast).
