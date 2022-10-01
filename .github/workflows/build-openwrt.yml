@@ -26,17 +26,7 @@
 name: OpenWrt-CI
 
 on:
-  repository_dispatch:
   workflow_dispatch:
-    inputs:
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
-#  schedule:
-#    - cron: 0 8 * * 5
-#  watch:
-#    types: started
 
 env:
   DIY_SH: diy.sh
@@ -49,13 +39,13 @@ env:
 jobs:
   build_openwrt:
     runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: master
+        fetch-depth: 0
 
     - name: Initialization environment
       env:
@@ -77,7 +67,7 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone --depth 2 https://github.com/openwrt/openwrt.git -b openwrt-21.02 openwrt
+        git clone --depth 2 https://github.com/openwrt/openwrt.git -b openwrt-22.03 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
         cd openwrt
         COMMIT2ID=`git log -2 --pretty=format:"%H" |sed -n '2p'`
@@ -135,7 +125,6 @@ jobs:
         [ -d package/mycustom/luci-app-chinadns-ng/po/zh-cn ] && mv package/mycustom/luci-app-chinadns-ng/po/zh-cn package/mycustom/luci-app-chinadns-ng/po/zh_Hans
         git clone --depth 1 -b master https://github.com/pexcn/openwrt-dns2tcp.git package/mycustom/dns2tcp
         git clone --depth 1 https://github.com/garypang13/luci-app-dnsfilter.git package/mycustom/luci-app-dnsfilter
-        [ -d package/mycustom/luci-app-dnsfilter/po/zh-cn ] && mv package/mycustom/luci-app-dnsfilter/po/zh-cn package/mycustom/luci-app-dnsfilter/po/zh_Hans
         
         echo 'https://github.com/Lienol/openwrt/commit/56f77dda085231046fab32c6854b74272c470340'
         echo 'https://github.com/Lienol/openwrt/commit/2aa7eef035e173932955e2e63b0c4127d07000fb'
@@ -200,8 +189,8 @@ jobs:
         cd openwrt
         mkdir -p tools/upx
         mkdir -p tools/ucl
-        wget https://raw.githubusercontent.com/Lienol/openwrt/main/tools/upx/Makefile -q --no-check-certificate -O tools/upx/Makefile
-        wget https://raw.githubusercontent.com/Lienol/openwrt/main/tools/ucl/Makefile -q --no-check-certificate -O tools/ucl/Makefile
+        wget https://raw.githubusercontent.com/Lienol/openwrt/master/tools/upx/Makefile -q --no-check-certificate -O tools/upx/Makefile
+        wget https://raw.githubusercontent.com/Lienol/openwrt/master/tools/ucl/Makefile -q --no-check-certificate -O tools/ucl/Makefile
         sed -i '/^$(curdir)\/bison\/compile/itools-y += ucl upx\n$(curdir)/upx\/compile := $(curdir)\/ucl\/compile' tools/Makefile
         sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
         sed -i '/"luci-base"/i\\t"uci-access": {\n\t\t"description": "Grant uci write access to all configurations",\n\t\t"read": {\n\t\t\t"uci": [ "*" ]\n\t\t},\n\t\t"write": {\n\t\t\t"uci": [ "*" ]\n\t\t}\n\t},\n' feeds/luci/modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json
@@ -286,7 +275,7 @@ jobs:
         cp ../../../../.config .
 
     - name: Upload firmware directory
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v3
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware
