@@ -47,6 +47,8 @@ jobs:
           #sed -i '/CONFIG_8139_OLD_RX_RESET/d' .config
           #echo '# CONFIG_8139TOO is not set' >> .config
           #echo '# CONFIG_R8169 is not set' >> .config
+          grep 8139 .config
+          grep 8169 .config
 
           make oldconfig
           make -j4 bzImage
