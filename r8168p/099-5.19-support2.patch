@@ -1,35 +1,37 @@
 diff --git a/src/r8168_n.c b/src/r8168_n.c
-index ee46d9a..a70a649 100644
+index ee46d9a..264e670 100644
 --- a/src/r8168_n.c
 +++ b/src/r8168_n.c
-@@ -124,6 +124,30 @@ static inline void netif_set_gso_max_size(struct net_device *dev,
- 	/* dev->gso_max_size is read locklessly from sk_setup_caps() */
- 	WRITE_ONCE(dev->gso_max_size, size);
- }
-+
-+static inline void
-+pci_dma_sync_single_for_device(struct pci_dev *hwdev, dma_addr_t dma_handle,
-+		    size_t size, int direction)
-+{
-+	dma_sync_single_for_device(&hwdev->dev, dma_handle, size, (enum dma_data_direction)direction);
-+}
-+
-+#ifdef CONFIG_PCI
-+static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask)
-+{
-+	return dma_set_mask(&dev->dev, mask);
-+}
-+
-+static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
-+{
-+	return dma_set_coherent_mask(&dev->dev, mask);
-+}
-+#else
-+static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask)
-+{ return -EIO; }
-+static inline int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
-+{ return -EIO; }
-+#endif
- #endif
+@@ -3724,7 +3724,7 @@ static void rtl8168_mac_loopback_test(struct rtl8168_private *tp)
+         txd->opts2 = 0;
+         while (1) {
+                 memset(tmpAddr, pattern++, len - 14);
+-                pci_dma_sync_single_for_device(tp->pci_dev,
++                dma_sync_single_for_device(&tp->pci_dev->dev,
+                                                le64_to_cpu(mapping),
+                                                len, DMA_TO_DEVICE);
+                 txd->opts1 = cpu_to_le32(DescOwn | FirstFrag | LastFrag | len);
+@@ -3752,7 +3752,7 @@ static void rtl8168_mac_loopback_test(struct rtl8168_private *tp)
+                 if (rx_len == len) {
+                         dma_sync_single_for_cpu(tp_to_dev(tp), le64_to_cpu(rxd->addr), tp->rx_buf_sz, DMA_FROM_DEVICE);
+                         i = memcmp(skb->data, rx_skb->data, rx_len);
+-                        pci_dma_sync_single_for_device(tp->pci_dev, le64_to_cpu(rxd->addr), tp->rx_buf_sz, DMA_FROM_DEVICE);
++                        dma_sync_single_for_device(&tp->pci_dev->dev, le64_to_cpu(rxd->addr), tp->rx_buf_sz, DMA_FROM_DEVICE);
+                         if (i == 0) {
+ //              dev_printk(KERN_INFO, tp_to_dev(tp), "loopback test finished\n",rx_len,len);
+                                 break;
+@@ -26473,11 +26473,11 @@ rtl8168_init_board(struct pci_dev *pdev,
  
- /* Maximum number of multicast addresses to filter (vs. Rx-all-multicast).
+         if ((sizeof(dma_addr_t) > 4) &&
+             use_dac &&
+-            !pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) &&
+-            !pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64))) {
++            !dma_set_mask(&pdev->dev, DMA_BIT_MASK(64)) &&
++            !dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+                 dev->features |= NETIF_F_HIGHDMA;
+         } else {
+-                rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
++                rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+                 if (rc < 0) {
+ #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+                         if (netif_msg_probe(tp))
