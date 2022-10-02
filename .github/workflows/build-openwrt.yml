@@ -137,6 +137,8 @@ jobs:
         TEST='wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/network/services/dnsmasq/patches/900-filter-aaaa.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/900-filter-aaaa.patch'
         TEST='wget https://raw.githubusercontent.com/muziling/dnsmasq-chnroute/master/0000-Add-feature-to-support-chnroutes.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/800-Add-feature-to-support-chnroutes.patch'
 
+        git clone --depth 1 -b master https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
+        
         cd ..
 
     - name: Update feeds
