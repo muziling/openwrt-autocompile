@@ -28,7 +28,6 @@
 #include <linux/kthread.h>
 #include <linux/linkage.h>
 #include <linux/blkdev.h>
-#include <linux/blk-mq.h>
 #include <linux/major.h>
 #include <linux/reboot.h>
 #include <linux/proc_fs.h>

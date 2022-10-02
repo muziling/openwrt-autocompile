@@ -1072,7 +1072,6 @@ static int do_stop(mddev_t *mddev)
 			printk("md%d: stopping\n", unit);
 
 			del_gendisk(gd);
-			blk_mq_destroy_queue(gq);
 			put_disk(gd);
 
 			mddev->gendisk[unit] = NULL;
