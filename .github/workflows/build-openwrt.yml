@@ -138,7 +138,9 @@ jobs:
         TEST='wget https://raw.githubusercontent.com/muziling/dnsmasq-chnroute/master/0000-Add-feature-to-support-chnroutes.patch -q --no-check-certificate -O package/network/services/dnsmasq/patches/800-Add-feature-to-support-chnroutes.patch'
 
         git clone --depth 1 -b master https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
-        
+        mkdir -p package/mycustom/luci-app-xray/po/zh_Hans
+        wget https://raw.githubusercontent.com/Mitsuhaxy/luci-i18n-xray-zh-cn/main/po/zh-cn/xray.zh-cn.po -q --no-check-certificate -O package/mycustom/luci-app-xray/po/zh_Hans/xray.zh-cn.po
+
         cd ..
 
     - name: Update feeds
