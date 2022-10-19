@@ -17,7 +17,7 @@ KERNELNAME:=bzImage
 
 include $(INCLUDE_DIR)/target.mk
 
-DEFAULT_PACKAGES += autocf bash ca-certificates curl e2fsprogs fdisk fping htop ipset ipt2socks \
+DEFAULT_PACKAGES += ntpdate autocf bash ca-certificates curl e2fsprogs fdisk fping htop ipset ipt2socks \
 iptables-mod-conntrack-extra iptables-mod-extra iptables-mod-tproxy jq kmod-gre kmod-fs-ext4 \
 kmod-ipt-raw kmod-ipt-tproxy kmod-nf-nathelper kmod-nf-nathelper-extra lm-sensors luci luci-app-ddns \
 luci-app-autoreboot luci-app-mosdns luci-app-ramfree luci-app-upnp luci-app-vlmcsd luci-app-vsftpd luci-app-xray \
