@@ -51,6 +51,7 @@ jobs:
         run: |
           cp linux-$ORI_KERNEL_VERSION-Unraid/.config /workdir/linux-$MY_KERNEL_VERSION
           cp -r linux-$ORI_KERNEL_VERSION-Unraid/* /workdir/linux-$MY_KERNEL_VERSION
+          cp unraidbootfromhard.patch /workdir/linux-$MY_KERNEL_VERSION
           cd /workdir/linux-$MY_KERNEL_VERSION
           ls -l *.patch
           find . -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
@@ -64,7 +65,8 @@ jobs:
 
           make oldconfig
           make -j4 bzImage
-          echo /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage
+          ls -l /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage
+          cp /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage /workdir/bzImage
           make -j4 modules
           sudo make modules_install
 
@@ -94,4 +96,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bzImage
-          path: /workdir/linux-${env.MY_KERNEL_VERSION}/arch/x86_64/boot/bzImage
+          path: /workdir/bzImage
