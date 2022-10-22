@@ -1,7 +1,7 @@
-From f1c735b16469bac8118f8922782f0f6af3fd9a2d Mon Sep 17 00:00:00 2001
+From 1fd993d8e506d48dac9580bc4269a9671f1fbcbb Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Fri, 30 Sep 2022 20:34:35 +0800
-Subject: [PATCH 5/6] add site hide option in setting select list
+Date: Sat, 22 Oct 2022 22:33:22 +0800
+Subject: [PATCH 4/6] add site hide option in setting select list
 
 ---
  .../main/java/com/github/tvbox/osc/api/ApiConfig.java    | 1 +
@@ -11,19 +11,19 @@ Subject: [PATCH 5/6] add site hide option in setting select list
  4 files changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-index e1a3cbd..7d00204 100644
+index fe24c89..e9e42e9 100644
 --- a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-@@ -248,6 +248,7 @@ public class ApiConfig {
+@@ -296,6 +296,7 @@ public class ApiConfig {
              sb.setSearchable(DefaultConfig.safeJsonInt(obj, "searchable", 1));
              sb.setQuickSearch(DefaultConfig.safeJsonInt(obj, "quickSearch", 1));
              sb.setFilterable(DefaultConfig.safeJsonInt(obj, "filterable", 1));
 +            sb.setHide(DefaultConfig.safeJsonInt(obj, "hide", 0));
              sb.setPlayerUrl(DefaultConfig.safeJsonString(obj, "playUrl", ""));
-             sb.setExt(DefaultConfig.safeJsonString(obj, "ext", ""));
-             sb.setJar(DefaultConfig.safeJsonString(obj, "jar", ""));
+             if(obj.has("ext") && (obj.get("ext").isJsonArray() || obj.get("ext").isJsonObject())){
+                 sb.setExt(obj.get("ext").toString());
 diff --git a/app/src/main/java/com/github/tvbox/osc/bean/SourceBean.java b/app/src/main/java/com/github/tvbox/osc/bean/SourceBean.java
-index 5485e99..5e8b467 100644
+index ff11953..de0e4e3 100644
 --- a/app/src/main/java/com/github/tvbox/osc/bean/SourceBean.java
 +++ b/app/src/main/java/com/github/tvbox/osc/bean/SourceBean.java
 @@ -10,6 +10,7 @@ public class SourceBean {
@@ -34,7 +34,7 @@ index 5485e99..5e8b467 100644
      private String playerUrl; // 站点解析Url
      private String ext; // 扩展数据
      private String jar; // 自定义jar
-@@ -80,6 +81,14 @@ public class SourceBean {
+@@ -81,6 +82,14 @@ public class SourceBean {
          this.filterable = filterable;
      }
  
@@ -50,7 +50,7 @@ index 5485e99..5e8b467 100644
          return ext;
      }
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
-index 8b5d756..84486de 100644
+index 4873766..882adc9 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
 @@ -584,7 +584,10 @@ public class HomeActivity extends BaseActivity {
@@ -66,10 +66,10 @@ index 8b5d756..84486de 100644
              String homeSourceKey = ApiConfig.get().getHomeSourceBean().getKey();
              SelectDialog<SourceBean> dialog = new SelectDialog<>(HomeActivity.this);
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java b/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
-index 1d13c15..31623da 100644
+index f4eea3d..8127b73 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
-@@ -193,7 +193,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
+@@ -196,7 +196,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
              @Override
              public void onClick(View v) {
                  FastClickCheckUtil.check(v);

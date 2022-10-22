@@ -1,6 +1,6 @@
-From 829f3324b6cfc80ba33ae99ddad0e324b51ee86f Mon Sep 17 00:00:00 2001
+From 2073682e5651d43e70f7b60e0d98606e5513276b Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Thu, 29 Sep 2022 23:02:24 +0800
+Date: Sat, 22 Oct 2022 22:28:46 +0800
 Subject: [PATCH 2/6] set default sites source
 
 ---
@@ -8,10 +8,10 @@ Subject: [PATCH 2/6] set default sites source
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-index 5e38350..e1a3cbd 100644
+index aa4e858..fe24c89 100644
 --- a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-@@ -81,7 +81,7 @@ public class ApiConfig {
+@@ -111,7 +111,7 @@ public class ApiConfig {
      }
  
      public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {

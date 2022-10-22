@@ -1,31 +1,30 @@
-From 1fd8233118c1711e6a82acc5c74edeee274ba0f6 Mon Sep 17 00:00:00 2001
+From 178396a24c8bc3e4a5599cb93b3b2beec1d5bc79 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Fri, 30 Sep 2022 20:48:34 +0800
+Date: Sat, 22 Oct 2022 22:40:43 +0800
 Subject: [PATCH 6/6] add push to another tvbox feature
 
 ---
  app/src/main/AndroidManifest.xml              |   5 +
- .../com/github/tvbox/osc/api/ApiConfig.java   |   2 +-
  .../github/tvbox/osc/event/RefreshEvent.java  |   1 +
  .../tvbox/osc/receiver/DetailReceiver.java    |  34 +++++
  .../tvbox/osc/server/ControlManager.java      |  16 +++
  .../github/tvbox/osc/server/DataReceiver.java |   2 +
  .../tvbox/osc/server/InputRequestProcess.java |   5 +
- .../tvbox/osc/ui/activity/DetailActivity.java |  55 +++++++-
+ .../tvbox/osc/ui/activity/DetailActivity.java |  53 ++++++++
  .../tvbox/osc/ui/dialog/PushDialog.java       |  86 +++++++++++++
  .../com/github/tvbox/osc/util/HawkConfig.java |   2 +
  app/src/main/res/layout/activity_detail.xml   |  13 ++
  app/src/main/res/layout/dialog_push.xml       | 119 ++++++++++++++++++
- 12 files changed, 338 insertions(+), 2 deletions(-)
+ 11 files changed, 336 insertions(+)
  create mode 100644 app/src/main/java/com/github/tvbox/osc/receiver/DetailReceiver.java
  create mode 100644 app/src/main/java/com/github/tvbox/osc/ui/dialog/PushDialog.java
  create mode 100644 app/src/main/res/layout/dialog_push.xml
 
 diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
-index 9821750..8559f16 100644
+index a506286..ef98c94 100644
 --- a/app/src/main/AndroidManifest.xml
 +++ b/app/src/main/AndroidManifest.xml
-@@ -71,6 +71,11 @@
+@@ -78,6 +78,11 @@
                  <action android:name="android.content.movie.search.Action" />
              </intent-filter>
          </receiver>
@@ -37,19 +36,6 @@ index 9821750..8559f16 100644
          <receiver android:name=".receiver.CustomWebReceiver">
              <intent-filter>
                  <action android:name="android.content.movie.custom.web.Action" />
-diff --git a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-index 7d00204..9a311ae 100644
---- a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-+++ b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-@@ -81,7 +81,7 @@ public class ApiConfig {
-     }
- 
-     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
--        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://raw.githubusercontent.com/chengxue2020/Cat-ports/main/main.json");
-+        String apiUrl = Hawk.get(HawkConfig.API_URL, "http://tv.fzsanping.com:8000/tvbox998562477562");
-         if (apiUrl.isEmpty()) {
-             callback.error("-1");
-             return;
 diff --git a/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java b/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
 index 2f749bc..3d6e6ba 100644
 --- a/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
@@ -104,7 +90,7 @@ index 0000000..e4c9225
 +}
 \ No newline at end of file
 diff --git a/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java b/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java
-index 5337055..e68bdf6 100644
+index edb14b3..5383e8c 100644
 --- a/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java
 +++ b/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java
 @@ -7,6 +7,7 @@ import android.os.Bundle;
@@ -115,9 +101,9 @@ index 5337055..e68bdf6 100644
  import com.github.tvbox.osc.receiver.SearchReceiver;
  import com.github.tvbox.osc.util.HawkConfig;
  import com.orhanobut.hawk.Hawk;
-@@ -80,6 +81,21 @@ public class ControlManager {
-                 public void onPushReceived(String url) {
-                     EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_PUSH_URL, url));
+@@ -87,6 +88,21 @@ public class ControlManager {
+                     }
+                     EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_PUSH_URL, finalUrl));
                  }
 +
 +                @Override
@@ -166,7 +152,7 @@ index 82d444d..18849db 100644
                  }
                  return RemoteServer.createPlainTextResponse(NanoHTTPD.Response.Status.OK, "ok");
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index db83fb8..3d43681 100644
+index 12f4ba4..69db716 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 @@ -37,6 +37,7 @@ import com.github.tvbox.osc.event.RefreshEvent;
@@ -177,7 +163,7 @@ index db83fb8..3d43681 100644
  import com.github.tvbox.osc.ui.dialog.QuickSearchDialog;
  import com.github.tvbox.osc.ui.fragment.PlayFragment;
  import com.github.tvbox.osc.util.DefaultConfig;
-@@ -104,6 +105,7 @@ public class DetailActivity extends BaseActivity {
+@@ -107,6 +108,7 @@ public class DetailActivity extends BaseActivity {
      private TextView tvDes;
      private TextView tvPlay;
      private TextView tvSort;
@@ -185,7 +171,7 @@ index db83fb8..3d43681 100644
      private TextView tvQuickSearch;
      private TextView tvCollect;
      private TvRecyclerView mGridViewFlag;
-@@ -156,6 +158,7 @@ public class DetailActivity extends BaseActivity {
+@@ -160,6 +162,7 @@ public class DetailActivity extends BaseActivity {
          tvDes = findViewById(R.id.tvDes);
          tvPlay = findViewById(R.id.tvPlay);
          tvSort = findViewById(R.id.tvSort);
@@ -193,7 +179,7 @@ index db83fb8..3d43681 100644
          tvCollect = findViewById(R.id.tvCollect);
          tvQuickSearch = findViewById(R.id.tvQuickSearch);
          mEmptyPlayList = findViewById(R.id.mEmptyPlaylist);
-@@ -197,6 +200,13 @@ public class DetailActivity extends BaseActivity {
+@@ -201,6 +204,13 @@ public class DetailActivity extends BaseActivity {
                  }
              }
          });
@@ -207,16 +193,7 @@ index db83fb8..3d43681 100644
          tvPlay.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View v) {
-@@ -364,7 +374,7 @@ public class DetailActivity extends BaseActivity {
-         tvName.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
--                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
-+                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(mContext.CLIPBOARD_SERVICE);
-                 String cpContent = "视频ID：" + vodId + "，图片地址：" + (mVideo == null ? "" : mVideo.pic);
-                 ClipData clipData = ClipData.newPlainText(null, cpContent);
-                 clipboard.setPrimaryClip(clipData);
-@@ -643,6 +653,47 @@ public class DetailActivity extends BaseActivity {
+@@ -653,6 +663,47 @@ public class DetailActivity extends BaseActivity {
          }
      }
  
@@ -264,7 +241,7 @@ index db83fb8..3d43681 100644
      private String searchTitle = "";
      private boolean hadQuickStart = false;
      private final List<Movie.Video> quickSearchData = new ArrayList<>();
-@@ -773,6 +824,7 @@ public class DetailActivity extends BaseActivity {
+@@ -787,6 +838,7 @@ public class DetailActivity extends BaseActivity {
          OkGo.getInstance().cancelTag("fenci");
          OkGo.getInstance().cancelTag("detail");
          OkGo.getInstance().cancelTag("quick_search");
@@ -272,7 +249,7 @@ index db83fb8..3d43681 100644
          EventBus.getDefault().unregister(this);
      }
  
-@@ -839,6 +891,7 @@ public class DetailActivity extends BaseActivity {
+@@ -853,6 +905,7 @@ public class DetailActivity extends BaseActivity {
          //全屏下禁用详情页几个按键的焦点 防止上键跑过来
          tvPlay.setFocusable(!fullWindows);
          tvSort.setFocusable(!fullWindows);
@@ -374,7 +351,7 @@ index 0000000..7b81843
 +}
 \ No newline at end of file
 diff --git a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
-index 97fcbb3..175e157 100644
+index 752ed2c..0535dce 100644
 --- a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
 @@ -6,6 +6,8 @@ package com.github.tvbox.osc.util;

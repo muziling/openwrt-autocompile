@@ -1,7 +1,7 @@
-From c5a3215da5da034c16006660b57821b22ea1985e Mon Sep 17 00:00:00 2001
+From fbb864701d00afbb1783a70a35521011a3a07fd0 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
-Date: Fri, 30 Sep 2022 20:27:40 +0800
-Subject: [PATCH 4/6] allow video list of one site contain different site
+Date: Sat, 22 Oct 2022 22:36:33 +0800
+Subject: [PATCH 5/6] allow video list of one site contain different site
 
 ---
  .../main/java/com/github/tvbox/osc/bean/AbsJson.java   |  2 ++
@@ -30,17 +30,17 @@ index 336e6b3..262219e 100644
              video.des = vod_content;// <![CDATA[权来]
              return video;
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-index cf78fe9..db83fb8 100644
+index a200500..12f4ba4 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
-@@ -361,6 +361,16 @@ public class DetailActivity extends BaseActivity {
+@@ -365,6 +365,16 @@ public class DetailActivity extends BaseActivity {
              }
          });
          setLoadSir(llLayout);
 +        tvName.setOnClickListener(new View.OnClickListener() {
 +            @Override
 +            public void onClick(View v) {
-+                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
++                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(mContext.CLIPBOARD_SERVICE);
 +                String cpContent = "视频ID：" + vodId + "，图片地址：" + (mVideo == null ? "" : mVideo.pic);
 +                ClipData clipData = ClipData.newPlainText(null, cpContent);
 +                clipboard.setPrimaryClip(clipData);
@@ -49,7 +49,7 @@ index cf78fe9..db83fb8 100644
 +        });
      }
  
-     private List<Runnable> pauseRunnable = null;
+     private void initCheckedSourcesForSearch() {
 diff --git a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
 index 0f0dd17..443013c 100644
 --- a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
