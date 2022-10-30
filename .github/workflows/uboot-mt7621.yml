@@ -1,0 +1,119 @@
+name: Build customized u-boot
+
+on:
+  workflow_dispatch:
+    inputs:
+      flash:
+        description: 'Flash Type'
+        required: true
+        type: choice
+        options:
+        - 'NOR'
+        - 'NAND'
+        - 'NAND-NMBM'
+      mtdparts:
+        description: 'MTD Partition Table'
+        required: true
+        type: string
+        default: '256k(u-boot),64k(u-boot-env),256k(factory),-(firmware)'
+      kernel_offset:
+        description: 'Kernel Load Address'
+        required: true
+        type: string
+        default: '0x90000'
+      reset_pin:
+        description: 'Reset Button GPIO'
+        required: true
+        type: number
+        default: -1
+      sysled_pin:
+        description: 'System LED GPIO'
+        required: true
+        type: number
+        default: -1
+      cpufreq:
+        description: 'CPU Frequency (400 - 1200)'
+        required: true
+        type: number
+        default: '880'
+      ramfreq:
+        description: 'DRAM Frequency'
+        required: true
+        type: choice
+        options:
+        - '400'
+        - '800'
+        - '1066'
+        - '1200'
+        default: '800'
+      ddrparam:
+        description: 'Prefered DDR Init Parameters'
+        required: true
+        type: choice
+        options:
+        - 'DDR2-64MiB'
+        - 'DDR2-128MiB'
+        - 'DDR2-W9751G6KB-64MiB-1066MHz'
+        - 'DDR2-W971GG6KB25-128MiB-800MHz'
+        - 'DDR2-W971GG6KB18-128MiB-1066MHz'
+        - 'DDR3-128MiB'
+        - 'DDR3-256MiB'
+        - 'DDR3-512MiB'
+        - 'DDR3-128MiB-KGD'
+        default: 'DDR3-512MiB'
+      baudrate:
+        description: 'Baud Rate'
+        required: true
+        type: choice
+        options:
+        - '57600'
+        - '115200'
+        default: '115200'
+
+jobs:
+  build:
+    name: Build MT7621 u-boot
+    runs-on: ubuntu-latest
+    strategy:
+       fail-fast: False
+
+    steps:
+#      - name: Checkout master directory
+#        uses: actions/checkout@v3
+#        with:
+#          path: uboot-mt7621
+#
+      - name: Install essential packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install swig python2-dev
+          echo 'switch to python2 as default'
+          sudo rm /usr/bin/python
+          sudo ln -s /usr/bin/python2 /usr/bin/python
+
+      - name: Download OpenWrt toolchain
+        run: |
+          wget -O - https://downloads.cdn.openwrt.org/releases/19.07.10/targets/ramips/mt7621/openwrt-sdk-19.07.10-ramips-mt7621_gcc-7.5.0_musl.Linux-x86_64.tar.xz \
+            | tar --xz -xf -
+
+      - name: Clone uboot-mt7621 source code
+        run: |
+          git clone --depth 1 https://github.com/DragonBluep/uboot-mt7621.git uboot-mt7621
+          cd uboot-mt7621
+          wget https://github.com/MNM28/uboot-mt7621/commit/8e78e716ab3273967c10ff40ba50b5c26e74692d.diff -O ddr3.patch
+          git apply ddr3.patch
+          wget https://github.com/DragonBluep/uboot-mt7621/compare/main...monw:uboot-mt7621:main.diff -O xmc.patch
+          git apply xmc.patch
+          sed -i 's/MediaTek/JD-Luban/g' failsafe/fsdata/index.html 
+
+      - name: Compile
+        working-directory: uboot-mt7621
+        run: |
+          ./customize.sh '${{ inputs.flash }}' '${{ inputs.mtdparts }}' '${{ inputs.kernel_offset }}' '${{ inputs.reset_pin }}' \
+            '${{ inputs.sysled_pin }}' '${{ inputs.cpufreq }}' '${{ inputs.ramfreq }}' '${{ inputs.ddrparam }}' '${{ inputs.baudrate }}'
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: u-boot
+          path: "uboot-mt7621/archive/"
