@@ -1,4 +1,4 @@
-From 587622479aabc37341be149e672b435b31b458bb Mon Sep 17 00:00:00 2001
+From 4f28b18acc3ea79e0596e0f961c789d5b476012c Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Sat, 22 Oct 2022 22:28:10 +0800
 Subject: [PATCH 1/6] rename application package name
@@ -8,7 +8,7 @@ Subject: [PATCH 1/6] rename application package name
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/app/build.gradle b/app/build.gradle
-index d756828..82e9699 100644
+index 93581fb..fe8e79e 100644
 --- a/app/build.gradle
 +++ b/app/build.gradle
 @@ -4,7 +4,7 @@ android {

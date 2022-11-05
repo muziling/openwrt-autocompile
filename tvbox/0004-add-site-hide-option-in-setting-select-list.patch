@@ -1,4 +1,4 @@
-From 1fd993d8e506d48dac9580bc4269a9671f1fbcbb Mon Sep 17 00:00:00 2001
+From b7506e5b945f22e3b077d92d3943a58def851558 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Sat, 22 Oct 2022 22:33:22 +0800
 Subject: [PATCH 4/6] add site hide option in setting select list
@@ -11,16 +11,16 @@ Subject: [PATCH 4/6] add site hide option in setting select list
  4 files changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-index fe24c89..e9e42e9 100644
+index 8bb7c1d..4378639 100644
 --- a/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
-@@ -296,6 +296,7 @@ public class ApiConfig {
+@@ -300,6 +300,7 @@ public class ApiConfig {
              sb.setSearchable(DefaultConfig.safeJsonInt(obj, "searchable", 1));
              sb.setQuickSearch(DefaultConfig.safeJsonInt(obj, "quickSearch", 1));
              sb.setFilterable(DefaultConfig.safeJsonInt(obj, "filterable", 1));
 +            sb.setHide(DefaultConfig.safeJsonInt(obj, "hide", 0));
              sb.setPlayerUrl(DefaultConfig.safeJsonString(obj, "playUrl", ""));
-             if(obj.has("ext") && (obj.get("ext").isJsonArray() || obj.get("ext").isJsonObject())){
+             if(obj.has("ext") && (obj.get("ext").isJsonObject() || obj.get("ext").isJsonArray())){
                  sb.setExt(obj.get("ext").toString());
 diff --git a/app/src/main/java/com/github/tvbox/osc/bean/SourceBean.java b/app/src/main/java/com/github/tvbox/osc/bean/SourceBean.java
 index ff11953..de0e4e3 100644
@@ -66,10 +66,10 @@ index 4873766..882adc9 100644
              String homeSourceKey = ApiConfig.get().getHomeSourceBean().getKey();
              SelectDialog<SourceBean> dialog = new SelectDialog<>(HomeActivity.this);
 diff --git a/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java b/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
-index f4eea3d..8127b73 100644
+index f5f869f..f3b4472 100644
 --- a/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
 +++ b/app/src/main/java/com/github/tvbox/osc/ui/fragment/ModelSettingFragment.java
-@@ -196,7 +196,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
+@@ -199,7 +199,10 @@ public class ModelSettingFragment extends BaseLazyFragment {
              @Override
              public void onClick(View v) {
                  FastClickCheckUtil.check(v);

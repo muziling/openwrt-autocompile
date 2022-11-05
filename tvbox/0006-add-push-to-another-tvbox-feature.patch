@@ -1,4 +1,4 @@
-From 178396a24c8bc3e4a5599cb93b3b2beec1d5bc79 Mon Sep 17 00:00:00 2001
+From 427c09b50ef49de4f3972f2a75413f511842536a Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Sat, 22 Oct 2022 22:40:43 +0800
 Subject: [PATCH 6/6] add push to another tvbox feature
@@ -37,17 +37,17 @@ index a506286..ef98c94 100644
              <intent-filter>
                  <action android:name="android.content.movie.custom.web.Action" />
 diff --git a/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java b/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
-index 2f749bc..3d6e6ba 100644
+index e0ed286..47f34d3 100644
 --- a/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
 +++ b/app/src/main/java/com/github/tvbox/osc/event/RefreshEvent.java
-@@ -17,6 +17,7 @@ public class RefreshEvent {
-     public static final int TYPE_API_URL_CHANGE = 8;
-     public static final int TYPE_PUSH_URL = 9;
-     public static final int TYPE_EPG_URL_CHANGE = 10;
-+    public static final int TYPE_PUSH_VOD = 11;
-     public int type;
-     public Object obj;
- 
+@@ -6,6 +6,7 @@ package com.github.tvbox.osc.event;
+  * @description:
+  */
+ public class RefreshEvent {
++    public static final int TYPE_PUSH_VOD = 99;
+     public static final int TYPE_REFRESH = 0;
+     public static final int TYPE_HISTORY_REFRESH = 1;
+     public static final int TYPE_QUICK_SEARCH = 2;
 diff --git a/app/src/main/java/com/github/tvbox/osc/receiver/DetailReceiver.java b/app/src/main/java/com/github/tvbox/osc/receiver/DetailReceiver.java
 new file mode 100644
 index 0000000..e4c9225
@@ -90,7 +90,7 @@ index 0000000..e4c9225
 +}
 \ No newline at end of file
 diff --git a/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java b/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java
-index edb14b3..5383e8c 100644
+index e79e8e1..2c69afb 100644
 --- a/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java
 +++ b/app/src/main/java/com/github/tvbox/osc/server/ControlManager.java
 @@ -7,6 +7,7 @@ import android.os.Bundle;
@@ -101,9 +101,9 @@ index edb14b3..5383e8c 100644
  import com.github.tvbox.osc.receiver.SearchReceiver;
  import com.github.tvbox.osc.util.HawkConfig;
  import com.orhanobut.hawk.Hawk;
-@@ -87,6 +88,21 @@ public class ControlManager {
-                     }
-                     EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_PUSH_URL, finalUrl));
+@@ -82,6 +83,21 @@ public class ControlManager {
+                 public void onPushReceived(String url) {
+                     EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_PUSH_URL, url));
                  }
 +
 +                @Override
@@ -351,7 +351,7 @@ index 0000000..7b81843
 +}
 \ No newline at end of file
 diff --git a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
-index 752ed2c..0535dce 100644
+index 0adc091..babfd4c 100644
 --- a/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
 +++ b/app/src/main/java/com/github/tvbox/osc/util/HawkConfig.java
 @@ -6,6 +6,8 @@ package com.github.tvbox.osc.util;
