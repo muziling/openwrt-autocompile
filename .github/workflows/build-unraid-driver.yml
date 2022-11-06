@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  ORI_KERNEL_VERSION: 5.19.14
-  MY_KERNEL_VERSION: 5.19.16
+  ORI_KERNEL_VERSION: 5.19.17
+  MY_KERNEL_VERSION: 5.19.17
   TZ: Asia/Shanghai
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
       - name: Clone source code
         run: |
           cd /workdir
-          wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.16.tar.xz
+          wget https://cdn.kernel.org/pub/linux/kernel/v${MY_KERNEL_VERSION:0:1}.x/linux-$MY_KERNEL_VERSION.tar.xz
           xz -d linux-$MY_KERNEL_VERSION.tar.xz
           tar xvf linux-$MY_KERNEL_VERSION.tar
           #mv linux-5.19.16 linux-999
