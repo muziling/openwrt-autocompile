@@ -64,10 +64,10 @@ jobs:
           grep 8169 .config
 
           make oldconfig
-          make -j4 bzImage
+          make -j$(nproc) bzImage
           ls -l /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage
           cp /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage /workdir/bzImage
-          make -j4 modules
+          make -j$(nproc) modules
           sudo make modules_install
 
       - name: Compile the r8168
