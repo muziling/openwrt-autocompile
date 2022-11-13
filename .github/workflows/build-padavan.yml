@@ -1,0 +1,85 @@
+#修改TNAME: K2P-5.0 中的K2P-5.0为你需要编译的型号，注意名称要与configs/templates/目录下的名字相同 PSG1208
+name: Build Padavan
+
+on:
+  workflow_dispatch:
+    inputs:
+      routemodel:
+        description: 'Route Model'
+        required: true
+        type: choice
+        options:
+        - 'K2P_nano'
+        - 'JD-LUBAN'
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    name: Build Padavan firmware
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Clone source code
+        run: |
+          git clone --depth=1 https://github.com/flowlife/padavan-4.4.git /opt/rt-n56u
+
+      - name: modify code
+        run: |
+          mv padavan/*.patch /opt/rt-n56u/
+          
+          cd /opt/rt-n56u
+          #wget https://github.com/MeIsReallyBa/padavan-4.4/compare/main...hanwckf:padavan-4.4:main.patch -O hanwckf.patch
+          git apply main...hanwckf_padavan-4.4_main.patch
+
+          git apply xmc.patch
+          git apply luban.patch
+          
+      - name: custom config
+        run: |
+          mv ngrok /opt/rt-n56u/trunk/user
+          git clone --depth 1 -b master https://github.com/dosgo/ngrok-c /opt/rt-n56u/trunk/user/ngrok/ngrok-c
+          sed -i 's/busybox/busybox\ndir_$(CONFIG_FIRMWARE_INCLUDE_NGROK)            += ngrok/' /opt/rt-n56u/trunk/user/Makefile
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_SCUTCLIENT=y/CONFIG_FIRMWARE_INCLUDE_SCUTCLIENT=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_MENTOHUST=y/CONFIG_FIRMWARE_INCLUDE_MENTOHUST=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_NAPT66=y/CONFIG_FIRMWARE_INCLUDE_NAPT66=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_VLMCSD=y/CONFIG_FIRMWARE_INCLUDE_VLMCSD=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_MTR=y/CONFIG_FIRMWARE_INCLUDE_MTR=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_SOCAT=y/CONFIG_FIRMWARE_INCLUDE_SOCAT=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_SRELAY=y/CONFIG_FIRMWARE_INCLUDE_SRELAY=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          
+          echo '' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          #echo 'CONFIG_FIRMWARE_INCLUDE_NGROK=y' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          #echo 'CONFIG_FIRMWARE_INCLUDE_3PROXY=y' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/=y"/=n"/g' /opt/rt-n56u/trunk/build_firmware_modify
+
+      - name: Initialization environment
+        run: |
+          sudo apt update
+          sudo apt install unzip libtool-bin curl cmake gperf gawk flex bison nano xxd fakeroot kmod cpio git python3-docutils gettext automake autopoint texinfo build-essential help2man pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev wget libc-dev-bin
+
+      - name: Build Firmware
+        run: |
+          sh /opt/rt-n56u/trunk/tools/shellcheck.sh
+          cd /opt/rt-n56u/toolchain-mipsel
+          sh dl_toolchain.sh
+          cd /opt/rt-n56u/trunk
+          #sudo ./clear_tree_simple
+          #sudo ./build_firmware_modify ${{ inputs.routemodel }}
+          fakeroot ./build_firmware_modify ${{ inputs.routemodel }}
+          mkdir -p /opt/images/
+          sudo mv -f images/*.trx /opt/images/
+
+      - name : Upload packages
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Padavan-packages
+          path: /opt/images

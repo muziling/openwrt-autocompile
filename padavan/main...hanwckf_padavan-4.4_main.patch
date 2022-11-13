@@ -1,0 +1,270 @@
+From b03d87278cddfa8e97f250ab75a821268616feda Mon Sep 17 00:00:00 2001
+From: hanwckf <hanwckf@vip.qq.com>
+Date: Tue, 8 Feb 2022 01:51:27 +0800
+Subject: [PATCH 15/37] mt7915: fix WiFI->LAN throughput with hwnat enabled
+
+---
+ .../net/wireless/mediatek/mt7915/os/linux/rt_linux.c  | 10 ++--------
+ .../wireless/mediatek/mt7915/os/linux/rt_profile.c    | 11 ++++++++---
+ 3 files changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
+index 4295f10769..e129a0dd5b 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
+@@ -2581,16 +2581,10 @@ VOID RtmpOsPktNatMagicTag(PNDIS_PACKET pNetPkt)
+ {
+ 	struct sk_buff *pRxPkt = RTPKT_TO_OSPKT(pNetPkt);
+ 
+-	//FOE_MAGIC_TAG(pRxPkt) = FOE_MAGIC_WLAN;
+ 	if (IS_SPACE_AVAILABLE_HEAD(pRxPkt)) {
+-		FOE_ALG_HEAD(pRxPkt) = 0;
+ 		FOE_MAGIC_TAG_HEAD(pRxPkt) = FOE_MAGIC_WLAN;
+-		FOE_TAG_PROTECT_HEAD(pRxPkt) = TAG_PROTECT;
+-	}
+-	if (IS_SPACE_AVAILABLE_TAIL(pRxPkt)) {
+-		FOE_ALG_TAIL(pRxPkt) = 0;
+-		FOE_MAGIC_TAG_TAIL(pRxPkt) = FOE_MAGIC_WLAN;
+-		FOE_TAG_PROTECT_TAIL(pRxPkt) = TAG_PROTECT;
++	} else {
++		pr_err("%s: magic tag not set.\n", __func__);
+ 	}
+ }
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
+index eaa8423f92..6d6f60c566 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
+@@ -1274,19 +1274,23 @@ void announce_802_3_packet(
+ 			RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
+ 			BOOLEAN whnat_rx_en = pAd->CommonCfg.whnat_en &&
+ 									(cap->tkn_info.feature & TOKEN_RX);
+-#else
+-			BOOLEAN whnat_rx_en = FALSE;
+ #endif
++
+ #ifdef PKTLOSS_CHK
+ 			if (pAd->pktloss_chk.enable)
+ 				pAd->pktloss_chk.pktloss_chk_handler(pAd, GET_OS_PKT_DATAPTR(pRxPkt), MAT_ETHER_HDR_LEN, 3, FALSE);
+ #endif
+ 			RtmpOsPktProtocolAssign(pRxPkt);
+ 
++#ifndef WHNAT_SUPPORT
++			RtmpOsPktNatMagicTag(pRxPkt);
++			if (ra_sw_nat_hook_rx(pRxPkt))
++				RtmpOsPktRcvHandle(pRxPkt, napi);
++#else
+ 			if (!whnat_rx_en) {
+ 				RtmpOsPktNatMagicTag(pRxPkt);
+ 				if (ra_sw_nat_hook_rx(pRxPkt))
+-					RtmpOsPktRcvHandle(pRxPkt, napi);	
++					RtmpOsPktRcvHandle(pRxPkt, napi);
+ 			} else {
+ 				if (RTMP_GET_PACKET_TYPE(pRxPkt)
+ 						== RX_PPE_VALID)
+@@ -1294,6 +1298,7 @@ void announce_802_3_packet(
+ 				RtmpOsPktRcvHandle(pRxPkt, napi);
+ 			}
+ 
++#endif
+ 			return;
+ 		}
+ #endif /* CONFIG_FAST_NAT_SUPPORT */
+
+From 0d936e7a81377e11bfc10eff4d3f1c7547dd58fa Mon Sep 17 00:00:00 2001
+From: hanwckf <hanwckf@vip.qq.com>
+Date: Tue, 8 Feb 2022 23:58:10 +0800
+Subject: [PATCH 17/37] Revert "mt7915: fix WiFI->LAN throughput with hwnat
+ enabled"
+
+This reverts commit b03d87278cddfa8e97f250ab75a821268616feda.
+---
+ .../net/wireless/mediatek/mt7915/os/linux/rt_linux.c  | 10 ++++++++--
+ .../wireless/mediatek/mt7915/os/linux/rt_profile.c    | 11 +++--------
+ .../drivers/net/wireless/mediatek/mt7915_ap/Makefile  |  2 +-
+ 3 files changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
+index e129a0dd5b..4295f10769 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
+@@ -2581,10 +2581,16 @@ VOID RtmpOsPktNatMagicTag(PNDIS_PACKET pNetPkt)
+ {
+ 	struct sk_buff *pRxPkt = RTPKT_TO_OSPKT(pNetPkt);
+ 
++	//FOE_MAGIC_TAG(pRxPkt) = FOE_MAGIC_WLAN;
+ 	if (IS_SPACE_AVAILABLE_HEAD(pRxPkt)) {
++		FOE_ALG_HEAD(pRxPkt) = 0;
+ 		FOE_MAGIC_TAG_HEAD(pRxPkt) = FOE_MAGIC_WLAN;
+-	} else {
+-		pr_err("%s: magic tag not set.\n", __func__);
++		FOE_TAG_PROTECT_HEAD(pRxPkt) = TAG_PROTECT;
++	}
++	if (IS_SPACE_AVAILABLE_TAIL(pRxPkt)) {
++		FOE_ALG_TAIL(pRxPkt) = 0;
++		FOE_MAGIC_TAG_TAIL(pRxPkt) = FOE_MAGIC_WLAN;
++		FOE_TAG_PROTECT_TAIL(pRxPkt) = TAG_PROTECT;
+ 	}
+ }
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
+index 6d6f60c566..eaa8423f92 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
+@@ -1274,23 +1274,19 @@ void announce_802_3_packet(
+ 			RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
+ 			BOOLEAN whnat_rx_en = pAd->CommonCfg.whnat_en &&
+ 									(cap->tkn_info.feature & TOKEN_RX);
++#else
++			BOOLEAN whnat_rx_en = FALSE;
+ #endif
+-
+ #ifdef PKTLOSS_CHK
+ 			if (pAd->pktloss_chk.enable)
+ 				pAd->pktloss_chk.pktloss_chk_handler(pAd, GET_OS_PKT_DATAPTR(pRxPkt), MAT_ETHER_HDR_LEN, 3, FALSE);
+ #endif
+ 			RtmpOsPktProtocolAssign(pRxPkt);
+ 
+-#ifndef WHNAT_SUPPORT
+-			RtmpOsPktNatMagicTag(pRxPkt);
+-			if (ra_sw_nat_hook_rx(pRxPkt))
+-				RtmpOsPktRcvHandle(pRxPkt, napi);
+-#else
+ 			if (!whnat_rx_en) {
+ 				RtmpOsPktNatMagicTag(pRxPkt);
+ 				if (ra_sw_nat_hook_rx(pRxPkt))
+-					RtmpOsPktRcvHandle(pRxPkt, napi);
++					RtmpOsPktRcvHandle(pRxPkt, napi);	
+ 			} else {
+ 				if (RTMP_GET_PACKET_TYPE(pRxPkt)
+ 						== RX_PPE_VALID)
+@@ -1298,7 +1294,6 @@ void announce_802_3_packet(
+ 				RtmpOsPktRcvHandle(pRxPkt, napi);
+ 			}
+ 
+-#endif
+ 			return;
+ 		}
+ #endif /* CONFIG_FAST_NAT_SUPPORT */
+
+From 9d689cdf0b3a643b938cabfa034f2862c2d06b31 Mon Sep 17 00:00:00 2001
+From: hanwckf <hanwckf@vip.qq.com>
+Date: Fri, 11 Feb 2022 12:48:44 +0800
+Subject: [PATCH 22/37] mt7915: disable SUPPORT_WLAN_OPTIMIZE to fix hwnat
+ issues
+
+---
+ trunk/configs/boards/CR660x/kernel-4.4.x.config    |  2 +-
+ trunk/configs/boards/JCG-Q20/kernel-4.4.x.config   |  2 +-
+ .../wireless/mediatek/mt7915/os/linux/rt_linux.c   | 14 +++-----------
+ .../wireless/mediatek/mt7915/os/linux/rt_profile.c | 10 +++++++---
+ 4 files changed, 12 insertions(+), 16 deletions(-)
+
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
+index 4295f10769..1665c5a51e 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_linux.c
+@@ -2581,17 +2581,9 @@ VOID RtmpOsPktNatMagicTag(PNDIS_PACKET pNetPkt)
+ {
+ 	struct sk_buff *pRxPkt = RTPKT_TO_OSPKT(pNetPkt);
+ 
+-	//FOE_MAGIC_TAG(pRxPkt) = FOE_MAGIC_WLAN;
+-	if (IS_SPACE_AVAILABLE_HEAD(pRxPkt)) {
+-		FOE_ALG_HEAD(pRxPkt) = 0;
+-		FOE_MAGIC_TAG_HEAD(pRxPkt) = FOE_MAGIC_WLAN;
+-		FOE_TAG_PROTECT_HEAD(pRxPkt) = TAG_PROTECT;
+-	}
+-	if (IS_SPACE_AVAILABLE_TAIL(pRxPkt)) {
+-		FOE_ALG_TAIL(pRxPkt) = 0;
+-		FOE_MAGIC_TAG_TAIL(pRxPkt) = FOE_MAGIC_WLAN;
+-		FOE_TAG_PROTECT_TAIL(pRxPkt) = TAG_PROTECT;
+-	}
++	FOE_ALG_HEAD(pRxPkt) = 0;
++	FOE_MAGIC_TAG_HEAD(pRxPkt) = FOE_MAGIC_WLAN;
++	FOE_TAG_PROTECT_HEAD(pRxPkt) = TAG_PROTECT;
+ }
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+ 
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
+index eaa8423f92..770583da8e 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7915/os/linux/rt_profile.c
+@@ -1274,15 +1274,19 @@ void announce_802_3_packet(
+ 			RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
+ 			BOOLEAN whnat_rx_en = pAd->CommonCfg.whnat_en &&
+ 									(cap->tkn_info.feature & TOKEN_RX);
+-#else
+-			BOOLEAN whnat_rx_en = FALSE;
+ #endif
+ #ifdef PKTLOSS_CHK
+ 			if (pAd->pktloss_chk.enable)
+ 				pAd->pktloss_chk.pktloss_chk_handler(pAd, GET_OS_PKT_DATAPTR(pRxPkt), MAT_ETHER_HDR_LEN, 3, FALSE);
+ #endif
++
+ 			RtmpOsPktProtocolAssign(pRxPkt);
+ 
++#ifndef WHNAT_SUPPORT
++            RtmpOsPktNatMagicTag(pRxPkt);
++            if (ra_sw_nat_hook_rx(pRxPkt))
++                RtmpOsPktRcvHandle(pRxPkt, napi);
++#else
+ 			if (!whnat_rx_en) {
+ 				RtmpOsPktNatMagicTag(pRxPkt);
+ 				if (ra_sw_nat_hook_rx(pRxPkt))
+@@ -1293,7 +1297,7 @@ void announce_802_3_packet(
+ 					ra_sw_nat_hook_rx(pRxPkt);
+ 				RtmpOsPktRcvHandle(pRxPkt, napi);
+ 			}
+-
++#endif
+ 			return;
+ 		}
+ #endif /* CONFIG_FAST_NAT_SUPPORT */
+
+From d96689cca5ec11be0feb15077a6f89de0be433ea Mon Sep 17 00:00:00 2001
+From: hanwckf <hanwckf@vip.qq.com>
+Date: Tue, 15 Feb 2022 00:31:52 +0800
+Subject: [PATCH 33/37] mt7615: disable SUPPORT_WLAN_OPTIMIZE to fix hwnat
+ issues
+
+---
+ trunk/configs/boards/DIR-878/kernel-4.4.x.config  |  2 +-
+ trunk/configs/boards/DIR-882/kernel-4.4.x.config  |  2 +-
+ .../configs/boards/JCG-836PRO/kernel-4.4.x.config |  2 +-
+ .../configs/boards/JCG-AC860M/kernel-4.4.x.config |  2 +-
+ trunk/configs/boards/JCG-Y2/kernel-4.4.x.config   |  2 +-
+ trunk/configs/boards/K2P-USB/kernel-4.4.x.config  |  2 +-
+ trunk/configs/boards/K2P/kernel-4.4.x.config      |  2 +-
+ trunk/configs/boards/MI-R3P/kernel-4.4.x.config   |  2 +-
+ trunk/configs/boards/MR2600/kernel-4.4.x.config   |  2 +-
+ .../boards/NETGEAR-BZV/kernel-4.4.x.config        |  2 +-
+ trunk/configs/boards/XY-C1/kernel-4.4.x.config    |  2 +-
+ .../wireless/mediatek/mt7615/os/linux/rt_linux.c  | 15 +++------------
+ 12 files changed, 14 insertions(+), 23 deletions(-)
+
+diff --git a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7615/os/linux/rt_linux.c b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7615/os/linux/rt_linux.c
+index 55d338e39c..b7bb80851d 100644
+--- a/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7615/os/linux/rt_linux.c
++++ b/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt7615/os/linux/rt_linux.c
+@@ -2492,18 +2492,9 @@ VOID RtmpOsPktNatMagicTag(IN PNDIS_PACKET pNetPkt)
+ {
+ 	struct sk_buff *pRxPkt = RTPKT_TO_OSPKT(pNetPkt);
+ 
+-	//FOE_MAGIC_TAG(pRxPkt) = FOE_MAGIC_WLAN;
+-
+-	if (IS_SPACE_AVAILABLE_HEAD(pRxPkt)) {
+-		FOE_ALG_HEAD(pRxPkt) = 0;
+-		FOE_MAGIC_TAG_HEAD(pRxPkt) = FOE_MAGIC_WLAN;
+-		FOE_TAG_PROTECT_HEAD(pRxPkt) = TAG_PROTECT;
+-	}
+-	if (IS_SPACE_AVAILABLE_TAIL(pRxPkt)) {
+-		FOE_ALG_TAIL(pRxPkt) = 0;
+-		FOE_MAGIC_TAG_TAIL(pRxPkt) = FOE_MAGIC_WLAN;
+-		FOE_TAG_PROTECT_TAIL(pRxPkt) = TAG_PROTECT;
+-	}
++	FOE_ALG_HEAD(pRxPkt) = 0;
++	FOE_MAGIC_TAG_HEAD(pRxPkt) = FOE_MAGIC_WLAN;
++	FOE_TAG_PROTECT_HEAD(pRxPkt) = TAG_PROTECT;
+ }
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+ 
