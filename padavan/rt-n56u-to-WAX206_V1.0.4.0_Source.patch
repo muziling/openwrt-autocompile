@@ -1,0 +1,1632 @@
+From 2fd19dbfb5823d9b2f1afc2023290b4bcba864d9 Mon Sep 17 00:00:00 2001
+From: hanwckf <hanwckf@vip.qq.com>
+Date: Thu, 29 Apr 2021 01:24:59 +0800
+Subject: [PATCH] mt7915: apply patches
+
+---
+ .../7.3.0.1/mt7915/ate/mt_mac/mt_testmode.c   |    6 +-
+ .../rtpci/7.3.0.1/mt7915/chips/mt7915.c       |    2 +-
+ .../rtpci/7.3.0.1/mt7915/embedded/Kconfig     |  154 +-
+ .../rtpci/7.3.0.1/mt7915/embedded/ap/ap.c     |    5 +-
+ .../rtpci/7.3.0.1/mt7915/embedded/ap/ap_cfg.c |   49 +-
+ .../7.3.0.1/mt7915/embedded/ap/ap_mbss_inf.c  |    3 +-
+ .../7.3.0.1/mt7915/embedded/ap/ap_wds_inf.c   |    1 -
+ .../mt7915/embedded/common/bgnd_scan.c        |    3 +
+ .../7.3.0.1/mt7915/embedded/common/cmm_cfg.c  |    4 +-
+ .../7.3.0.1/mt7915/embedded/common/cmm_cmd.c  |    2 +
+ .../7.3.0.1/mt7915/embedded/common/cmm_info.c |  209 +-
+ .../mt7915/embedded/common/cmm_mat_pppoe.c    |   30 +-
+ .../mt7915/embedded/common/cmm_radar.c        |   27 +-
+ .../7.3.0.1/mt7915/embedded/common/ee_flash.c |    4 +-
+ .../7.3.0.1/mt7915/embedded/common/hif_pci.c  |   15 +-
+ .../mt7915/embedded/common/multi_profile.c    |    4 +
+ .../rtpci/7.3.0.1/mt7915/embedded/common/qm.c |    4 +-
+ .../mt7915/embedded/common/rtmp_timer.c       |    7 +-
+ .../7.3.0.1/mt7915/embedded/common/txs.c      |    4 +-
+ .../mt7915/embedded/fsm/ap_mgmt_auth.c        |    2 +-
+ .../mt7915/embedded/fsm/sta_mgmt_assoc.c      |    3 +-
+ .../mt7915/embedded/fsm/sta_mgmt_auth.c       |    4 +-
+ .../mt7915/embedded/fsm/sta_mgmt_cntl.c       |    5 +-
+ .../mt7915/embedded/fsm/sta_mgmt_sync.c       |    7 +-
+ .../7.3.0.1/mt7915/embedded/include/mt_rdm.h  |    7 +-
+ .../7.3.0.1/mt7915/embedded/include/oid.h     |    2 +
+ .../7.3.0.1/mt7915/embedded/include/rtmp.h    |    8 +-
+ .../mt7915/embedded/include/rtmp_cmd.h        |    4 +-
+ .../mt7915/embedded/include/rtmp_def.h        |    8 +-
+ .../mt7915/embedded/include/rtmp_timer.h      |    7 +-
+ .../7.3.0.1/mt7915/embedded/mcu/andes_mt.c    |    2 +-
+ .../mt7915/embedded/security/crypt_sha2.c     |   44 +-
+ .../rtpci/7.3.0.1/mt7915/embedded/sta/sta.c   |    3 +-
+ .../rtpci/7.3.0.1/mt7915/embedded/wapp/wapp.c |   13 +-
+ .../7.3.0.1/mt7915/include/os/rt_linux.h      |    8 +-
+ .../rtpci/7.3.0.1/mt7915/os/linux/rt_linux.c  |   12 +-
+ .../7.3.0.1/mt7915/os/linux/rt_main_dev.c     |   47 +-
+ .../7.3.0.1/mt7915/os/linux/rt_profile.c      |    5 +-
+ .../7.3.0.1/mt7915/wlan_service/agent/agent.c |    2 +-
+ .../glue/hal/jedi/operation_jedi.c            |    6 +-
+ .../rt_wifi/rtpci/7.3.0.1/mt7915_ap/Kconfig   |    7 +-
+ .../rt_wifi/rtpci/7.3.0.1/mt7915_ap/Makefile  |  150 +-
+ 46 files changed, 3475 insertions(+), 490 deletions(-)
+ create mode 100644 trunk/linux-3.4.x/drivers/net/wireless/ralink/mt7915/embedded/Kconfig
+ create mode 100644 trunk/linux-3.4.x/drivers/net/wireless/ralink/mt7915_ap/Kconfig
+ create mode 100644 trunk/linux-3.4.x/drivers/net/wireless/ralink/mt7915_ap/Makefile
+
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/ate/mt_mac/mt_testmode.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/ate/mt_mac/mt_testmode.c
+index 1f63f911e46..898d6d85b21 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/ate/mt_mac/mt_testmode.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/ate/mt_mac/mt_testmode.c
+@@ -10113,8 +10113,10 @@ INT MtATE_DPD_Cal_Store_Proc_7915(RTMP_ADAPTER *pAd, UINT8 op)
+ 	USHORT                doCal1 = 0;
+ 	MT_SWITCH_CHANNEL_CFG ch_cfg;
+ #ifdef DBDC_MODE
+-	u_int32 band0_tx_path_backup, band0_rx_path_backup;
+-	u_int32 band1_tx_path_backup, band1_rx_path_backup;
++	u_int32 band0_tx_path_backup = 0;
++	u_int32 band0_rx_path_backup = 0;
++	u_int32 band1_tx_path_backup = 0;
++	u_int32 band1_rx_path_backup = 0;
+ #endif
+ 	RTMP_CHIP_OP *pChipOps = hc_get_chip_ops(pAd->hdev_ctrl);
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/chips/mt7915.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/chips/mt7915.c
+index 4e83fe6cb6c..d5dfda3954b 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/chips/mt7915.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/chips/mt7915.c
+@@ -9742,7 +9742,7 @@ static VOID show_candidate_list(struct _RTMP_ADAPTER *pAd, UINT_8 counter, UINT3
+ 	UINT_8 i, j, value, bit;
+ 	UINT_32 addr_3, addr_4;
+ 	RTMP_STRING * group[3] = {" 8: ", "36: ", "71: "};
+-	UINT_8 u1CnBits, u1MaxBits;
++	UINT_8 u1CnBits = 0, u1MaxBits;
+ 
+ 	for (i = 0; i < counter; i++) {
+ 		addr_3 = addr + sizeof(UINT_8) * i * MAX_CAP_MUM_GRP_BLOCK;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/Kconfig b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/Kconfig
+index 55bdedfc381..b8e46ee439d 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/Kconfig
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/Kconfig
+@@ -1,77 +1,21 @@
++config WIFI_DRIVER
++	bool
++	default y
++
++config CHIP_MT7915
++	bool
++	default y
++
+ config MT_WIFI
+ 	tristate "MT WIFI Driver"
+ 	select WIFI_BASIC_FUNC if MT_WIFI
+ 
+-config MT_WIFI_PATH
+-		string
+-		depends on MT_WIFI
+-		default "mt_wifi"
+-
+ if MT_WIFI
+ menu "WiFi Generic Feature Options"
+-choice
+-		prompt "EEPROM Type of 1st Card"
+-		depends on ! FIRST_IF_NONE
+-
+-		config FIRST_IF_EEPROM_FLASH
+-		bool "FLASH"
+-
+-		config FIRST_IF_EEPROM_EFUSE
+-		bool "EFUSE"
+-endchoice
+-
+-config RT_FIRST_CARD_EEPROM
+-		string
+-		depends on ! FIRST_IF_NONE
+-		default "flash" if FIRST_IF_EEPROM_FLASH
+-
+-choice
+-		prompt "EEPROM Type of 2nd Card"
+-		depends on ! SECOND_IF_NONE
+-
+-		config SECOND_IF_EEPROM_FLASH
+-		bool "FLASH"
+-
+-		config SECOND_IF_EEPROM_PROM
+-		bool "EEPROM"
+-
+-		config SECOND_IF_EEPROM_EFUSE
+-		bool "EFUSE"
+-
+-endchoice
+-
+-config RT_SECOND_CARD_EEPROM
+-		string
+-		depends on ! SECOND_IF_NONE
+-		default "prom" if SECOND_IF_EEPROM_PROM
+-		default "efuse" if SECOND_IF_EEPROM_EFUSE
+-		default "flash" if SECOND_IF_EEPROM_FLASH
+-
+-choice
+-		prompt "EEPROM Type of 3th Card"
+-		depends on ! THIRD_IF_NONE
+-
+-		config THIRD_IF_EEPROM_FLASH
+-		bool "FLASH"
+-
+-		config THIRD_IF_EEPROM_PROM
+-		bool "EEPROM"
+-
+-		config THIRD_IF_EEPROM_EFUSE
+-		bool "EFUSE"
+-
+-endchoice
+-
+-config RT_THIRD_CARD_EEPROM
+-		string
+-		depends on ! THIRD_IF_NONE
+-		default "prom" if THIRD_IF_EEPROM_PROM
+-		default "efuse" if THIRD_IF_EEPROM_EFUSE
+-		default "flash" if THIRD_IF_EEPROM_FLASH
+ 	
+ config MULTI_INF_SUPPORT
+-		bool
+-		default y if !FIRST_IF_NONE && !SECOND_IF_NONE
++	bool
++	default y if !RT_FIRST_IF_NONE && !RT_SECOND_IF_NONE
+ 		
+ config WIFI_BASIC_FUNC
+ 	bool "Basic Functions"
+@@ -122,11 +66,6 @@ config CFG_SUPPORT_FALCON_PP
+         depends on CHIP_MT7915
+         default y
+ 
+-config SINGLE_SKU
+-        bool "SKU(Single Sku) support"
+-        depends on WIFI_DRIVER
+-        default y
+-
+ config WIFI_TWT_SUPPORT
+ 	bool "TWT(Target Wake Time) support"
+ 	depends on WIFI_DRIVER
+@@ -199,17 +138,17 @@ config MTK_OFFCHANNEL_SCAN_FEATURE
+ 
+ config HDR_TRANS_TX_SUPPORT
+     bool "Tx Header Translation"
+-    depends on CHIP_MT7615E || CHIP_MT7622 || CHIP_MT7663E || CHIP_MT7626
++    depends on CHIP_MT7615E || CHIP_MT7622 || CHIP_MT7663E || CHIP_MT7626 || CHIP_MT7915
+     default y
+ 
+ config HDR_TRANS_RX_SUPPORT
+     bool "Rx Header Translation"
+-    depends on CHIP_MT7615E || CHIP_MT7622 || CHIP_MT7663E || CHIP_MT7626
++    depends on CHIP_MT7615E || CHIP_MT7622 || CHIP_MT7663E || CHIP_MT7626 || CHIP_MT7915
+     default y
+ 
+ config DBDC_MODE
+ 	bool "dbdc mode support"
+-	depends on CHIP_MT7615E || CHIP_MT7626
++	depends on CHIP_MT7615E || CHIP_MT7626 || CHIP_MT7915
+ 	select MULTI_PROFILE_SUPPORT
+ 	#select DEFAULT_5G_PROFILE
+ 	default y
+@@ -221,7 +160,7 @@ config MULTI_PROFILE_SUPPORT
+ 
+ config DEFAULT_5G_PROFILE
+ 	bool "5G default profile for DBDC"
+-	depends on CHIP_MT7615E
++	depends on CHIP_MT7615E || CHIP_MT7915
+ 	depends on DBDC_MODE
+ 	default y
+ 
+@@ -472,47 +411,6 @@ config FDB_SUPPORT
+        depends on WIFI_DRIVER
+        default n
+ 
+-choice
+-        prompt "PA LNA Type of 1st Card"
+-		depends on ! FIRST_IF_NONE
+-		
+-		config FIRST_IF_EPAELNA
+-		bool "ePAeLNA"
+-		config FIRST_IF_IPAILNA
+-		bool "iPAiLNA"		
+-		config FIRST_IF_IPAELNA
+-		bool "iPAeLNA"
+-#		config FIRST_IF_EPAILNA
+-#		bool "ePAiLNA"
+-endchoice
+-choice
+-        prompt "PA LNA Type of 2nd Card"
+-		depends on ! SECOND_IF_NONE
+-		
+-		config SECOND_IF_EPAELNA
+-		bool "ePAeLNA"
+-		config SECOND_IF_IPAILNA
+-		bool "iPAiLNA"		
+-		config SECOND_IF_IPAELNA
+-		bool "iPAeLNA"
+-#		config SECOND_IF_EPAILNA
+-#		bool "ePAiLNA"
+-endchoice
+-choice
+-        prompt "PA LNA Type of 3rd Card"
+-		depends on ! THIRD_IF_NONE
+-		
+-		config THIRD_IF_EPAELNA
+-		bool "ePAeLNA"
+-		config THIRD_IF_IPAILNA
+-		bool "iPAiLNA"		
+-		config THIRD_IF_IPAELNA
+-		bool "iPAeLNA"
+-#		config THIRD_IF_EPAILNA
+-#		bool "ePAiLNA"
+-endchoice
+-#### PA_LNA_Type choice END 
+-
+ #
+ # Section for chip architectures
+ #
+@@ -555,30 +453,8 @@ config RTMP_RBUS_SUPPORT
+ endmenu
+ 
+ menu "WiFi Operation Modes"
+-	choice
+-		prompt "Main Mode"
+-		default WIFI_MODE_AP
+-
+-		config WIFI_MODE_AP
+-				tristate "AP"
+-				select MT_AP_SUPPORT
+-
+-		config WIFI_MODE_STA
+-				tristate "STA"
+-				select MT_STA_SUPPORT
+-
+-		config WIFI_MODE_BOTH
+-				tristate "APSTA"
+-				select MT_AP_SUPPORT
+-				select MT_STA_SUPPORT
+-    endchoice
+-
+     if WIFI_MODE_AP || WIFI_MODE_BOTH
+-		source "drivers/net/wireless/mt_wifi_ap/Kconfig"
+-    endif
+-
+-    if WIFI_MODE_STA || WIFI_MODE_BOTH
+-		source "drivers/net/wireless/mt_wifi_sta/Kconfig"
++		source "drivers/net/wireless/ralink/mt7915_ap/Kconfig"
+     endif
+ endmenu	
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap.c
+index 3d54ec3ca8e..493f2631823 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap.c
+@@ -5924,15 +5924,16 @@ BOOLEAN DOT1X_EapTriggerAction(RTMP_ADAPTER *pAd, MAC_TABLE_ENTRY *pEntry)
+ 
+ INT rtmp_ap_init(RTMP_ADAPTER *pAd)
+ {
+-#ifdef WSC_AP_SUPPORT
+ 	UCHAR j;
+ 	BSS_STRUCT *mbss = NULL;
+ 	struct wifi_dev *wdev = NULL;
++#ifdef WSC_AP_SUPPORT
+ 	PWSC_CTRL pWscControl;
++#endif
+ #ifdef CFG_SUPPORT_FALCON_MURU
+ 	UINT8 u1BandIdx;
+ #endif /* CFG_SUPPORT_FALCON_MURU */
+-
++#ifdef WSC_AP_SUPPORT
+ 	for (j = BSS0; j < pAd->ApCfg.BssidNum; j++) {
+ 		mbss = &pAd->ApCfg.MBSSID[j];
+ 		wdev = &pAd->ApCfg.MBSSID[j].wdev;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_cfg.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_cfg.c
+index e186ee9776c..d8672dab633 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_cfg.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_cfg.c
+@@ -5419,7 +5419,7 @@ INT RTMPAPSetInformation(
+ #endif
+ #ifdef CONFIG_DOT11V_WNM
+ 	case OID_802_11_WNM_COMMAND: {
+-		UCHAR *Buf;
++		UCHAR *Buf = NULL;
+ 		struct wnm_command *cmd_data;
+ 
+ 		os_alloc_mem(Buf, (UCHAR **)&Buf, wrq->u.data.length);
+@@ -5467,7 +5467,7 @@ INT RTMPAPSetInformation(
+ 	break;
+ 
+ 	case OID_802_11_WNM_BTM_REQ: {
+-		UCHAR *Buf;
++		UCHAR *Buf = NULL;
+ 		MAC_TABLE_ENTRY *pEntry = NULL;
+ 		struct btm_req_data *req_data;
+ 
+@@ -5511,7 +5511,7 @@ INT RTMPAPSetInformation(
+ 
+ #ifdef CONFIG_STA_SUPPORT
+ 	case OID_802_11_WNM_BTM_RSP: {
+-		UCHAR *Buf;
++		UCHAR *Buf = NULL;
+ 		MAC_TABLE_ENTRY *pEntry = NULL;
+ 		struct btm_rsp_data *rsp_data;
+ 		os_alloc_mem(Buf, (UCHAR **)&Buf, wrq->u.data.length);
+@@ -5567,7 +5567,7 @@ INT RTMPAPSetInformation(
+ #endif /*OCE_SUPPORT*/
+ 
+ 	case OID_802_11_WNM_NOTIFY_REQ: {
+-		UCHAR *Buf;
++		UCHAR *Buf = NULL;
+ 		MAC_TABLE_ENTRY *pEntry;
+ 		struct wnm_req_data *req_data;
+ 
+@@ -10366,7 +10368,7 @@ INT	Set_VLAN_TAG_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg)
+ 			StaCfg.u2WlanIdx = wdev->tr_tb_idx;
+ 			StaCfg.pEntry = pEntry;
+ 
+-			if (arch_ops->archSetStaRec) {
++			if (arch_ops->archSetStaRec && wdev->tr_tb_idx != WCID_INVALID) {
+ 				ret = arch_ops->archSetStaRec(pAd, StaCfg);
+ 				return ret;
+ 			}
+@@ -18475,7 +18477,7 @@ INT Set_UAPSD_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg)
+ #ifdef CONFIG_RA_PHY_RATE_SUPPORT
+ INT set_mgm_rate_proc(IN PRTMP_ADAPTER pAd, IN RTMP_STRING *arg)
+ {
+-	HTTRANSMIT_SETTING *transmit;
++	HTTRANSMIT_SETTING *transmit = NULL;
+ 	/*UCHAR cfg_ht_bw;*/
+ 	struct wifi_dev *wdev = NULL;
+ 	BOOLEAN	status = TRUE;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_mbss_inf.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_mbss_inf.c
+index 9d816d23bb0..90c2864702f 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_mbss_inf.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_mbss_inf.c
+@@ -50,6 +50,7 @@
+ 
+ /* --------------------------------- Public -------------------------------- */
+ NET_DEV_STATS *RT28xx_get_ether_stats(PNET_DEV net_dev);
++struct rtnl_link_stats64 *RT28xx_get_ether_stats64(struct net_device *net_dev, struct rtnl_link_stats64 *stats);
+ 
+ /*
+ ========================================================================
+@@ -79,7 +80,7 @@ VOID RT28xx_MBSS_Init(VOID *pAd, PNET_DEV pDevMain)
+ 	netDevHook.stop = mbss_virtual_if_close;	/* device close hook point */
+ 	netDevHook.xmit = rt28xx_send_packets;	/* hard transmit hook point */
+ 	netDevHook.ioctl = rt28xx_ioctl;	/* ioctl hook point */
+-	netDevHook.get_stats = RT28xx_get_ether_stats;
++	netDevHook.get_stats = RT28xx_get_ether_stats64;
+ 	RTMP_AP_IoctlHandle(pAd, NULL, CMD_RTPRIV_IOCTL_MBSS_INIT,
+ 						0, &netDevHook, 0);
+ }
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_wds_inf.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_wds_inf.c
+index 7e675a68ee8..d213483f656 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_wds_inf.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/ap/ap_wds_inf.c
+@@ -39,7 +39,6 @@
+ 
+ NET_DEV_STATS *RT28xx_get_wds_ether_stats(PNET_DEV net_dev);
+ 
+-
+ /* Register WDS interface */
+ VOID RT28xx_WDS_Init(VOID *pAd, UCHAR band_idx, PNET_DEV net_dev)
+ {
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/bgnd_scan.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/bgnd_scan.c
+index f6b2d556baa..d074c9fc6a9 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/bgnd_scan.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/bgnd_scan.c
+@@ -1788,6 +1788,7 @@ VOID mt_off_ch_scan_dedicated(
+ 
+ }
+ 
++#ifdef BACKGROUND_SCAN_SUPPORT
+ VOID bgnd_scan_ipi_cr_init(
+ 	IN PRTMP_ADAPTER pAd)
+ {
+@@ -1805,6 +1806,8 @@ VOID bgnd_scan_ipi_cr_init(
+ }
+ #endif
+ 
++#endif
++
+ #if defined(MT_MAC) && defined(TXBF_SUPPORT)
+ VOID BfSwitch(
+ 	IN PRTMP_ADAPTER pAd,
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cfg.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cfg.c
+index 9c76913d05d..dc6961cecdd 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cfg.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cfg.c
+@@ -5189,7 +5189,7 @@ INT set_ra_dbg_ctrl(RTMP_ADAPTER *pAd, RTMP_STRING *arg)
+ 	INT status = TRUE;
+ 	UINT8 i = 0;
+ 	CHAR *value = 0;
+-	UINT8 param_num;
++	UINT8 param_num = 0;
+ 	UINT32 param[RA_DBG_SUPPORT_PARAM_NUM] = {0};
+ 
+ 	/* sanity check for input parameter format */
+@@ -8536,7 +8536,7 @@ INT set_hnat_register(RTMP_ADAPTER *pAd, RTMP_STRING *arg)
+ 					RTMP_OS_NETDEV_GET_DEVNAME(wdev->if_dev)));
+ 			MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_INFO, ("\t\tWdev(list) Idx:%d\n", wdev->wdev_idx));
+ 			MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_INFO, ("\t\t Idx:%d\n", RtmpOsGetNetIfIndex(wdev->if_dev)));
+-#if defined(CONFIG_FAST_NAT_SUPPORT)
++#if 0
+ 
+ 			if (ppe_dev_unregister_hook != NULL &&
+ 				ppe_dev_register_hook != NULL) {
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cmd.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cmd.c
+index e5f39661ae2..b4435e4857b 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cmd.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_cmd.c
+@@ -317,9 +317,11 @@ static NTSTATUS ApCliPbcApFoundHandler(IN PRTMP_ADAPTER pAd, IN PCmdQElmt CMDQel
+ 		ApCliIfDown(pAd);
+ 	}
+ 	pApCliTab->ApcliInfStat.Enable = apcliEn;
++#ifdef WSC_INCLUDED
+ 	/* Change WPS State */
+ 	pApCliTab->wdev.WscControl.WscState = WSC_STATE_START;
+ 	pApCliTab->wdev.WscControl.WscStatus = STATUS_WSC_START_ASSOC;
++#endif
+ 	return NDIS_STATUS_SUCCESS;
+ }
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_info.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_info.c
+index 7002b70b769..ee3228d99bd 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_info.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_info.c
+@@ -1633,9 +1633,11 @@ INT	rtmp_set_channel(RTMP_ADAPTER *pAd, struct wifi_dev *wdev, UCHAR Channel)
+ 				wdev->channel = OriChannel;
+ 				wdev_sync_prim_ch(wdev->sys_handle, wdev);
+ #if (DFS_ZEROWAIT_DEFAULT_FLOW == 1)
++#ifdef MT_DFS_SUPPORT
+ 				/* if radar is detected during in-band ch switch, dev resets inband channel if new dfs ch is invalid */
+ 				if (pAd->CommonCfg.DfsParameter.bDedicatedZeroWaitDefault == 0)
+ 					return FALSE;
++#endif
+ #else
+ 				return FALSE;
+ #endif
+@@ -4725,7 +4727,7 @@ RTMP_STRING *GetAuthMode(CHAR auth)
+ 			3.) UI needs to prepare at least 4096bytes to get the results
+     ==========================================================================
+ */
+-#define	LINE_LEN	(4+33+20+23+9+7+7+3)	/* Channel+SSID+Bssid+Security+Signal+WiressMode+ExtCh+NetworkType*/
++#define	LINE_LEN	(4+33+20+23+9+12+7+3)	/* Channel+SSID+Bssid+Security+Signal+WiressMode+ExtCh+NetworkType*/
+ 
+ #ifdef CONFIG_STA_SUPPORT
+ #ifdef WSC_STA_SUPPORT
+@@ -4757,7 +4759,7 @@ VOID RTMPCommSiteSurveyData(
+ 
+ 		sprintf(Ssid, "0x");
+ 
+-		for (idx = 0; (idx < 14) && (idx < pBss->SsidLen); idx++)
++		for (idx = 0; (idx < 15) && (idx < pBss->SsidLen); idx++)
+ 			sprintf(Ssid + 2 + (idx * 2), "%02X", (UCHAR)pBss->Ssid[idx]);
+ 	}
+ 
+@@ -4979,6 +4965,7 @@ VOID RTMPIoctlGetSiteSurvey(
+ 			OS_WAIT(500);
+ 	}
+ 
++	BssTableSortByRssi(ScanTab,FALSE);
+ 
+ 	for (i = bss_start_idx; i < ScanTab->BssNr; i++) {
+ 		pBss = &ScanTab->BssEntry[i];
+@@ -5085,36 +5025,108 @@ USHORT RTMPGetLastTxRate(PRTMP_ADAPTER pAd, MAC_TABLE_ENTRY *pEntry)
+ 	return lastTxRate.word;
+ }
+ 
++typedef struct _RT_802_11_MAC_ENTRY_PDV {
++	UCHAR ApIdx;
++	UCHAR Addr[MAC_ADDR_LEN];
++	UCHAR Aid;
++	UCHAR Psm;
++	UCHAR MimoPs;
++	CHAR AvgRssi0;
++	CHAR AvgRssi1;
++	CHAR AvgRssi2;
++	UINT32 ConnectedTime;
++	HTTRANSMIT_SETTING TxRate;
++	UINT32 LastRxRate;
++} RT_802_11_MAC_ENTRY_PDV, *PRT_802_11_MAC_ENTRY_PDV;
++
++typedef struct _RT_802_11_MAC_TABLE_PDV {
++	ULONG Num;
++	RT_802_11_MAC_ENTRY_PDV Entry[MAX_NUMBER_OF_MAC];
++} RT_802_11_MAC_TABLE_PDV, *PRT_802_11_MAC_TABLE_PDV;
++
++static VOID
++copy_mac_table_entry(RT_802_11_MAC_ENTRY_PDV *pDst, MAC_TABLE_ENTRY *pEntry)
++{
++	pDst->ApIdx = (UCHAR)pEntry->func_tb_idx;
++	COPY_MAC_ADDR(pDst->Addr, &pEntry->Addr);
++	pDst->Aid = (UCHAR)pEntry->Aid;
++	pDst->Psm = pEntry->PsMode;
++
++#ifdef DOT11_N_SUPPORT
++	pDst->MimoPs = pEntry->MmpsMode;
++#endif /* DOT11_N_SUPPORT */
++
++	/* Fill in RSSI per entry*/
++	pDst->AvgRssi0 = pEntry->RssiSample.AvgRssi[0];
++	pDst->AvgRssi1 = pEntry->RssiSample.AvgRssi[1];
++	pDst->AvgRssi2 = pEntry->RssiSample.AvgRssi[2];
++
++	/* the connected time per entry*/
++	pDst->ConnectedTime = pEntry->StaConnectTime;
++
++	pDst->TxRate.word = pEntry->HTPhyMode.word;
++	pDst->LastRxRate = pEntry->LastRxRate;
++}
++
+ VOID RTMPIoctlGetMacTableStaInfo(
+ 	IN PRTMP_ADAPTER pAd,
+ 	IN RTMP_IOCTL_INPUT_STRUCT *wrq)
+ {
+ 	INT i;
+-	BOOLEAN need_send = FALSE;
+-	RT_802_11_MAC_TABLE *pMacTab = NULL;
+-	PRT_802_11_MAC_ENTRY pDst;
++	RT_802_11_MAC_TABLE_PDV *pMacTab = NULL;
++	PRT_802_11_MAC_ENTRY_PDV pDst;
+ 	MAC_TABLE_ENTRY *pEntry;
++	UINT16 wrq_len = wrq->u.data.length;
++	POS_COOKIE pObj = (POS_COOKIE)pAd->OS_Cookie;
++	struct tx_rx_ctl *tr_ctl = &pAd->tr_ctl;
++	STA_TR_ENTRY *tr_entry;
++
++	wrq->u.data.length = 0;
++
++#ifdef APCLI_SUPPORT
++	if (pObj->ioctl_if_type == INT_APCLI)
++	{
++		if (!tr_ctl)
++			return;
++		if (wrq_len < sizeof(RT_802_11_MAC_ENTRY_PDV))
++			return;
++		if (pObj->ioctl_if >= MAX_APCLI_NUM)
++			return;
++		if (pAd->StaCfg[pObj->ioctl_if].ApcliInfStat.Valid != TRUE)
++			return;
++
++		tr_entry = &tr_ctl->tr_entry[pAd->StaCfg[pObj->ioctl_if].MacTabWCID];
++		pEntry = &pAd->MacTab.Content[pAd->StaCfg[pObj->ioctl_if].MacTabWCID];
++
++		if ((pEntry->Sst == SST_ASSOC) && (tr_entry->PortSecured == WPA_802_1X_PORT_SECURED))
++		{
++			RT_802_11_MAC_ENTRY_PDV MacEntry;
++			
++			pDst = &MacEntry;
++			copy_mac_table_entry(pDst, pEntry);
++			
++			wrq->u.data.length = sizeof(RT_802_11_MAC_ENTRY_PDV);
++			copy_to_user(wrq->u.data.pointer, pDst, wrq->u.data.length);
++		}
++		
++		return;
++	}
++#endif
++
+ 	/* allocate memory */
+-	os_alloc_mem(NULL, (UCHAR **)&pMacTab, sizeof(RT_802_11_MAC_TABLE));
++	os_alloc_mem(NULL, (UCHAR **)&pMacTab, sizeof(RT_802_11_MAC_TABLE_PDV));
+ 
+ 	if (pMacTab == NULL) {
+ 		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("%s: Allocate memory fail!!!\n", __func__));
+ 		return;
+ 	}
+ 
+-	NdisZeroMemory(pMacTab, sizeof(RT_802_11_MAC_TABLE));
++	NdisZeroMemory(pMacTab, sizeof(RT_802_11_MAC_TABLE_PDV));
+ 
+ 	for (i = 0; VALID_UCAST_ENTRY_WCID(pAd, i); i++) {
+ 		pEntry = &(pAd->MacTab.Content[i]);
+ 
+-		if (pEntry->wdev != NULL) {
+-			/* As per new GUI design ifname with index as ra0/ra1/rai0/rai1/... (may not work with older GUI)*/
+-			if (!strcmp(wrq->ifr_ifrn.ifrn_name, pEntry->wdev->if_dev->name))
+-				need_send = TRUE;
+-			else
+-				need_send = FALSE;
+-		}
+-		if (IS_ENTRY_CLIENT(pEntry) && (pEntry->Sst == SST_ASSOC) && (need_send == TRUE)) {
++		if (IS_ENTRY_CLIENT(pEntry) && (pEntry->Sst == SST_ASSOC)) {
+ 			pDst = &pMacTab->Entry[pMacTab->Num];
+ 			pDst->ApIdx = pEntry->func_tb_idx;
+ 			COPY_MAC_ADDR(pDst->Addr, &pEntry->Addr);
+@@ -5135,7 +5147,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
+ 		}
+ 	}
+ 
+-	wrq->u.data.length = sizeof(RT_802_11_MAC_TABLE);
++	wrq->u.data.length = sizeof(RT_802_11_MAC_TABLE_PDV);
+ 
+ 	if (copy_to_user(wrq->u.data.pointer, pMacTab, wrq->u.data.length))
+ 		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s: copy_to_user() fail\n", __func__));
+@@ -15580,11 +15592,6 @@ INT	Set_Led_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg)
+ 			break;
+ 	}
+ 
+-	printk("\n%s\n", __func__);
+-
+-	for (j = 0; j < i; j++)
+-		printk("%02x\n", (UINT)led_param[j]);
+-
+ 	if (IS_MT7615(pAd) || IS_MT7663(pAd) || IS_MT7626(pAd) || IS_MT7915(pAd)) {
+ 		rtmp_control_led_cmd(pAd, led_param[0], led_param[1], led_param[2], led_param[3],
+ 			led_param[4], led_param[5], led_param[6], led_param[7]);
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_mat_pppoe.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_mat_pppoe.c
+index 7dccbb6c237..148265aa3b5 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_mat_pppoe.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/cmm_mat_pppoe.c
+@@ -754,6 +754,8 @@ static PUCHAR MATProto_PPPoEDis_Tx(
+ 	switch (*pData) {
+ 	/* Send by pppoe client */
+ 	case PPPOE_CODE_PADI:
++		findTag = PPPOE_TAG_ID_HOST_UNIQ;
++		break;
+ 	case PPPOE_CODE_PADR:
+ 		findTag = PPPOE_TAG_ID_HOST_UNIQ;
+ 		break;
+@@ -822,15 +824,25 @@ static PUCHAR MATProto_PPPoEDis_Tx(
+ 	if (pEntry && (pTagContent == NULL)) {
+ 		PUCHAR tailHead;
+ 
+-		if (OS_PKT_CLONED(pSkb)) {
+-			/*			pModSkb = (PNDIS_PACKET)skb_copy(RTPKT_TO_OSPKT(pSkb), MEM_ALLOC_FLAG); */
+-			OS_PKT_COPY(RTPKT_TO_OSPKT(pSkb), pModSkb);
+-		} else
+-			pModSkb = (PNDIS_PACKET)RTPKT_TO_OSPKT(pSkb);
+-
+-		if (!pModSkb)
++		pModSkb = (PNDIS_PACKET)skb_copy(RTPKT_TO_OSPKT(pSkb), GFP_ATOMIC);
++		if(!pModSkb)
+ 			return NULL;
+ 
++		if (skb_tailroom(RTPKT_TO_OSPKT(pModSkb)) < (PPPOE_DIS_UID_LEN + 4)) {
++			struct sk_buff *skb2 = NULL;
++			struct sk_buff *skb = RTPKT_TO_OSPKT(pModSkb);
++			skb2 = skb_copy_expand(skb,skb_headroom(skb),(skb_tailroom(skb)+PPPOE_DIS_UID_LEN + 4),GFP_ATOMIC);
++			if (skb2 == NULL) {
++				printk("\n !skb_copy_expand failed! \n");
++				return NULL;
++			}
++			kfree_skb(skb);
++			pModSkb = OSPKT_TO_RTPKT(skb2);
++		}
++		pPktHdr = GET_OS_PKT_DATAPTR(pModSkb);
++		pDstMac = pPktHdr;
++		pSrcMac = (pPktHdr + 6);
++
+ 		/*		tailHead = skb_put(RTPKT_TO_OSPKT(pModSkb), (PPPOE_DIS_UID_LEN + 4)); */
+ 		tailHead = OS_PKT_TAIL_BUF_EXTEND(pModSkb, (PPPOE_DIS_UID_LEN + 4));
+ 
+@@ -838,8 +850,8 @@ static PUCHAR MATProto_PPPoEDis_Tx(
+ 			pPayloadLen = GET_OS_PKT_DATAPTR(pModSkb) + offset;
+ 			pPPPPoETail = pPayloadLen + payloadLen;
+ 
+-			if (tailHead > pPPPPoETail)
+-				tailHead = pPPPPoETail;
++			//if (tailHead > pPPPPoETail)
++			//	tailHead = pPPPPoETail;
+ 
+ 			if (pEntry->isServer) {
+ 				/*Append the AC-Cookie tag info in the tail of the pppoe packet. */
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/ee_flash.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/ee_flash.c
+index bdcbead09c2..bcefa9335b0 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/ee_flash.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/ee_flash.c
+@@ -122,8 +122,8 @@ int mt_mtd_read_nm_wifi(char *name, loff_t from, size_t len, u_char *buf);
+ extern int ra_mtd_write_nm(char *name, loff_t to, size_t len, const u_char *buf);
+ extern int ra_mtd_read_nm(char *name, loff_t from, size_t len, u_char *buf);
+ 
+-#define flash_read(_ctrl, _ptr, _offset, _len) ra_mtd_read_nm("Factory", _offset, (size_t)_len, _ptr)
+-#define flash_write(_ctrl, _ptr, _offset, _len) ra_mtd_write_nm("Factory", _offset, (size_t)_len, _ptr)
++#define flash_read(_ctrl, _ptr, _offset, _len) ra_mtd_read_nm("Factory", _offset&0xFFFF, (size_t)_len, _ptr)
++#define flash_write(_ctrl, _ptr, _offset, _len) ra_mtd_write_nm("Factory", _offset&0xFFFF, (size_t)_len, _ptr)
+ 
+ #endif /*CONFIG_WIFI_MTD*/
+ #endif /*RA_MTD_RW_BY_NUM*/
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/hif_pci.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/hif_pci.c
+index a764161344d..d232f9f3688 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/hif_pci.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/hif_pci.c
+@@ -1613,9 +1613,9 @@ static PNDIS_PACKET pci_get_pkt_dynamic_page_ddone(
+ 					if ((wcid == 0) || (wcid >= MAX_LEN_OF_MAC_TABLE))
+ 						wcid = smp_processor_id()+1;
+ 				}
+-					RTPKT_TO_OSPKT(pRxPacket)->hash = wcid;
++					RTPKT_TO_OSPKT(pRxPacket)->rxhash = wcid;
+ 			} else
+-					RTPKT_TO_OSPKT(pRxPacket)->hash = smp_processor_id()+1;
++					RTPKT_TO_OSPKT(pRxPacket)->rxhash = smp_processor_id()+1;
+ 			}
+ 
+ #endif
+@@ -3983,7 +3985,7 @@ static VOID pci_reset_txrx_ring_mem(void *hdev_ctrl)
+ 
+ 	for (index = 0; index < num_of_rx_ring; index++) {
+ 		UINT16 RxRingSize;
+-#ifdef CONFIG_WIFI_BUILD_SKB
++#if 1
+ 		UINT skb_data_size = 0;
+ #endif
+ 		struct hif_pci_rx_ring *rx_ring = pci_get_rx_ring_by_ridx(hif, index);
+@@ -4018,7 +4020,7 @@ static VOID pci_reset_txrx_ring_mem(void *hdev_ctrl)
+ 				PCI_UNMAP_SINGLE(ad, cur_pa, dma_cb->DmaBuf.AllocSize, RTMP_PCI_DMA_FROMDEVICE);
+ 
+ 				if (attr == HIF_RX_DATA) {
+-#ifdef CONFIG_WIFI_BUILD_SKB
++#if 1
+ 					skb_data_size = SKB_DATA_ALIGN(SKB_BUF_HEADROOM_RSV + dma_cb->DmaBuf.AllocSize) +
+ 							SKB_DATA_ALIGN(SKB_BUF_TAILROOM_RSV);
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/multi_profile.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/multi_profile.c
+index b0baa869b83..4eb5b737cef 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/multi_profile.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/multi_profile.c
+@@ -3133,6 +3133,8 @@ INT multi_profile_check(struct _RTMP_ADAPTER *ad, CHAR *final)
+ 	profile_path = get_dev_l2profile(ad);
+ #endif
+ 
++	printk("%s: buf1: %s\n", __func__, profile_path);
++
+ 	if (multi_profile_read(profile_path, buf1) != NDIS_STATUS_SUCCESS)
+ 		goto end1;
+ 
+@@ -3148,6 +3150,8 @@ INT multi_profile_check(struct _RTMP_ADAPTER *ad, CHAR *final)
+ 	profile_path = multi_profile_fname_get(ad, MTB_EXT_PROFILE);
+ #endif
+ 
++	printk("%s: buf2: %s\n", __func__, profile_path);
++
+ 	if (multi_profile_read(profile_path, buf2) != NDIS_STATUS_SUCCESS)
+ 		goto end2;
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/qm.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/qm.c
+index 5d4439bcfbe..301377b11a9 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/qm.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/qm.c
+@@ -1810,12 +1810,12 @@ VOID RTMPRxDataDeqOffloadToOtherCPU(RTMP_ADAPTER *pAd)
+ INT32 ge_rx_enq_dataq_pkt(RTMP_ADAPTER *pAd, PNDIS_PACKET pkt)
+ {
+ 	struct tr_counter *tr_cnt = &pAd->tr_ctl.tr_cnt;
+-	UINT32 hash = RTPKT_TO_OSPKT(pkt)->hash;
++	UINT32 hash = RTPKT_TO_OSPKT(pkt)->rxhash;
+ 	struct _RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
+ 	UINT8 cpu;
+ 	UINT32 qlen_upper_bound = RX_DATA_QUE_MAX_NUMS;
+ 
+-	RTPKT_TO_OSPKT(pkt)->hash = 0;
++	RTPKT_TO_OSPKT(pkt)->rxhash = 0;
+ 	cpu = cap->RxSwRpsCpuMap[((hash-1) % cap->RxSwRpsNum)];
+ 
+ 	if (pAd->rx_dequeue_sw_rps_enable == FALSE)
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/rtmp_timer.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/rtmp_timer.c
+index 5bc42fbe35b..26a0fbf5212 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/rtmp_timer.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/rtmp_timer.c
+@@ -96,6 +96,10 @@ BUILD_TIMER_FUNCTION(cfg_tdls_BaseChannelTimeoutAction);
+ 
+ #endif /* CONFIG_STA_SUPPORT */
+ 
++#ifdef LED_CONTROL_SUPPORT
++BUILD_TIMER_FUNCTION(LEDControlTimer);
++#endif
++
+ #ifdef WSC_INCLUDED
+ BUILD_TIMER_FUNCTION(WscEAPOLTimeOutAction);
+ BUILD_TIMER_FUNCTION(Wsc2MinsTimeOutAction);
+@@ -115,9 +119,6 @@ BUILD_TIMER_FUNCTION(WscProfileRetryTimeout);
+ BUILD_TIMER_FUNCTION(WscLEDTimer);
+ BUILD_TIMER_FUNCTION(WscSkipTurnOffLEDTimer);
+ #endif /* WSC_LED_SUPPORT */
+-#ifdef LED_CONTROL_SUPPORT
+-BUILD_TIMER_FUNCTION(LEDControlTimer);
+-#endif
+ #ifdef CONFIG_AP_SUPPORT
+ BUILD_TIMER_FUNCTION(WscUpdatePortCfgTimeout);
+ #ifdef WSC_V2_SUPPORT
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/txs.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/txs.c
+index eedbefcaad4..edd197008b4 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/txs.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/common/txs.c
+@@ -345,8 +345,8 @@ INT32 TxSTypeCtlPerPktType(RTMP_ADAPTER *pAd, UINT8 PktType, UINT8 PktSubType, U
+ 				WlanIdx -= 64;
+ 				TxSCtl->TxSStatusPerWlanIdx[1] |= (1ULL << (UINT64)WlanIdx);
+ 			} else {
+-				TxSCtl->TxSStatusPerWlanIdx[0] = 0xffffffffffffffff;
+-				TxSCtl->TxSStatusPerWlanIdx[1] = 0xffffffffffffffff;
++				TxSCtl->TxSStatusPerWlanIdx[0] = 0xffffffffffffffffLL;
++				TxSCtl->TxSStatusPerWlanIdx[1] = 0xffffffffffffffffLL;
+ 			}
+ 
+ 			TxSType->DumpTxSReport = DumpTxSReport;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/ap_mgmt_auth.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/ap_mgmt_auth.c
+index 8d7cd22ee82..8604b5ed38f 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/ap_mgmt_auth.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/ap_mgmt_auth.c
+@@ -446,7 +446,7 @@ VOID ap_peer_auth_req_at_idle_action(RTMP_ADAPTER *pAd, MLME_QUEUE_ELEM *Elem)
+ 	PFT_INFO pFtInfoBuf;
+ #endif /* DOT11R_FT_SUPPORT */
+ 	BSS_STRUCT *pMbss;
+-	struct wifi_dev *wdev;
++	struct wifi_dev *wdev = NULL;
+ #ifdef WAPP_SUPPORT
+ 	UINT8 wapp_cnnct_stage = WAPP_AUTH;
+ 	UINT16 wapp_auth_fail = NOT_FAILURE;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_assoc.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_assoc.c
+index 98a1863ef97..8ca6b93b16e 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_assoc.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_assoc.c
+@@ -2404,7 +2404,7 @@ static VOID sta_peer_disassoc_action(RTMP_ADAPTER *pAd, MLME_QUEUE_ELEM *Elem)
+ 
+ 	if (!pStaCfg)
+ 		return;
+-
++#ifdef WSC_INCLUDED
+ 	{
+ 		struct wifi_dev *wdev = &pStaCfg->wdev;
+ 		WSC_CTRL *wsc_ctrl = &wdev->WscControl;
+@@ -2414,6 +2414,7 @@ static VOID sta_peer_disassoc_action(RTMP_ADAPTER *pAd, MLME_QUEUE_ELEM *Elem)
+ 				MTWF_LOG(DBG_CAT_CLIENT, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s:: Time out!!!\n", __func__));
+ 		}
+ 	}
++#endif
+ 
+ #ifdef MAC_REPEATER_SUPPORT
+ 	if (wdev->wdev_type == WDEV_TYPE_REPEATER) {
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_auth.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_auth.c
+index c521f287ee3..4319ba8ef96 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_auth.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_auth.c
+@@ -319,7 +319,7 @@ VOID sta_peer_deauth_action(
+ 
+ 	if (!pStaCfg)
+ 		return;
+-
++#ifdef WSC_INCLUDED
+ 	{
+ 		struct wifi_dev *wdev = &pStaCfg->wdev;
+ 		WSC_CTRL *wsc_ctrl = &wdev->WscControl;
+@@ -329,7 +329,7 @@ VOID sta_peer_deauth_action(
+ 				MTWF_LOG(DBG_CAT_CLIENT, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s:: Time out!!!\n", __func__));
+ 		}
+ 	}
+-
++#endif
+ 	if (IS_APCLI_RPT_IFINDEX_INVALID(pAd, wdev, ifIndex))
+ 		return;
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_cntl.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_cntl.c
+index eb17b5c4985..cb81979d724 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_cntl.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_cntl.c
+@@ -2947,9 +2947,8 @@ VOID LinkUp(RTMP_ADAPTER *pAd, UCHAR BssType, struct wifi_dev *wdev, UINT link_u
+ 	struct DOT11_H *pDot11h = NULL;
+ 	SCAN_INFO *ScanInfo = &wdev->ScanInfo;
+ 	struct tx_rx_ctl *tr_ctl = &pAd->tr_ctl;
+-#if defined(WSC_STA_SUPPORT) || defined(ANTENNA_CONTROL_SUPPORT)
+ 	UINT8 TxPath = pAd->Antenna.field.TxPath;
+-#endif /* defined(WSC_STA_SUPPORT) || defined(ANTENNA_CONTROL_SUPPORT) */
++
+ 	ASSERT(pStaCfg);
+ 
+ 	if (!pStaCfg)
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_sync.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_sync.c
+index 8a7876720fa..fcc3a908ab9 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_sync.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/fsm/sta_mgmt_sync.c
+@@ -911,9 +911,14 @@ static BOOLEAN sta_join_peer_response_matched(struct _RTMP_ADAPTER *pAd,
+ 		return FALSE;
+ 	}
+ 
++#ifdef WSC_AP_SUPPORT
+ 	if ((ScanTab != NULL) &&
+ 			((wdev->WscControl.WscConfMode == WSC_DISABLE) ||
+-			 (wdev->WscControl.bWscTrigger == FALSE))) {
++			 (wdev->WscControl.bWscTrigger == FALSE))) 
++#else
++	if (ScanTab != NULL)
++#endif
++		{
+ 		Bssidx = BssTableSearch(ScanTab, ie_list->Bssid, ie_list->Channel);
+ 		if (Bssidx != BSS_NOT_FOUND) {
+ 			pInBss = &ScanTab->BssEntry[Bssidx];
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/mt_rdm.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/mt_rdm.h
+index 6a8246ceada..99d18c67859 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/mt_rdm.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/mt_rdm.h
+@@ -18,6 +18,10 @@
+ #ifndef _MT_RDM_H_
+ #define _MT_RDM_H_
+ 
++
++#define IS_CH_ABAND(_ch)	\
++		(_ch > 14)
++
+ #ifdef MT_DFS_SUPPORT
+ 
+ #include "rt_config.h"
+@@ -169,8 +173,7 @@ enum {
+ #define DYNAMIC_ZEROWAIT_ON			1
+ #define DYNAMIC_ZEROWAIT_OFF			0
+ 
+-#define IS_CH_ABAND(_ch)	\
+-		(_ch > 14)
++
+ 
+ #define GET_BGND_PARAM(_pAd, _param)		\
+ 	DfsGetBgndParameter(pAd, _param)
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/oid.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/oid.h
+index 42beb3fea97..e9fc151c317 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/oid.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/oid.h
+@@ -1339,8 +1339,10 @@ typedef struct _RT_802_11_MAC_ENTRY {
+ 	/*
+ 		sync with WEB UI's structure for ioctl usage.
+ 	*/
++#if 0
+ 	SHORT StreamSnr[3];				/* BF SNR from RXWI. Units=0.25 dB. 22 dB offset removed */
+ 	SHORT SoundingRespSnr[3];			/* SNR from Sounding Response. Units=0.25 dB. 22 dB offset removed */
++#endif
+ 	/*	SHORT TxPER;	*/					/* TX PER over the last second. Percent */
+ 	/*	SHORT reserved;*/
+ } RT_802_11_MAC_ENTRY, *PRT_802_11_MAC_ENTRY;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp.h
+index 06cffb5a73b..5d8fb32b97e 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp.h
+@@ -1182,8 +1182,8 @@ typedef struct _COUNTER_RALINK {
+ 	UINT32 OneSecRxARalinkCnt;	/* Rx Ralink Aggregation frame cnt */
+ 	UINT32 OneSecEnd;	/* for one sec count clear use */
+ 
+-	ULONG TransmittedByteCount;	/* both successful and failure, used to calculate TX throughput */
+-	ULONG ReceivedByteCount;	/* both CRC okay and CRC error, used to calculate RX throughput */
++	UINT64 TransmittedByteCount;	/* both successful and failure, used to calculate TX throughput */
++	UINT64 ReceivedByteCount;	/* both CRC okay and CRC error, used to calculate RX throughput */
+ 	ULONG BadCQIAutoRecoveryCount;
+ 	ULONG PoorCQIRoamingCount;
+ 	ULONG MgmtRingFullCount;
+@@ -2430,8 +2430,8 @@ typedef struct _BSS_STRUCT {
+ 	/*MBSS_STATISTICS MbssStat;*/
+ 	ULONG TxCount;
+ 	ULONG RxCount;
+-	ULONG ReceivedByteCount;
+-	ULONG TransmittedByteCount;
++	UINT64 ReceivedByteCount;
++	UINT64 TransmittedByteCount;
+ 	ULONG RxErrorCount;
+ 	ULONG RxDropCount;
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_cmd.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_cmd.h
+index 38508db855c..2630bf5bbe6 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_cmd.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_cmd.h
+@@ -815,8 +815,8 @@ typedef struct __RT_CMD_STATS {
+ 
+ 	OUT unsigned long rx_packets;	/* total packets received       */
+ 	OUT unsigned long tx_packets;	/* total packets transmitted */
+-	OUT unsigned long rx_bytes;	/* total bytes received         */
+-	OUT unsigned long tx_bytes;	/* total bytes transmitted      */
++	OUT unsigned long long rx_bytes;	/* total bytes received         */
++	OUT unsigned long long tx_bytes;	/* total bytes transmitted      */
+ 	OUT unsigned long rx_errors;	/* bad packets received         */
+ 	OUT unsigned long tx_errors;	/* packet transmit problems     */
+ 	OUT unsigned long multicast;	/* multicast packets received */
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_def.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_def.h
+index 44a3fd1a603..e0f2d0bbb4d 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_def.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_def.h
+@@ -685,6 +685,10 @@ enum WIFI_MODE {
+ 
+ #define MAX_NUM_OF_ACL_LIST				MAX_NUMBER_OF_ACL
+ 
++#define VALID_WCID(_wcid)   ((_wcid) < MAX_LEN_OF_MAC_TABLE)
++
++#define VALID_TR_WCID(_wcid)        ((_wcid) < MAX_LEN_OF_TR_TABLE)
++
+ #define VALID_UCAST_ENTRY_WCID(_pAd, _wcid) ((_wcid) < HcGetMaxStaNum(_pAd))
+ #define GET_MAX_UCAST_NUM(_pAd) HcGetMaxStaNum(_pAd)
+ 
+@@ -2097,7 +2101,7 @@ typedef struct _WIFI_NODE_TYPE {
+ #endif
+ #endif /* CONFIG_SUPPORT_OPENWRT */
+ #else /* !ANDROID_SUPPORT */
+-#if CONFIG_RTPCI_AP_RF_OFFSET == 0x48000
++#if CONFIG_RTPCI_AP_RF_OFFSET == 0x48000 || CONFIG_RT_FIRST_CARD == 7603
+ #define INF_MAIN_DEV_NAME		"rai"
+ #define INF_MBSSID_DEV_NAME		"rai"
+ #else
+@@ -2114,7 +2118,7 @@ typedef struct _WIFI_NODE_TYPE {
+ #define INF_MSTA_DEV_NAME		"ra"
+ 
+ 
+-#if CONFIG_RTPCI_AP_RF_OFFSET == 0x48000
++#if CONFIG_RTPCI_AP_RF_OFFSET == 0x48000 || CONFIG_RT_FIRST_CARD == 7603
+ #define INF_WDS_DEV_NAME		"wdsi"
+ #define INF_APCLI_DEV_NAME		"apclii"
+ #define INF_MESH_DEV_NAME		"meshi"
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_timer.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_timer.h
+index 3533a40992d..349a50a2090 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_timer.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/include/rtmp_timer.h
+@@ -246,6 +246,10 @@ DECLARE_TIMER_FUNCTION(FT_OTD_TimeoutAction);
+ 
+ #endif /* CONFIG_STA_SUPPORT */
+ 
++#ifdef LED_CONTROL_SUPPORT
++DECLARE_TIMER_FUNCTION(LEDControlTimer);
++#endif
++
+ #ifdef WSC_INCLUDED
+ DECLARE_TIMER_FUNCTION(WscEAPOLTimeOutAction);
+ DECLARE_TIMER_FUNCTION(Wsc2MinsTimeOutAction);
+@@ -264,9 +268,6 @@ DECLARE_TIMER_FUNCTION(WscProfileRetryTimeout);
+ DECLARE_TIMER_FUNCTION(WscLEDTimer);
+ DECLARE_TIMER_FUNCTION(WscSkipTurnOffLEDTimer);
+ #endif /* WSC_LED_SUPPORT */
+-#ifdef LED_CONTROL_SUPPORT
+-DECLARE_TIMER_FUNCTION(LEDControlTimer);
+-#endif
+ #ifdef CONFIG_AP_SUPPORT
+ DECLARE_TIMER_FUNCTION(WscUpdatePortCfgTimeout);
+ #ifdef WSC_V2_SUPPORT
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/security/crypt_sha2.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/security/crypt_sha2.c
+index 4ca9611f665..90daf2e9cc1 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/security/crypt_sha2.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/security/crypt_sha2.c
+@@ -95,30 +95,30 @@ static const UINT32 SHA256_DefaultHashValue[8] = {
+ #define Sigma_512_1(x)  (ROTR64(x, 19) ^ ROTR64(x, 61) ^ SHR(x, 6))
+ /* SHA384 constants */
+ static const UINT64 SHA384_K[80] = {
+-	0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
+-	0x3956c25bf348b538, 0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118,
+-	0xd807aa98a3030242, 0x12835b0145706fbe, 0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2,
+-	0x72be5d74f27b896f, 0x80deb1fe3b1696b1, 0x9bdc06a725c71235, 0xc19bf174cf692694,
+-	0xe49b69c19ef14ad2, 0xefbe4786384f25e3, 0x0fc19dc68b8cd5b5, 0x240ca1cc77ac9c65,
+-	0x2de92c6f592b0275, 0x4a7484aa6ea6e483, 0x5cb0a9dcbd41fbd4, 0x76f988da831153b5,
+-	0x983e5152ee66dfab, 0xa831c66d2db43210, 0xb00327c898fb213f, 0xbf597fc7beef0ee4,
+-	0xc6e00bf33da88fc2, 0xd5a79147930aa725, 0x06ca6351e003826f, 0x142929670a0e6e70,
+-	0x27b70a8546d22ffc, 0x2e1b21385c26c926, 0x4d2c6dfc5ac42aed, 0x53380d139d95b3df,
+-	0x650a73548baf63de, 0x766a0abb3c77b2a8, 0x81c2c92e47edaee6, 0x92722c851482353b,
+-	0xa2bfe8a14cf10364, 0xa81a664bbc423001, 0xc24b8b70d0f89791, 0xc76c51a30654be30,
+-	0xd192e819d6ef5218, 0xd69906245565a910, 0xf40e35855771202a, 0x106aa07032bbd1b8,
+-	0x19a4c116b8d2d0c8, 0x1e376c085141ab53, 0x2748774cdf8eeb99, 0x34b0bcb5e19b48a8,
+-	0x391c0cb3c5c95a63, 0x4ed8aa4ae3418acb, 0x5b9cca4f7763e373, 0x682e6ff3d6b2b8a3,
+-	0x748f82ee5defb2fc, 0x78a5636f43172f60, 0x84c87814a1f0ab72, 0x8cc702081a6439ec,
+-	0x90befffa23631e28, 0xa4506cebde82bde9, 0xbef9a3f7b2c67915, 0xc67178f2e372532b,
+-	0xca273eceea26619c, 0xd186b8c721c0c207, 0xeada7dd6cde0eb1e, 0xf57d4f7fee6ed178,
+-	0x06f067aa72176fba, 0x0a637dc5a2c898a6, 0x113f9804bef90dae, 0x1b710b35131c471b,
+-	0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc, 0x431d67c49c100d4c,
+-	0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
++	0x428a2f98d728ae22LL, 0x7137449123ef65cdLL, 0xb5c0fbcfec4d3b2fLL, 0xe9b5dba58189dbbcLL,
++	0x3956c25bf348b538LL, 0x59f111f1b605d019LL, 0x923f82a4af194f9bLL, 0xab1c5ed5da6d8118LL,
++	0xd807aa98a3030242LL, 0x12835b0145706fbeLL, 0x243185be4ee4b28cLL, 0x550c7dc3d5ffb4e2LL,
++	0x72be5d74f27b896fLL, 0x80deb1fe3b1696b1LL, 0x9bdc06a725c71235LL, 0xc19bf174cf692694LL,
++	0xe49b69c19ef14ad2LL, 0xefbe4786384f25e3LL, 0x0fc19dc68b8cd5b5LL, 0x240ca1cc77ac9c65LL,
++	0x2de92c6f592b0275LL, 0x4a7484aa6ea6e483LL, 0x5cb0a9dcbd41fbd4LL, 0x76f988da831153b5LL,
++	0x983e5152ee66dfabLL, 0xa831c66d2db43210LL, 0xb00327c898fb213fLL, 0xbf597fc7beef0ee4LL,
++	0xc6e00bf33da88fc2LL, 0xd5a79147930aa725LL, 0x06ca6351e003826fLL, 0x142929670a0e6e70LL,
++	0x27b70a8546d22ffcLL, 0x2e1b21385c26c926LL, 0x4d2c6dfc5ac42aedLL, 0x53380d139d95b3dfLL,
++	0x650a73548baf63deLL, 0x766a0abb3c77b2a8LL, 0x81c2c92e47edaee6LL, 0x92722c851482353bLL,
++	0xa2bfe8a14cf10364LL, 0xa81a664bbc423001LL, 0xc24b8b70d0f89791LL, 0xc76c51a30654be30LL,
++	0xd192e819d6ef5218LL, 0xd69906245565a910LL, 0xf40e35855771202aLL, 0x106aa07032bbd1b8LL,
++	0x19a4c116b8d2d0c8LL, 0x1e376c085141ab53LL, 0x2748774cdf8eeb99LL, 0x34b0bcb5e19b48a8LL,
++	0x391c0cb3c5c95a63LL, 0x4ed8aa4ae3418acbLL, 0x5b9cca4f7763e373LL, 0x682e6ff3d6b2b8a3LL,
++	0x748f82ee5defb2fcLL, 0x78a5636f43172f60LL, 0x84c87814a1f0ab72LL, 0x8cc702081a6439ecLL,
++	0x90befffa23631e28LL, 0xa4506cebde82bde9LL, 0xbef9a3f7b2c67915LL, 0xc67178f2e372532bLL,
++	0xca273eceea26619cLL, 0xd186b8c721c0c207LL, 0xeada7dd6cde0eb1eLL, 0xf57d4f7fee6ed178LL,
++	0x06f067aa72176fbaLL, 0x0a637dc5a2c898a6LL, 0x113f9804bef90daeLL, 0x1b710b35131c471bLL,
++	0x28db77f523047d84LL, 0x32caab7b40c72493LL, 0x3c9ebe0a15c9bebcLL, 0x431d67c49c100d4cLL,
++	0x4cc5d4becb3e42b6LL, 0x597f299cfc657e2aLL, 0x5fcb6fab3ad6faecLL, 0x6c44198c4a475817LL
+ };
+ static const UINT64 SHA384_DefaultHashValue[8] = {
+-	0xcbbb9d5dc1059ed8, 0x629a292a367cd507, 0x9159015a3070dd17, 0x152fecd8f70e5939,
+-	0x67332667ffc00b31, 0x8eb44a8768581511, 0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4
++	0xcbbb9d5dc1059ed8LL, 0x629a292a367cd507LL, 0x9159015a3070dd17LL, 0x152fecd8f70e5939LL,
++	0x67332667ffc00b31LL, 0x8eb44a8768581511LL, 0xdb0c2e0d64f98fa7LL, 0x47b5481dbefa4fa4LL
+ };
+ #endif /* SHA384_SUPPORT */
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/sta/sta.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/sta/sta.c
+index afefdfc7d61..6e3fed00a84 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/sta/sta.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/sta/sta.c
+@@ -29,6 +29,7 @@
+ #include "rt_config.h"
+ 
+ NET_DEV_STATS *RT28xx_get_ether_stats(PNET_DEV net_dev);
++struct rtnl_link_stats64 *RT28xx_get_ether_stats64(struct net_device *net_dev, struct rtnl_link_stats64 *stats);
+ 
+ VOID STARxErrorHandle(RTMP_ADAPTER *pAd, RX_BLK *pRxBlk)
+ {
+@@ -172,7 +173,7 @@ VOID RT28xx_MSTA_Init(VOID *pAd, PNET_DEV main_dev_p)
+ 	netDevHook.stop = msta_virtual_if_close; /* device close hook point */
+ 	netDevHook.xmit = rt28xx_send_packets;  /* hard transmit hook point */
+ 	netDevHook.ioctl = rt28xx_ioctl;    /* ioctl hook point */
+-	netDevHook.get_stats = RT28xx_get_ether_stats;
++	netDevHook.get_stats = RT28xx_get_ether_stats64;
+ 	RTMP_STA_IoctlHandle(pAd, NULL, CMD_RTPRIV_IOCTL_MSTA_INIT,
+ 						 0, &netDevHook, 0, 0);
+ }
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/wapp/wapp.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/wapp/wapp.c
+index b79fdaafb3e..5ce685aa465 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/wapp/wapp.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/embedded/wapp/wapp.c
+@@ -1841,7 +1842,7 @@ INT wapp_send_sta_rssi_query_rsp(
+ 	return 0;
+ }
+ 
+-
++#ifdef WSC_INCLUDED
+ INT wapp_send_wsc_scan_complete_notification(
+ 	PRTMP_ADAPTER pAd,
+ 	struct wifi_dev *wdev)
+@@ -1863,7 +1864,7 @@ INT wapp_send_wsc_scan_complete_notification(
+ 	}
+ 	return 0;
+ }
+-
++#endif
+ 
+ INT wapp_send_wsc_eapol_start_notification(
+ 	PRTMP_ADAPTER pAd,
+@@ -2268,6 +2269,7 @@ INT	wapp_event_handle(
+ 	case WAPP_GET_SCAN_RESULTS:
+ 		RTMPIoctlGetScanResults(pAd, req);
+ 		break;
++#ifdef WSC_INCLUDED
+ 	case WAPP_WSC_PBC_EXEC:
+ 		{
+ 			POS_COOKIE pObj = (POS_COOKIE) pAd->OS_Cookie;
+@@ -2283,9 +2285,11 @@ INT	wapp_event_handle(
+ 			WscPBCExec(pAd, FALSE, pWscControl);
+ 			break;
+ 		}
++#endif
+ 	case WAPP_SEND_NULL_FRAMES:
+ 		RTMPIoctlSendNullDataFrame(pAd, req);
+ 		break;
++#ifdef WSC_INCLUDED
+ 	case WAPP_WSC_SET_BH_PROFILE:
+ 		{
+ 			POS_COOKIE pObj = (POS_COOKIE) pAd->OS_Cookie;
+@@ -2309,6 +2313,7 @@ INT	wapp_event_handle(
+ 			}
+ 			break;
+ 		}
++#endif
+ #ifdef CONFIG_MAP_SUPPORT
+ 	case WAPP_SET_SCAN_BH_SSIDS:
+ 		{
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/include/os/rt_linux.h b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/include/os/rt_linux.h
+index 443a681341d..3517f656280 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/include/os/rt_linux.h
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/include/os/rt_linux.h
+@@ -132,7 +132,7 @@ typedef struct usb_ctrlrequest devctrlrequest;
+  *	Profile related sections
+  ***********************************************************************************/
+ 
+-#define L1_PROFILE_PATH	"/etc/wireless/l1profile.dat"
++#define L1_PROFILE_PATH	"/etc_ro/Wireless/l1profile.dat"
+ #define L1PROFILE_INDEX_LEN		10
+ #define	L1PROFILE_ATTRNAME_LEN	30
+ #define	L2PROFILE_PATH_LEN		50
+@@ -268,7 +268,7 @@ typedef int (*HARD_START_XMIT_FUNC)(struct sk_buff *skb, struct net_device *net_
+ #define RTMP_DEC_REF(_A)		0
+ #define RTMP_GET_REF(_A)		0
+ 
+-#if defined(CONFIG_FAST_NAT_SUPPORT)
++#if 0
+ #define RT_MOD_HNAT_DEREG(_net_dev) \
+ 	do {\
+ 		if (ppe_dev_unregister_hook != NULL) \
+@@ -824,7 +824,7 @@ void linux_pci_unmap_single(void *handle, ra_dma_addr_t dma_addr, size_t size, i
+ #define SKB_BUF_MINIMUN_SIZE	(1984)
+ 
+ 
+-#ifdef CONFIG_WIFI_BUILD_SKB
++#if 1
+ #define DEV_ALLOC_FRAG(_Pkt, _length)		\
+ 	do {\
+ 		_Pkt = netdev_alloc_frag(_length);\
+@@ -1072,8 +1072,10 @@ void linux_pci_unmap_single(void *handle, ra_dma_addr_t dma_addr, size_t size, i
+ #ifdef CONFIG_FAST_NAT_SUPPORT
+ extern int (*ra_sw_nat_hook_tx)(struct sk_buff *skb, int gmac_no);
+ extern int (*ra_sw_nat_hook_rx)(struct sk_buff *skb);
++#if 0
+ extern void (*ppe_dev_register_hook) (VOID  *dev);
+ extern void (*ppe_dev_unregister_hook) (VOID  *dev);
++#endif
+ 
+ #if defined(CONFIG_WIFI_PKT_FWD) || defined(CONFIG_WIFI_PKT_FWD_MODULE)
+ extern int (*wf_ra_sw_nat_hook_tx_bkup)(struct sk_buff *skb, int gmac_no);
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_linux.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_linux.c
+index eb7c4a689f5..c871e52f5c0 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_linux.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_linux.c
+@@ -49,7 +49,8 @@
+ #endif /* MEM_ALLOC_INFO_SUPPORT */
+ 
+ #ifdef CONFIG_FAST_NAT_SUPPORT
+-#include <net/ra_nat.h>
++#include "../../../../../../net/nat/hw_nat/ra_nat.h"
++#include "../../../../../../net/nat/hw_nat/frame_engine.h"
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+ #include "multi_hif.h"
+ 
+@@ -1787,11 +1788,8 @@ int RtmpOSNetDevAttach(
+ 		  *  function will make kernel panic.
+ 		  */
+ 		if (pDevOpHook->get_stats)
+-#if (KERNEL_VERSION(2, 6, 31) <= LINUX_VERSION_CODE)
+-			pNetDevOps->ndo_get_stats = pDevOpHook->get_stats;
+-
+-#else
+-			pNetDev->get_stats = pDevOpHook->get_stats;
++#if (KERNEL_VERSION(2, 6, 35) <= LINUX_VERSION_CODE)
++			pNetDevOps->ndo_get_stats64 = pDevOpHook->get_stats;
+ #endif
+ 		/* OS specific flags, here we used to indicate if we are virtual interface */
+ 		/*		pNetDev->priv_flags = pDevOpHook->priv_flags; */
+@@ -2584,7 +2582,7 @@ VOID RtmpOsPktNatMagicTag(PNDIS_PACKET pNetPkt)
+ {
+ 	struct sk_buff *pRxPkt = RTPKT_TO_OSPKT(pNetPkt);
+ 
+-	FOE_MAGIC_TAG(pRxPkt) = FOE_MAGIC_WLAN;
++	FOE_MAGIC_TAG(pRxPkt) = FOE_MAGIC_EXTIF;
+ }
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+ 
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_main_dev.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_main_dev.c
+index 41ebaf037b5..f6406c2b6c4 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_main_dev.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_main_dev.c
+@@ -77,6 +77,8 @@ INT rt28xx_send_packets(IN struct sk_buff *skb_p, IN struct net_device *net_dev)
+ 
+ struct net_device_stats *RT28xx_get_ether_stats(struct net_device *net_dev);
+ 
++struct rtnl_link_stats64 *RT28xx_get_ether_stats64(struct net_device *net_dev, struct rtnl_link_stats64 *stats);
++
+ static int rt_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
+ {
+ 	struct iwreq req;
+@@ -576,7 +577,7 @@ PNET_DEV RtmpPhyNetDevInit(VOID *pAd, RTMP_OS_NETDEV_OP_HOOK *pNetDevHook)
+ #endif /* IKANOS_VX_1X0 */
+ 	pNetDevHook->ioctl = rt28xx_ioctl;
+ 	pNetDevHook->priv_flags = InfId; /*INT_MAIN; */
+-	pNetDevHook->get_stats = RT28xx_get_ether_stats;
++	pNetDevHook->get_stats = RT28xx_get_ether_stats64;
+ 	pNetDevHook->needProtcted = FALSE;
+ #if (WIRELESS_EXT < 21) && (WIRELESS_EXT >= 12)
+ 	pNetDevHook->get_wstats = rt28xx_get_wireless_stats;
+@@ -826,6 +827,49 @@ struct net_device_stats *RT28xx_get_ether_stats(struct net_device *net_dev)
+ 		return NULL;
+ }
+ 
++struct rtnl_link_stats64 *RT28xx_get_ether_stats64(struct net_device *net_dev, struct rtnl_link_stats64 *stats)
++{
++	RT_CMD_STATS WifStats;
++    VOID *pAd = NULL;
++
++	if (net_dev)
++		GET_PAD_FROM_NET_DEV(pAd, net_dev);	
++
++	if (!pAd)
++		return NULL;
++
++	WifStats.pNetDev = net_dev;
++	RTMP_DRIVER_INF_STATS_GET(pAd, &WifStats);
++
++	stats->rx_packets		= WifStats.rx_packets;
++	stats->tx_packets		= WifStats.tx_packets;
++	stats->rx_bytes			= WifStats.rx_bytes;
++	stats->tx_bytes			= WifStats.tx_bytes;
++	stats->rx_errors		= WifStats.rx_errors;
++	stats->tx_errors		= WifStats.tx_errors;
++	stats->rx_dropped		= 0;
++	stats->tx_dropped		= 0;
++	stats->multicast		= WifStats.multicast;
++	stats->collisions		= WifStats.collisions;
++
++	stats->rx_length_errors		= 0;
++	stats->rx_over_errors		= WifStats.rx_over_errors;
++	stats->rx_crc_errors		= 0;
++	stats->rx_frame_errors		= WifStats.rx_frame_errors;
++	stats->rx_fifo_errors		= WifStats.rx_fifo_errors;
++	stats->rx_missed_errors		= 0;
++
++	stats->tx_aborted_errors	= 0;
++	stats->tx_carrier_errors	= 0;
++	stats->tx_fifo_errors		= 0;
++	stats->tx_heartbeat_errors	= 0;
++	stats->tx_window_errors		= 0;
++
++	stats->rx_compressed		= 0;
++	stats->tx_compressed		= 0;
++		
++	return stats;
++}
+ 
+ BOOLEAN RtmpPhyNetDevExit(VOID *pAd, PNET_DEV net_dev)
+ {
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_profile.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_profile.c
+index a898186d8ef..16f898d055b 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_profile.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/os/linux/rt_profile.c
+@@ -40,7 +40,8 @@
+ 
+ 
+ #ifdef CONFIG_FAST_NAT_SUPPORT
+-#include <net/ra_nat.h>
++#include "../../../../../../net/nat/hw_nat/ra_nat.h"
++#include "../../../../../../net/nat/hw_nat/frame_engine.h"
+ #endif /*CONFIG_FAST_NAT_SUPPORT*/
+ 
+ #define BSSID_WCID_TO_REMOVE 1
+@@ -532,7 +533,7 @@ INT get_dev_config_idx(RTMP_ADAPTER *pAd)
+ 		idx = 0;
+ 
+ #if defined(CONFIG_RT_SECOND_CARD)
+-#if defined(CONFIG_FIRST_IF_MT7603E) || defined(CONFIG_FIRST_IF_MT7628) || defined(CONFIG_FIRST_IF_MT7620)
++#if defined(CONFIG_RT_FIRST_IF_MT7603E)
+ 	/* MT7603(ra0) + MT7613/MT7615/MT7915(rai0) combination */
+ 		if (IS_MT7663(pAd) || IS_MT7615(pAd) || IS_MT7915(pAd))
+ 			idx = 1;
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/wlan_service/glue/hal/jedi/operation_jedi.c b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/wlan_service/glue/hal/jedi/operation_jedi.c
+index 9030ce47719..754495a1773 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/wlan_service/glue/hal/jedi/operation_jedi.c
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915/wlan_service/glue/hal/jedi/operation_jedi.c
+@@ -2491,7 +2491,8 @@ s_int32 mt_op_set_test_mode_dnlk_2g(
+ 	RTMP_ADAPTER *ad = NULL;
+ 	struct _ATE_CTRL *ATECtrl = NULL;
+ #ifdef DBDC_MODE
+-	u_int32 band0_tx_path_backup, band0_rx_path_backup;
++	u_int32 band0_tx_path_backup = 0;
++	u_int32 band0_rx_path_backup = 0;
+ #endif
+ 
+ 	/* Get adapter from jedi driver first */
+@@ -2578,7 +2579,8 @@ s_int32 mt_op_set_test_mode_dnlk_5g(
+ 	RTMP_ADAPTER *ad = NULL;
+ 	struct _ATE_CTRL *ATECtrl = NULL;
+ #ifdef DBDC_MODE
+-	u_int32 band1_tx_path_backup, band1_rx_path_backup;
++	u_int32 band1_tx_path_backup = 0;
++	u_int32 band1_rx_path_backup = 0;
+ #endif
+ 
+ 	/* Get adapter from jedi driver first */
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Kconfig b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Kconfig
+index 045818221fd..02be0505cac 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Kconfig
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Kconfig
+@@ -1,3 +1,7 @@
++config MT7915_AP
++	tristate "MT7915 AP support"
++	select MT_AP_SUPPORT
++
+ config MT_AP_SUPPORT
+ 	tristate "MTK AP support"
+ #	depends on NET_RADIO
+@@ -90,7 +94,8 @@ config KVRH_SUPPORT
+ 	bool "Query STA 802.11k/v/r/h Capability"
+ 	depends on MT_AP_SUPPORT
+ 	default n
+-config INTERWORKING
++
++config MT_INTERWORKING
+ 	bool "802.11u Interworking/Gas Support"
+         depends on MT_AP_SUPPORT
+         default n
+diff --git a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Makefile b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Makefile
+index 6ce2ca4b415..1655f1dbb9c 100644
+--- a/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Makefile
++++ b/trunk/proprietary/rt_wifi/rtpci/7.3.0.1/mt7915_ap/Makefile
+@@ -1,126 +1,27 @@
+-ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
+-WIFI_DRV_PATH := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/..
+-else
+-ifeq ($(CONFIG_DEFAULTS_KERNEL_4_4),y)
+-WIFI_DRV_PATH = drivers/net/wireless/mediatek
+-else
+-WIFI_DRV_PATH = drivers/net/wireless
+-endif
+-endif
+-
+-EXTRA_CFLAGS = -I$(WIFI_DRV_PATH)/mt_wifi/include \
+-				-I$(WIFI_DRV_PATH)/mt_wifi/embedded/include \
+-				-I$(WIFI_DRV_PATH)/mt_wifi/ate/include \
+-				-I$(WIFI_DRV_PATH)/mt_wifi/include/mcu \
+-				-I$(WIFI_DRV_PATH)/mt_wifi/embedded/dbg_txcmd/include \
+-				-I$(WIFI_DRV_PATH)/warp_driver/warp \
+-				-I$(WIFI_DRV_PATH)/warp_driver/warp/mcu
++WIFI_DRV_PATH = drivers/net/wireless/ralink/mt7915
+ 
+-ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
+-GLOBAL_DEFINES = include/uapi/linux/wapp
+-EXTRA_CFLAGS +=	-I$(GLOBAL_DEFINES)
+-endif
++EXTRA_CFLAGS = -I$(WIFI_DRV_PATH)/include \
++				-I$(WIFI_DRV_PATH)/embedded/include \
++				-I$(WIFI_DRV_PATH)/ate/include \
++				-I$(WIFI_DRV_PATH)/include/mcu \
++				-I$(WIFI_DRV_PATH)/embedded/dbg_txcmd/include \
++				-I$(WIFI_DRV_PATH)/wlan_service/service/include \
++				-I$(WIFI_DRV_PATH)/wlan_service/include
+ 
++DRV_NAME = mt_7915
+ 
+-ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
+-ifeq ($(CONFIG_CHIP_MT7663E),y)
+-DRV_NAME = mt7663e
+-else
+-DRV_NAME = mt_wifi
+-endif
+-else
+-DRV_NAME = mt_wifi
+-endif
+-
+-SRC_DIR = ../mt_wifi
+-SRC_EMBEDDED_DIR = ../mt_wifi/embedded
+-SERV_DIR = ../wlan_service
+-ifeq ($(CONFIG_SUPPORT_OPENWRT),y)
+-EXTRA_CFLAGS += -DCONFIG_SUPPORT_OPENWRT
++SRC_DIR = ../mt7915
++SRC_EMBEDDED_DIR = ../mt7915/embedded
++SERV_DIR = ../mt7915/wlan_service
+ 
+-ifneq ($(CONFIG_FIRST_IF_NONE),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_FIRST_CARD=$(CONFIG_RT_FIRST_CARD)
+-EXTRA_CFLAGS += -DCONFIG_RT_FIRST_IF_RF_OFFSET=$(CONFIG_RT_FIRST_IF_RF_OFFSET)
+-ifeq ($(CONFIG_FIRST_IF_EEPROM_PROM),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_FIRST_CARD_EEPROM="\"prom\""
+-else
+-ifeq ($(CONFIG_FIRST_IF_EEPROM_EFUSE),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_FIRST_CARD_EEPROM="\"efuse\""
+-else
+-ifeq ($(CONFIG_FIRST_IF_EEPROM_FLASH),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_FIRST_CARD_EEPROM="\"flash\""
+-endif
+-endif
+-endif
+-endif	#CONFIG_FIRST_IF_NONE
+-ifneq ($(CONFIG_SECOND_IF_NONE),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_SECOND_CARD=$(CONFIG_RT_SECOND_CARD)
+-EXTRA_CFLAGS += -DCONFIG_RT_SECOND_IF_RF_OFFSET=$(CONFIG_RT_SECOND_IF_RF_OFFSET)
+-ifeq ($(CONFIG_SECOND_IF_EEPROM_PROM),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_SECOND_CARD_EEPROM="\"prom\""
+-else
+-ifeq ($(CONFIG_SECOND_IF_EEPROM_EFUSE),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_SECOND_CARD_EEPROM="\"efuse\""
+-else
+-ifeq ($(CONFIG_SECOND_IF_EEPROM_FLASH),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_SECOND_CARD_EEPROM="\"flash\""
+-endif
+-endif
+-endif
+-endif	#CONFIG_SECOND_IF_NONE
+-ifneq ($(CONFIG_THIRD_IF_NONE),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_THIRD_IF_RF_OFFSET=$(CONFIG_RT_THIRD_IF_RF_OFFSET)
+-EXTRA_CFLAGS += -DCONFIG_RT_THIRD_CARD=$(CONFIG_RT_THIRD_CARD)
+-ifeq ($(CONFIG_THIRD_IF_EEPROM_PROM),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_THIRD_CARD_EEPROM="\"prom\""
+-else
+-ifeq ($(CONFIG_THIRD_IF_EEPROM_EFUSE),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_THIRD_CARD_EEPROM="\"efuse\""
+-else
+-ifeq ($(CONFIG_THIRD_IF_EEPROM_FLASH),y)
+-EXTRA_CFLAGS += -DCONFIG_RT_THIRD_CARD_EEPROM="\"flash\""
+-endif
+-endif
+-endif
+-endif	#CONFIG_THIRD_IF_NONE
+-endif	#CONFIG_SUPPORT_OPENWRT
+-
+-ifeq ($(CONFIG_FIRST_IF_EPAELNA),y)
+-EXTRA_CFLAGS += -DCONFIG_FIRST_IF_EPAELNA
+-else
+-ifeq ($(CONFIG_FIRST_IF_IPAILNA),y)
+-EXTRA_CFLAGS += -DCONFIG_FIRST_IF_IPAILNA
+-else
+-ifeq ($(CONFIG_FIRST_IF_IPAELNA),y)
+-EXTRA_CFLAGS += -DCONFIG_FIRST_IF_IPAELNA
+-endif
+-endif
+-endif
+-ifeq ($(CONFIG_SECOND_IF_EPAELNA),y)
+-EXTRA_CFLAGS += -DCONFIG_SECOND_IF_EPAELNA
+-else
+-ifeq ($(CONFIG_SECOND_IF_IPAILNA),y)
+-EXTRA_CFLAGS += -DCONFIG_SECOND_IF_IPAILNA
+-else
+-ifeq ($(CONFIG_SECOND_IF_IPAELNA),y)
+-EXTRA_CFLAGS += -DCONFIG_SECOND_IF_IPAELNA
+-endif
+-endif
+-endif
+-ifeq ($(CONFIG_THIRD_IF_EPAELNA),y)
+-EXTRA_CFLAGS += -DCONFIG_THIRD_IF_EPAELNA
+-else
+-ifeq ($(CONFIG_THIRD_IF_IPAILNA),y)
+-EXTRA_CFLAGS += -DCONFIG_THIRD_IF_IPAILNA
+-else
+-ifeq ($(CONFIG_THIRD_IF_IPAELNA),y)
+-EXTRA_CFLAGS += -DCONFIG_THIRD_IF_IPAELNA
+-endif
+-endif
+-endif
+ # support built-in/ko for Openwrt/Linux SDK
+ obj-$(CONFIG_MT_AP_SUPPORT) += $(DRV_NAME).o
+ 
++ifeq ($(CONFIG_RALINK_MT7621),y)
++CONFIG_SOC_MT7621=y
++EXTRA_CFLAGS += -DCONFIG_SOC_MT7621
++endif
++
+ ifeq ($(CONFIG_MTK_EMI_7622),y)
+ EXTRA_CFLAGS += -DCONFIG_ARCH_MT7622
+ endif
+@@ -503,7 +403,7 @@ ifeq ($(CONFIG_DSCP_PRI_SUPPORT),y)
+ 	EXTRA_CFLAGS += -DDSCP_PRI_SUPPORT
+ endif
+ 
+-ifeq ($(CONFIG_INTERWORKING),y)
++ifeq ($(CONFIG_MT_INTERWORKING),y)
+         EXTRA_CFLAGS += -DCONFIG_DOT11U_INTERWORKING
+         spec_objs += $(SRC_EMBEDDED_DIR)/common/gas.o
+ endif
+@@ -1549,7 +1449,7 @@ EXTRA_CFLAGS += -DPRE_CAL_MT7626_SUPPORT
+ endif
+ 
+ #EXTRA_CFLAGS += -Wframe-larger-than=4096
+-WFLAGS += -Werror
++#WFLAGS += -Werror
+ 
+ ifeq ($(CONFIG_HDR_TRANS_TX_SUPPORT),y)
+ 	EXTRA_CFLAGS += -DHDR_TRANS_TX_SUPPORT -DCUT_THROUGH_FULL_OFFLOAD
+@@ -1851,7 +1751,7 @@ EXTRA_CFLAGS += -DDOT11V_MBSSID_SUPPORT
+ EXTRA_CFLAGS += -DA_BAND_SUPPORT
+ #EXTRA_CFLAGS += -DMT7915_E1_WORKAROUND
+ EXTRA_CFLAGS += -DRELEASE_EXCLUDE
+-ccflags-y += -Werror
++#ccflags-y += -Werror
+ #WFLAGS += -DCONFIG_CSO_SUPPORT
+ #WFLAGS += -DMSP_UTILITY
+ EXTRA_CFLAGS += -DTX_POWER_CONTROL_SUPPORT
+@@ -1862,7 +1762,7 @@ EXTRA_CFLAGS += -DBRCM_256QAM
+ endif
+ endif
+ 
+-CONFIG_PROPRIETARY_DRIVER=y
++#CONFIG_PROPRIETARY_DRIVER=y
+ 
+ ifeq ($(CONFIG_PROPRIETARY_DRIVER),y)
+ EXTRA_CFLAGS += -DCONFIG_PROPRIETARY_DRIVER
+@@ -2056,7 +1956,7 @@ endif
+ #CONFIG_WIFI_SYSDVT=n
+ ifeq ($(CONFIG_WIFI_SYSDVT), y)
+ EXTRA_CFLAGS += -DVERIFICATION_MODE
+-DVT_DIR=$(WIFI_DRV_PATH)/mt_wifi/embedded/dvt
++DVT_DIR=$(WIFI_DRV_PATH)/embedded/dvt
+ DVT_OBJ_PATH=$(SRC_EMBEDDED_DIR)/dvt
+ include $(DVT_DIR)/dvt.mk
+ $(DRV_NAME)-objs += $(obj_dvt)
+@@ -2066,7 +1966,7 @@ endif
+ 
+ CONFIG_WIFI_DBG_TXCMD=y
+ ifeq ($(CONFIG_WIFI_DBG_TXCMD), y)
+-DBG_TXCMD_DIR=$(WIFI_DRV_PATH)/mt_wifi/embedded/dbg_txcmd
++DBG_TXCMD_DIR=$(WIFI_DRV_PATH)/embedded/dbg_txcmd
+ DBG_TXCMD_OBJ_PATH=$(SRC_EMBEDDED_DIR)/dbg_txcmd
+ include $(DBG_TXCMD_DIR)/dbg_txcmd.mk
+ $(DRV_NAME)-objs += $(obj_dbg_txcmd)
+@@ -2203,6 +2103,8 @@ EXTRA_CFLAGS += -DMT_WIFI_MODULE
+ endif
+ endif
+ 
++EXTRA_CFLAGS += -DVENDOR_FEATURE6_SUPPORT
++
+ MODULE_FLAGS=$(EXTRA_CFLAGS)
+ export MODULE_FLAGS
+-obj-m+=$(SRC_EMBEDDED_DIR)/plug_in/
++# obj-m+=$(SRC_EMBEDDED_DIR)/plug_in/

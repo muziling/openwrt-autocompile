@@ -1,0 +1,57 @@
+name: Build WSA Magisk
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: 'arch Type'
+        required: true
+        type: choice
+        options:
+        - 'x64'
+        - 'arm64'
+      root:
+        description: 'root Type'
+        required: true
+        type: choice
+        options:
+        - 'none'
+        - 'magisk'
+      release:
+        description: 'release version'
+        required: true
+        type: choice
+        options:
+        - 'RP'
+        - 'retail'
+
+jobs:
+  build:
+    name: Build WSA
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y whiptail setools lzip wine winetricks patchelf e2fsprogs python3-pip aria2 p7zip-full attr
+          pip list --disable-pip-version-check | grep -E "^requests " >/dev/null 2>&1 || python3 -m pip install requests
+          winetricks list-installed | grep -E "^msxml6" >/dev/null 2>&1 || winetricks msxml6 || abort
+
+      - name: Clone MagiskOnWSALocal source code
+        run: |
+          git clone --depth 1 https://github.com/LSPosed/MagiskOnWSALocal.git wsaworkdir
+
+      - name: Grant executable permission
+        working-directory: wsaworkdir
+        run: chmod +x ./scripts/build.sh
+
+      - name: Build WSA GAPPS ${{ inputs.root }} ${{ inputs.arch }}
+        working-directory: wsaworkdir
+        run:  ./scripts/build.sh --arch ${{ inputs.arch }} --release-type ${{ inputs.release }} --magisk-ver stable --remove-amazon --root-sol ${{ inputs.root }} --compress
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: wsa
+          path: "wsaworkdir/output/"
