@@ -209,7 +209,7 @@ new file mode 100644
 index 0000000..9699223
 --- /dev/null
 +++ b/trunk/configs/boards/JD-LUBAN/kernel-4.4.x.config
-@@ -0,0 +1,2537 @@
+@@ -0,0 +1,2563 @@
 +#
 +# Automatically generated file; DO NOT EDIT.
 +# Linux/mips 4.4.198 Kernel Configuration
@@ -2057,14 +2057,40 @@ index 0000000..9699223
 +# CONFIG_VGASTATE is not set
 +# CONFIG_SOUND is not set
 +CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-+# CONFIG_USB_SUPPORT is not set
++CONFIG_USB_SUPPORT=m
 +# CONFIG_UWB is not set
-+# CONFIG_MMC is not set
++CONFIG_MMC=m
 +# CONFIG_MEMSTICK is not set
 +CONFIG_NEW_LEDS=y
 +CONFIG_LEDS_CLASS=y
 +# CONFIG_LEDS_CLASS_FLASH is not set
 +# CONFIG_LEDS_BRIGHTNESS_HW_CHANGED is not set
++
++#
++# MMC/SD/SDIO Card Drivers
++#
++CONFIG_MMC_BLOCK=m
++CONFIG_MMC_BLOCK_MINORS=8
++CONFIG_MMC_BLOCK_BOUNCE=y
++# CONFIG_SDIO_UART is not set
++# CONFIG_MMC_TEST is not set
++
++#
++# MMC/SD/SDIO Host Controller Drivers
++#
++# CONFIG_MMC_SDHCI is not set
++CONFIG_MTK_MMC=m
++CONFIG_MTK_AEE_KDUMP=y
++CONFIG_MTK_MMC_CD_POLL=y
++# CONFIG_MTK_MMC_EMMC_8BIT is not set
++# CONFIG_MEMSTICK is not set
++# CONFIG_NEW_LEDS is not set
++# CONFIG_ACCESSIBILITY is not set
++CONFIG_RTC_LIB=y
++# CONFIG_RTC_CLASS is not set
++# CONFIG_DMADEVICES is not set
++# CONFIG_AUXDISPLAY is not set
++# CONFIG_UIO is not set
 +
 +#
 +# LED drivers
@@ -2793,7 +2819,7 @@ index 0000000..2f4639f
 +CONFIG_FIRMWARE_ENABLE_IPV6=y
 +
 +### Enable USB support
-+CONFIG_FIRMWARE_ENABLE_USB=n
++CONFIG_FIRMWARE_ENABLE_USB=y
 +
 +### Enable FAT/FAT32 filesystem support. ~0.1MB
 +CONFIG_FIRMWARE_ENABLE_FAT=n

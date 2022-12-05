@@ -71,12 +71,17 @@ jobs:
           cd /opt/rt-n56u/toolchain-mipsel
           sh dl_toolchain.sh
           cd /opt/rt-n56u/trunk
+          mkdir -p /opt/images/
           #sudo ./clear_tree_simple
           #sudo ./build_firmware_modify ${{ inputs.routemodel }}
           fakeroot ./build_firmware_modify ${{ inputs.routemodel }}
-          mkdir -p /opt/images/
           sudo mv -f images/*.trx /opt/images/
           sudo cp linux-4.4.x/.config /opt/images/
+
+      - name: copy error
+        if: always()
+        run: |
+          sudo cp /opt/rt-n56u/trunk/user/dosfstools/dosfstools-4.1/config.log /opt/images/
 
       - name : Upload packages
         uses: actions/upload-artifact@v3
