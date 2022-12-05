@@ -76,7 +76,7 @@ jobs:
           fakeroot ./build_firmware_modify ${{ inputs.routemodel }}
           mkdir -p /opt/images/
           sudo mv -f images/*.trx /opt/images/
-          sudo cp linux-4.4.x/*.config /opt/images/
+          sudo cp linux-4.4.x/.config /opt/images/
 
       - name : Upload packages
         uses: actions/upload-artifact@v3
