@@ -54,11 +54,16 @@ jobs:
           sed -i 's/CONFIG_FIRMWARE_INCLUDE_MTR=y/CONFIG_FIRMWARE_INCLUDE_MTR=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           sed -i 's/CONFIG_FIRMWARE_INCLUDE_SOCAT=y/CONFIG_FIRMWARE_INCLUDE_SOCAT=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           sed -i 's/CONFIG_FIRMWARE_INCLUDE_SRELAY=y/CONFIG_FIRMWARE_INCLUDE_SRELAY=n/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
+          sed -i 's/CONFIG_FIRMWARE_INCLUDE_IPERF3=n/CONFIG_FIRMWARE_INCLUDE_IPERF3=y/g' /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           
           echo '' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           #echo 'CONFIG_FIRMWARE_INCLUDE_NGROK=y' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           #echo 'CONFIG_FIRMWARE_INCLUDE_3PROXY=y' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           sed -i 's/=y"/=n"/g' /opt/rt-n56u/trunk/build_firmware_modify
+
+      - name: update package version
+        run: |
+          sed -i 's/iperf-3.7/iperf-3.12/g' /opt/rt-n56u/trunk/user/iperf3/Makefile
 
       - name: Initialization environment
         run: |
