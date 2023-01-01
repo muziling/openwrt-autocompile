@@ -1,7 +1,7 @@
 From e023f8612802086e4b1af3e3b06dec5eef3f6402 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Wed, 28 Dec 2022 14:49:28 +0800
-Subject: [PATCH 4/4] wifi script
+Subject: [PATCH 4/5] wifi script
 
 ---
  package/base-files/Makefile                            | 3 +++

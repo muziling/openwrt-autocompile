@@ -1,0 +1,35 @@
+From 73036b7fd662143656fa7d58c170394e35345ab3 Mon Sep 17 00:00:00 2001
+From: pieceking <1@1.com>
+Date: Fri, 6 Jan 2023 21:53:49 +0800
+Subject: [PATCH 5/5] libustream-wolfssl replace with libustream-openssl,
+ dnsmasq relace with dnsmasq-full, because many package depend it.
+
+---
+ include/target.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/target.mk b/include/target.mk
+index 7526224..bd95442 100644
+--- a/include/target.mk
++++ b/include/target.mk
+@@ -17,7 +17,7 @@ DEFAULT_PACKAGES:=\
+ 	fstools \
+ 	libc \
+ 	libgcc \
+-	libustream-wolfssl \
++	libustream-openssl \
+ 	logd \
+ 	mtd \
+ 	netifd \
+@@ -43,7 +43,7 @@ DEFAULT_PACKAGES.nas:=\
+ 	mdadm
+ # For router targets
+ DEFAULT_PACKAGES.router:=\
+-	dnsmasq \
++	dnsmasq-full \
+ 	firewall \
+ 	ip6tables \
+ 	iptables \
+-- 
+2.37.3.windows.1
+

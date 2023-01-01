@@ -97,13 +97,21 @@ jobs:
         sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
         
         mkdir -p package/mycustom
-        git clone --depth 1 -b master https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
-        sed -i 's/create tp_spec_dst_bp hash:net hashsize 64/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/root/usr/share/xray/gen_ipset_rules.lua
         
-        git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
-        sed -i '/include $(INCLUDE_DIR)\/package.mk/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
+        #xray 科学用，luci-app-xray防火墙规则没开关，可能会导致无线中继功能异常
+        git clone --depth 1 -b master https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
+        sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/root/usr/share/xray/gen_ipset_rules.lua
         sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/root/etc/init.d/xray
         sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/root/etc/init.d/xray
+        sed -i '/service dnsmasq restart/d' package/mycustom/luci-app-xray/root/etc/hotplug.d/iface/01-transparent-proxy-ipset.fw3
+        
+        git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
+        #sed -i '/include $(INCLUDE_DIR)\/package.mk/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
+        #fix make menuconfig error
+        sed -i '/DEPENDS/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
+
+        #v2ray 反向连接回家里用
+        #git clone --depth 1 -b luci2 https://github.com/BI7PRK/luci-app-v2ray.git package/mycustom/luci-app-v2ray
 
         git clone --depth=1 https://github.com/fw876/helloworld.git package/mycustom/helloworld
         git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
@@ -116,11 +124,6 @@ jobs:
         git clone --depth=1 https://github.com/kuoruan/openwrt-upx.git package/mycustom/openwrt-upx
         
         
-        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
-        chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
-        echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}'  >feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
-        sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
-
         
         #for shadowsocks, impletement encrypt algorithm
         mv hanwckfop/package/libs/openssl/Config.in package/libs/openssl/Config.in
@@ -138,20 +141,43 @@ jobs:
         mv hanwckfop/package/libs/libnfnetlink package/libs/libnfnetlink
         
         ./scripts/feeds update -a
-        ./scripts/feeds install -a
         
+        
+        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}'  >feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
+        sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
+
         
         #sed -i "/tristate /a\\\t   default \$(shell if [ '\$(lang)' == 'zh_Hans' ]\; then echo y\; else echo n\; fi)" feeds/luci/luci.mk
         sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
         sed -i 's|mediaurlbase.*$|mediaurlbase /luci-static/edge|g' feeds/luci/modules/luci-base/root/etc/config/luci
 
+        ./scripts/feeds install -a
+        
         #grep -v '^#' hanwckfop/defconfig/mt7981-ax3000.config > .config
         cp hanwckfop/defconfig/mt7981-ax3000.config .config
         echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
+        #echo CONFIG_PACKAGE_luci-i18n-xray-zh-cn=y >> .config
         
+    - name: Download package
+      run: |
+        [ -e 360t7/Makefile ] && mv -f 360t7/Makefile openwrt/target/linux/mediatek/Makefile
+        cd openwrt
         make defconfig
-        make V=s -j$(nproc)
-        
+        make download -j8
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) V=sc || make -j1 V=s || make -j1
+        echo "::set-output name=status::success"
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
     - name: Upload bin directory
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'

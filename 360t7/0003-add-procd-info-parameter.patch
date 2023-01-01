@@ -1,7 +1,7 @@
 From c7b9c4b615e24a4f3335bade2f6339c67a185d8d Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Wed, 28 Dec 2022 14:49:08 +0800
-Subject: [PATCH 3/4] add procd info parameter
+Subject: [PATCH 3/5] add procd info parameter
 
 ---
  package/base-files/files/etc/rc.common | 8 ++++++++

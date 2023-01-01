@@ -1,7 +1,7 @@
 From 2e09073443008739495c75438c2741ff746be6de Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Wed, 28 Dec 2022 14:47:24 +0800
-Subject: [PATCH 1/4] remove uclibc++ from op 22.03
+Subject: [PATCH 1/5] remove uclibc++ from op 22.03
 
 ---
  config/Config-build.in | 14 --------------

@@ -1,7 +1,7 @@
 From 09efaabdc299f066d7832de88eab11fb38913578 Mon Sep 17 00:00:00 2001
 From: pieceking <1@1.com>
 Date: Wed, 28 Dec 2022 14:48:03 +0800
-Subject: [PATCH 2/4] enable KERNEL_MIPS_FP_SUPPORT for mips
+Subject: [PATCH 2/5] enable KERNEL_MIPS_FP_SUPPORT for mips
 
 ---
  config/Config-kernel.in | 3 ++-
