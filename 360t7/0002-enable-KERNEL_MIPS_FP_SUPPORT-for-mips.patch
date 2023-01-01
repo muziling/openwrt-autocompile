@@ -1,0 +1,26 @@
+From 09efaabdc299f066d7832de88eab11fb38913578 Mon Sep 17 00:00:00 2001
+From: pieceking <1@1.com>
+Date: Wed, 28 Dec 2022 14:48:03 +0800
+Subject: [PATCH 2/4] enable KERNEL_MIPS_FP_SUPPORT for mips
+
+---
+ config/Config-kernel.in | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/config/Config-kernel.in b/config/Config-kernel.in
+index d4648a5..22461b6 100644
+--- a/config/Config-kernel.in
++++ b/config/Config-kernel.in
+@@ -48,7 +48,8 @@ config KERNEL_DEBUG_FS
+ 
+ config KERNEL_MIPS_FP_SUPPORT
+ 	bool
+-	default y if TARGET_pistachio
++	default y
++	depends on (mips || mipsel || mips64 || mips64el)
+ 
+ config KERNEL_ARM_PMU
+ 	bool
+-- 
+2.37.3.windows.1
+

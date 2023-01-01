@@ -1,0 +1,38 @@
+From c7b9c4b615e24a4f3335bade2f6339c67a185d8d Mon Sep 17 00:00:00 2001
+From: pieceking <1@1.com>
+Date: Wed, 28 Dec 2022 14:49:08 +0800
+Subject: [PATCH 3/4] add procd info parameter
+
+---
+ package/base-files/files/etc/rc.common | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/package/base-files/files/etc/rc.common b/package/base-files/files/etc/rc.common
+index 5d0d3c2..1357f5c 100755
+--- a/package/base-files/files/etc/rc.common
++++ b/package/base-files/files/etc/rc.common
+@@ -121,6 +121,7 @@ extra_command "enabled" "Check if service is started on boot"
+ 	extra_command "running" "Check if service is running"
+ 	extra_command "status" "Service status"
+ 	extra_command "trace" "Start with syscall trace"
++	extra_command "info" "Dump procd service info"
+ 
+ 	. $IPKG_INSTROOT/lib/functions/procd.sh
+ 	basescript=$(readlink "$initscript")
+@@ -144,6 +145,13 @@ extra_command "enabled" "Check if service is started on boot"
+ 		start "$@"
+ 	}
+ 
++	info() {
++		json_init
++		json_add_string name "$(basename ${basescript:-$initscript})"
++		json_add_boolean verbose "1"
++		_procd_ubus_call list
++	}
++
+ 	stop() {
+ 		procd_lock
+ 		stop_service "$@"
+-- 
+2.37.3.windows.1
+
