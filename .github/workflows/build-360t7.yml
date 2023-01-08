@@ -50,7 +50,6 @@ jobs:
     - name: Clone 3rd code
       run: |
         mv 360t7/*.patch openwrt
-        mv 360t7/geoip_cn.tar.gz openwrt
         cd openwrt
         
         mkdir dl
@@ -117,6 +116,9 @@ jobs:
         git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
         #sed -i 's@geoip.dat@geoip.dat\n\twget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
         #sed -i 's@geoip_cn.txt.$(GEOIP_VER)@geoip_cn.txt.$(GEOIP_VER)\nwget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
+        git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
+        mkdir -p package/mycustom/muzipkg/my-files/files
+        wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
         
         git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/mycustom/luci-theme-argon
         git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
