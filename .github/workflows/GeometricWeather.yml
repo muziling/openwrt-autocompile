@@ -1,0 +1,29 @@
+name: GeometricWeather build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Clone source code
+        run: |
+          git clone --depth 1 -b new https://github.com/papjul/GeometricWeather.git boxdir
+
+      - name: Build with Gradle
+        run: |
+          cd boxdir
+          chmod +x gradlew
+          ./gradlew assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
+
+      - name: Upload App To Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: GeometricWeather
+          path: boxdir/app/build/outputs/apk
