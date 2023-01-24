@@ -1,0 +1,25 @@
+From 0d2ffb9ab84b82e80532992c07c84d7f6a3373e4 Mon Sep 17 00:00:00 2001
+From: pieceking <1@1.com>
+Date: Sat, 24 Sep 2022 22:32:17 +0800
+Subject: [PATCH 1/6] rename application package name
+
+---
+ app/build.gradle | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/app/build.gradle b/app/build.gradle
+index 42b6728..f1d12e0 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -4,7 +4,7 @@ android {
+     compileSdkVersion 30
+ 
+     defaultConfig {
+-        applicationId 'com.github.tvbox.osc.tk'
++        applicationId 'com.github.tvbox.osc.muziling'
+         minSdkVersion 16
+         targetSdkVersion 26
+         versionCode 1
+-- 
+2.37.1.windows.1
+

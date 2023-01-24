@@ -1,0 +1,78 @@
+From d28d5b561c7542bec9d1c97f8d8b40b0df7dac64 Mon Sep 17 00:00:00 2001
+From: pieceking <1@1.com>
+Date: Sat, 24 Sep 2022 22:35:30 +0800
+Subject: [PATCH 4/6] allow video list of one site contain different site
+
+---
+ .../main/java/com/github/tvbox/osc/bean/AbsJson.java |  2 ++
+ .../github/tvbox/osc/ui/activity/DetailActivity.java | 12 ++++++++++++
+ .../github/tvbox/osc/viewmodel/SourceViewModel.java  |  5 ++++-
+ 3 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java b/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
+index ec021be..f2f9e27 100644
+--- a/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
++++ b/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
+@@ -104,6 +104,7 @@ public class AbsJson implements Serializable {
+         public String vod_weekday; //: ""
+         public String vod_writer; //: "周炎青,刘恒,支雅雪,孙露军,李璐,王梦璇"
+         public String vod_year; //: "2021"
++        public String vod_play_from_cfg; //vod_play_from运行时可能会被覆盖，定义这个记录用户配置在json里的值
+ 
+         public Movie.Video toXmlVideo() {
+             Movie.Video video = new Movie.Video();
+@@ -141,6 +142,7 @@ public class AbsJson implements Serializable {
+                 }
+                 urlBean.infoList = infoList;
+             }
++            if (vod_play_from_cfg != null) video.sourceKey = vod_play_from_cfg;
+             video.urlBean = urlBean;
+             video.des = vod_content;// <![CDATA[权来]
+             video.tag = vod_tag;
+diff --git a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
+index 6aebe59..6943161 100644
+--- a/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
++++ b/app/src/main/java/com/github/tvbox/osc/ui/activity/DetailActivity.java
+@@ -342,6 +344,16 @@ public class DetailActivity extends BaseActivity {
+             }
+         });
+         setLoadSir(llLayout);
++        tvName.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View v) {
++                ClipboardManager clipboard = (ClipboardManager) DetailActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
++                String cpContent = "视频ID：" + vodId + "，图片地址：" + (mVideo == null ? "" : mVideo.pic);
++                ClipData clipData = ClipData.newPlainText(null, cpContent);
++                clipboard.setPrimaryClip(clipData);
++                Toast.makeText(DetailActivity.this, "已复制" + cpContent, Toast.LENGTH_SHORT).show();
++            }
++        });
+     }
+ 
+     private List<Runnable> pauseRunnable = null;
+diff --git a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
+index 53be9a6..cbaaa20 100644
+--- a/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
++++ b/app/src/main/java/com/github/tvbox/osc/viewmodel/SourceViewModel.java
+@@ -423,6 +423,8 @@ public class SourceViewModel extends ViewModel {
+     // detailContent
+     public void getDetail(String sourceKey, String id) {
+         SourceBean sourceBean = ApiConfig.get().getSource(sourceKey);
++		if (sourceBean == null)
++			detailResult.postValue(null);
+         int type = sourceBean.getType();
+         if (type == 3) {
+             spThreadPool.execute(new Runnable() {
+@@ -821,7 +823,8 @@ public class SourceViewModel extends ViewModel {
+                         urlInfo.beanList = infoBeanList;
+                     }
+                 }
+-                video.sourceKey = sourceKey;
++                if (video.sourceKey == null)
++                    video.sourceKey = sourceKey;
+             }
+         }
+     }
+-- 
+2.37.1.windows.1
+
