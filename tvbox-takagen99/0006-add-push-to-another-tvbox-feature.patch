@@ -362,9 +362,9 @@ index 6ec9021..75c85c0 100644
  public class HawkConfig {
 +    public static final String PUSH_TO_ADDR = "push_to_addr"; // 推送到地址的IP
 +    public static final String PUSH_TO_PORT = "push_to_port"; // 推送到地址的端口
+     // URL Configurations
      public static final String API_URL = "api_url";
-     public static final String LIVE_URL = "live_url";
-     public static final String EPG_URL = "epg_url";
+     public static final String API_HISTORY = "api_history";
 diff --git a/app/src/main/res/layout/activity_detail.xml b/app/src/main/res/layout/activity_detail.xml
 index def5035..e02bc9d 100644
 --- a/app/src/main/res/layout/activity_detail.xml

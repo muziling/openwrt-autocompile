@@ -37,7 +37,7 @@ jobs:
           sudo -E apt-get -y install dos2unix
           dos2unix ../tvboxpatch/*.patch
           dos2unix app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
-          find ../tvboxpatch -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
+          find -L ../tvboxpatch -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 --no-backup-if-mismatch -i
 
       - name: Build with Gradle
         run: |
