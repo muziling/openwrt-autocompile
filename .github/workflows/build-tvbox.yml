@@ -42,6 +42,26 @@ jobs:
           #sed -i 's/putDefault(HawkConfig.HOME_REC.*/putDefault(HawkConfig.HOME_REC, 1);/g' boxdir/app/src/main/java/com/github/tvbox/osc/base/App.java
           #sed -i 's/urlBean.infoList = infoList;/urlBean.infoList = infoList;video.sourceKey=vod_play_from;/g' boxdir/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
 
+          sed -i 's/annotation:1.3.0/annotation:1.5.0/g' boxdir/player/build.gradle
+          sed -i 's/:dkplayer-ui:3.3.5/:dkplayer-ui:3.3.7/g' boxdir/player/build.gradle
+          sed -i 's/:2.14.2/:2.18.3/g' boxdir/player/build.gradle
+          wget https://raw.githubusercontent.com/Doikki/DKVideoPlayer/3.3.7/dkplayer-players/exo/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaSourceHelper.java -q --no-check-certificate -O boxdir/player/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaSourceHelper.java
+          wget https://raw.githubusercontent.com/Doikki/DKVideoPlayer/3.3.7/dkplayer-players/exo/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaPlayerFactory.java -q --no-check-certificate -O boxdir/player/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaPlayerFactory.java
+          wget https://raw.githubusercontent.com/Doikki/DKVideoPlayer/3.3.7/dkplayer-players/exo/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaPlayer.java -q --no-check-certificate -O boxdir/player/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaPlayer.java
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/app/build.gradle
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/player/build.gradle
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/quickjs/build.gradle
+          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/app/build.gradle
+          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/player/build.gradle
+          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/quickjs/build.gradle
+          sed -i 's/import okhttp3.internal.Version;/import okhttp3.internal.Util;/g' boxdir/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
+          sed -i 's/Version.userAgent()/Util.userAgent/g' boxdir/app/src/main/java/com/github/tvbox/osc/util/OkGoHelper.java
+          sed -i ':label;N;s/for (int i = 1; i < failures.size(); i++) {\n            Util.addSuppressedIfPossible(unknownHostException, failures.get(i));\n        }/Util.withSuppressed(unknownHostException, failures);/;b label' boxdir/app/src/main/java/okhttp3/dnsoverhttps/DnsOverHttps.java
+          sed -i 's/Platform.get().log(Platform.WARN, "Incorrect protocol: " + response.protocol(), null);/Platform.get().log("Incorrect protocol: " + response.protocol(), Platform.WARN, null);/g' boxdir/app/src/main/java/okhttp3/dnsoverhttps/DnsOverHttps.java
+          sed -i 's/PublicSuffixDatabase.get()/PublicSuffixDatabase.Companion.get()/g' boxdir/app/src/main/java/okhttp3/dnsoverhttps/DnsOverHttps.java
+          sed -i 's/com.squareup.okhttp3:okhttp:3.12.1/com.squareup.okhttp3:okhttp:4.10.0/g' boxdir/app/build.gradle
+          sed -i 's/com.squareup.okio:okio:2.6.0/com.squareup.okio:okio:2.10.0/g' boxdir/app/build.gradle
+
           cd boxdir
           sudo -E apt-get -y install dos2unix
           dos2unix ../tvboxpatch/*.patch
