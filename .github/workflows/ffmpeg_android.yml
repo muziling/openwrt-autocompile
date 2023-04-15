@@ -1,0 +1,44 @@
+name: ffmpeg android
+
+on:
+  workflow_dispatch:
+    inputs:
+      buildabi:
+        description: 'abi'
+        required: true
+        type: choice
+        options:
+        - 'armeabi-v7a'
+        - 'arm64-v8a'
+        - 'x86_64'
+        - 'x86'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup the environment
+        run: |
+          sudo pip3 install meson==1.0.1
+          sudo apt-get install nasm ninja-build
+
+      - name: Executing the script
+        run: |
+          export ANDROID_SDK_HOME=$ANDROID_HOME
+          export ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME
+          git clone --depth 1 https://github.com/Javernaut/ffmpeg-android-maker.git workdir
+          cd workdir
+          sed -i 's/EXTRA_BUILD_CONFIGURATION_FLAGS=/EXTRA_BUILD_CONFIGURATION_FLAGS="--enable-jni --enable-small --disable-runtime-cpudetect --disable-programs --disable-ffmpeg --disable-ffplay --disable-ffprobe --disable-doc --disable-htmlpages --disable-manpages --disable-podpages --disable-txtpages --disable-avdevice --disable-avformat --disable-swscale --disable-postproc --disable-avfilter"/g' scripts/export-build-variables.sh
+          ./ffmpeg-android-maker.sh --source-tar=4.4.4 -all-free -all-gpl -android=21 -abis=${{ inputs.buildabi }}
+          ls -l
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ inputs.buildabi }}
+          path: |
+            workdir/output/lib/
+          if-no-files-found: error
