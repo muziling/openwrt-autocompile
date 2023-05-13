@@ -1,0 +1,13 @@
+diff --git a/include/kernel.mk b/include/kernel.mk
+index 56fa06b..9b4d335 100644
+--- a/include/kernel.mk
++++ b/include/kernel.mk
+@@ -78,6 +78,8 @@ else
+   endif
+ endif
+ 
++LINUX_VERMAGIC:=5c79df825364eed582b9e6554972c148
++
+ ifneq (,$(findstring uml,$(BOARD)))
+   LINUX_KARCH=um
+ else ifneq (,$(findstring $(ARCH) , aarch64 aarch64_be ))

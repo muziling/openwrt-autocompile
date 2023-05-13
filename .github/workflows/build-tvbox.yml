@@ -29,13 +29,13 @@ jobs:
           elif [ "${{ inputs.author }}" == "takagen99" ]; then
             git clone --depth 1 https://github.com/takagen99/Box.git boxdir
             sed -i 's|applicationId .*|applicationId '\''com.github.tvbox.osc.muziling'\''|g' boxdir/app/build.gradle
-            sed -i 's|<string name="app_source">.*|<string name="app_source">https://agit.ai/Yoursmile7/TVBox/raw/branch/master/XC.json</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
+            sed -i 's|<string name="app_source">.*|<string name="app_source">http://192.168.200.1:8000/tvbox</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
             ln -s tvbox-takagen99 tvboxpatch
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
           else
             git clone --depth 1 https://github.com/chengxue2020/takagen99.git boxdir
             sed -i 's|applicationId .*|applicationId '\''com.github.tvbox.osc.muziling'\''|g' boxdir/app/build.gradle
-            sed -i 's|<string name="app_source">.*|<string name="app_source">https://agit.ai/Yoursmile7/TVBox/raw/branch/master/XC.json</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
+            sed -i 's|<string name="app_source">.*|<string name="app_source">http://192.168.200.1:8000/tvbox</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
             ln -s tvbox-takagen99 tvboxpatch
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
           fi
