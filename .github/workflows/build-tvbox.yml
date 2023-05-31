@@ -44,11 +44,11 @@ jobs:
 
           #sed -i 's/exoVersion = "2.16.0"/exoVersion = "2.18.3"/g' boxdir/build.gradle
 
-          sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/app/build.gradle
-          sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/quickjs/build.gradle
-          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/app/build.gradle
-          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/quickjs/build.gradle
-          sed -i 's/com.github.getActivity:XXPermissions:13.6/com.github.getActivity:XXPermissions:16.8/g' boxdir/app/build.gradle
+          #sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/app/build.gradle
+          #sed -i 's/compileSdkVersion .*/compileSdkVersion 33/g' boxdir/quickjs/build.gradle
+          #sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/app/build.gradle
+          #sed -i 's/minSdkVersion .*/minSdkVersion 21/g' boxdir/quickjs/build.gradle
+          #sed -i 's/com.github.getActivity:XXPermissions:13.6/com.github.getActivity:XXPermissions:16.8/g' boxdir/app/build.gradle
 
           cd boxdir
           sudo -E apt-get -y install dos2unix
