@@ -11,6 +11,34 @@ on:
         options:
         - 'PSG1218'
         - 'PSG1208'
+      smartdns:
+        description: 'smartdns'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+      zerotier:
+        description: 'zerotier'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+      shadowsocks:
+        description: 'shadowsocks'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+      frpc:
+        description: 'frpc'
+        required: true
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
 
 env:
   TZ: Asia/Shanghai
@@ -35,16 +63,26 @@ jobs:
         run: |
           
           cd /opt/rt-n56u
-          wget https://github.com/pymumu/smartdns/archive/refs/tags/Release42.tar.gz -O trunk/user/smartdns/smartdns-Release42.tar.gz
-          sed -i 's/smartdns-Release.*/smartdns-Release42/g' trunk/user/smartdns/Makefile
           
       - name: custom config
         run: |
           #echo 'CONFIG_FIRMWARE_INCLUDE_SMARTDNS=y' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           #echo 'CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y' >> /opt/rt-n56u/trunk/configs/templates/${{ inputs.routemodel }}.config
           sed -i 's/=y"/=n"/g' /opt/rt-n56u/trunk/build_firmware_modify
-          sed -i 's/CONFIG_FIRMWARE_INCLUDE_SMARTDNS=n/CONFIG_FIRMWARE_INCLUDE_SMARTDNS=y/g' /opt/rt-n56u/trunk/build_firmware_modify
-          sed -i 's/CONFIG_FIRMWARE_INCLUDE_ZEROTIER=n/CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y/g' /opt/rt-n56u/trunk/build_firmware_modify
+          if [ "${{ inputs.smartdns }}" == "yes" ]; then
+            wget https://github.com/pymumu/smartdns/archive/refs/tags/Release42.tar.gz -O /opt/rt-n56u/trunk/user/smartdns/smartdns-Release42.tar.gz
+            sed -i 's/smartdns-Release.*/smartdns-Release42/g' /opt/rt-n56u/trunk/user/smartdns/Makefile
+            sed -i 's/CONFIG_FIRMWARE_INCLUDE_SMARTDNS=n/CONFIG_FIRMWARE_INCLUDE_SMARTDNS=y/g' /opt/rt-n56u/trunk/build_firmware_modify
+          fi
+          if [ "${{ inputs.zerotier }}" == "yes" ]; then
+            sed -i 's/CONFIG_FIRMWARE_INCLUDE_ZEROTIER=n/CONFIG_FIRMWARE_INCLUDE_ZEROTIER=y/g' /opt/rt-n56u/trunk/build_firmware_modify
+          fi
+          if [ "${{ inputs.shadowsocks }}" == "yes" ]; then
+            sed -i 's/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=n/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=y/g' /opt/rt-n56u/trunk/build_firmware_modify
+          fi
+          if [ "${{ inputs.frpc }}" == "yes" ]; then
+            sed -i 's/CONFIG_FIRMWARE_INCLUDE_FRPC=n/CONFIG_FIRMWARE_INCLUDE_FRPC=y/g' /opt/rt-n56u/trunk/build_firmware_modify
+          fi
 
       - name: update package version
         run: |
