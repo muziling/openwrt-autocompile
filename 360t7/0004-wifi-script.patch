@@ -27,12 +27,13 @@ diff --git a/package/base-files/files/etc/hotplug.d/net/00-sysctl b/package/base
 index 8abe7f8..17e5775 100644
 --- a/package/base-files/files/etc/hotplug.d/net/00-sysctl
 +++ b/package/base-files/files/etc/hotplug.d/net/00-sysctl
-@@ -6,4 +6,6 @@ if [ "$ACTION" = add ]; then
+@@ -6,4 +6,7 @@ if [ "$ACTION" = add ]; then
  		sed -ne "/^[[:space:]]*net\..*\.$DEVICENAME\./p" "$CONF" | \
  			sysctl -e -p - | logger -t sysctl
  	done
 +
 +	[ -f /sbin/smp.sh ] && /sbin/smp.sh
++	[ -f /etc/init.d/kick.sh ] && /etc/init.d/kick.sh start
  fi
 diff --git a/package/network/config/netifd/files/etc/init.d/network b/package/network/config/netifd/files/etc/init.d/network
 index dc208c4..839cd3a 100755

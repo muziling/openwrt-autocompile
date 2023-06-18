@@ -54,6 +54,11 @@ jobs:
         
         mkdir dl
         git clone --depth 1 https://github.com/hanwckf/immortalwrt-mt798x.git hanwckfop
+        cd hanwckfop
+        wget https://github.com/redfrog999/immortalwrt-mt798x/commit/d797a500da5caac197c940958bbdb3f5c2440eaa.patch -q --no-check-certificate -O hnat_nf_hook.patch
+        wget https://github.com/hanwckf/immortalwrt-mt798x/commit/94e7f6047cf498dbea96a45551043265bfdf1709.patch -q --no-check-certificate -O mtk_wifi_vif_cfg.patch
+        find . -maxdepth 1 -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
+        cd ..
         mv hanwckfop/dl/* dl
         
         find . -maxdepth 1 -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
@@ -69,7 +74,11 @@ jobs:
         rm -rf package/network/utils/wireless-tools
         mv hanwckfop/package/network/utils/wireless-tools package/network/utils/wireless-tools
         
-        mv hanwckfop/package/mtk package/mtk
+        #git clone --depth 1 -b mt7981 https://github.com/padavanonly/immortalwrtARM.git padavanonly
+        #mv padavanonly/package/mtk package/mtk
+        svn co https://github.com/padavanonly/immortalwrtARM/branches/mt7981/package/mtk package/mtk
+        mv package/mtk/applications/luci-app-mtk/po/zh-cn package/mtk/applications/luci-app-mtk/po/zh_Hans
+        sed -i "s/mtkhqos_util/mtkhnat_util/" hanwckfop/defconfig/mt7981-ax3000.config
         
         rm -rf target/linux/generic
         mv hanwckfop/target/linux/generic target/linux/generic
@@ -96,18 +105,22 @@ jobs:
         sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
         
         mkdir -p package/mycustom
+        mv hanwckfop/package/emortal/autocore package/mycustom/autocore
         
         #xray 科学用，luci-app-xray防火墙规则没开关，可能会导致无线中继功能异常
         git clone --depth 1 -b master https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
-        sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/root/usr/share/xray/gen_ipset_rules.lua
-        sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/root/etc/init.d/xray
-        sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/root/etc/init.d/xray
-        sed -i '/service dnsmasq restart/d' package/mycustom/luci-app-xray/root/etc/hotplug.d/iface/01-transparent-proxy-ipset.fw3
+        sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/fw3/root/usr/share/xray/gen_ipset_rules.lua
+        sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's|procd_append_param command -confdir|procd_append_param command -c|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's|procd_append_param command /var/etc/xray|procd_append_param command /var/etc/xray/config_custom.json|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's/service dnsmasq restart/atest=btest/g' package/mycustom/luci-app-xray/fw3/root/etc/hotplug.d/iface/01-transparent-proxy-ipset.fw3
+        sed -i 's|option wan_bp_list '.*|option wan_bp_list '/etc/mosdns/rule/geoip_cn.txt'|g' package/mycustom/luci-app-xray/fw3/root/etc/config/xray_fw3
         
-        git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
+        #git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
         #sed -i '/include $(INCLUDE_DIR)\/package.mk/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
         #fix make menuconfig error
-        sed -i '/DEPENDS/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
+        #sed -i '/DEPENDS/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
 
         #v2ray 反向连接回家里用
         #git clone --depth 1 -b luci2 https://github.com/BI7PRK/luci-app-v2ray.git package/mycustom/luci-app-v2ray
@@ -120,7 +133,7 @@ jobs:
         mkdir -p package/mycustom/muzipkg/my-files/files
         wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
         
-        git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/mycustom/luci-theme-argon
+        #git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/mycustom/luci-theme-argon
         git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
 
         git clone --depth=1 https://github.com/kuoruan/openwrt-upx.git package/mycustom/openwrt-upx
@@ -142,7 +155,13 @@ jobs:
         rm -rf package/libs/libnfnetlink
         mv hanwckfop/package/libs/libnfnetlink package/libs/libnfnetlink
         
+        mv hanwckfop/package/utils/mhz package/mycustom/muzipkg
+        
         ./scripts/feeds update -a
+        
+        wget https://github.com/immortalwrt/luci/raw/openwrt-21.02/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js -q --no-check-certificate -O feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+        wget https://github.com/immortalwrt/luci/raw/openwrt-21.02/modules/luci-base/root/usr/libexec/rpcd/luci -q --no-check-certificate -O feeds/luci/modules/luci-base/root/usr/libexec/rpcd/luci
+        wget https://github.com/immortalwrt/luci/raw/openwrt-21.02/modules/luci-base/htdocs/luci-static/resources/icons/wifi_big.png -q --no-check-certificate -O feeds/luci/modules/luci-base/htdocs/luci-static/resources/icons/wifi_big.png
         
         
         wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
@@ -155,6 +174,13 @@ jobs:
         sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
         sed -i 's|mediaurlbase.*$|mediaurlbase /luci-static/edge|g' feeds/luci/modules/luci-base/root/etc/config/luci
 
+        rm -rf feeds/packages/lang/golang
+        svn co https://github.com/openwrt/packages/trunk/lang/golang  feeds/packages/lang/golang
+        
+        svn co https://github.com/openwrt/packages/trunk/net/natmap  package/mycustom/natmap
+        svn co https://github.com/openwrt/luci/trunk/applications/luci-app-natmap  package/mycustom/luci-app-natmap
+        sed -i 's|include.*luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|g' package/mycustom/luci-app-natmap/Makefile
+        
         ./scripts/feeds install -a
         
         #grep -v '^#' hanwckfop/defconfig/mt7981-ax3000.config > .config
