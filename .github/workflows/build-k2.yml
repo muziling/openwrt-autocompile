@@ -81,6 +81,7 @@ jobs:
             sed -i 's/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=n/CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS=y/g' /opt/rt-n56u/trunk/build_firmware_modify
           fi
           if [ "${{ inputs.frpc }}" == "yes" ]; then
+            sed -i 's/FRP_VER :=.*/FRP_VER := 0.49.0/g' /opt/rt-n56u/trunk/user/frp/Makefile
             sed -i 's/CONFIG_FIRMWARE_INCLUDE_FRPC=n/CONFIG_FIRMWARE_INCLUDE_FRPC=y/g' /opt/rt-n56u/trunk/build_firmware_modify
           fi
 
