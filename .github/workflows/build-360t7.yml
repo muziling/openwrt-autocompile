@@ -28,9 +28,10 @@ jobs:
         sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
         sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* adoptopenjdk* mysql* php* mongodb* dotnet* moby* snapd* || true
         sudo -E apt-get update
-        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
+        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc-s1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf swig
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
+        sudo -E swapoff -a
 
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
@@ -170,8 +171,8 @@ jobs:
         sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
 
         
-        #sed -i "/tristate /a\\\t   default \$(shell if [ '\$(lang)' == 'zh_Hans' ]\; then echo y\; else echo n\; fi)" feeds/luci/luci.mk
-        sed -i "s/option lang .*/option lang 'zh_cn' /" feeds/luci/modules/luci-base/root/etc/config/luci
+        
+        sed -i "s/option lang .*/option lang 'zh_cn' /g" feeds/luci/modules/luci-base/root/etc/config/luci
         sed -i 's|mediaurlbase.*$|mediaurlbase /luci-static/edge|g' feeds/luci/modules/luci-base/root/etc/config/luci
 
         rm -rf feeds/packages/lang/golang
@@ -183,10 +184,8 @@ jobs:
         
         ./scripts/feeds install -a
         
-        #grep -v '^#' hanwckfop/defconfig/mt7981-ax3000.config > .config
         cp hanwckfop/defconfig/mt7981-ax3000.config .config
         echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
-        #echo CONFIG_PACKAGE_luci-i18n-xray-zh-cn=y >> .config
         
     - name: Download package
       run: |
