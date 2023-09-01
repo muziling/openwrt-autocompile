@@ -1,0 +1,66 @@
+name: catvod build
+
+on:
+  workflow_dispatch:
+    inputs:
+      author:
+        description: 'author'
+        required: true
+        type: choice
+        options:
+        - 'Kvymin'
+        - 'catvod'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 拉取项目代码
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      # 建立 java 环境
+      - name: Setup Java JDK
+        uses: actions/setup-java@v2
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+        with:
+          distribution: 'zulu'
+          java-version: "12.x"
+      # 建立 Flutter 环境
+      - name: Flutter action
+        uses: subosito/flutter-action@v2
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+        with:
+          channel: "stable"
+
+      - name: Clone source code
+        run: |
+          if [ "${{ inputs.author }}" == "Kvymin" ]; then
+            git clone --depth 1 https://github.com/Kvymin/CatVodOpen.git boxdir
+          elif [ "${{ inputs.author }}" == "catvod" ]; then
+            git clone --depth 1 https://github.com/catvod/CatVodOpen.git boxdir
+          else
+            git clone --depth 1 https://github.com/catvod/CatVodOpen.git boxdir
+          fi
+
+      # 下载项目依赖
+      - run: |
+          cd boxdir
+          flutter pub get
+      # 执行测试
+      - run: |
+          cd boxdir
+          flutter test
+      # 打包 APK
+      - run: |
+          cd boxdir
+          flutter build apk --release
+      # 发布到 Release
+      - name: Upload App To Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: catvod
+          path: boxdir/build/app/outputs/apk/release/*.apk
