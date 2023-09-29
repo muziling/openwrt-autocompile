@@ -32,6 +32,7 @@ jobs:
             sed -i 's|<string name="app_source">.*|<string name="app_source">http://192.168.200.1:8000/tvbox</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
             ln -s tvbox-takagen99 tvboxpatch
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
+            sed -i '246 ijumpActivity(LivePlayActivity.class);' app/src/main/java/com/github/tvbox/osc/ui/fragment/UserFragment.java
           else
             git clone --depth 1 https://github.com/chengxue2020/takagen99.git boxdir
             sed -i 's|applicationId .*|applicationId '\''com.github.tvbox.osc.muziling'\''|g' boxdir/app/build.gradle
