@@ -75,11 +75,10 @@ jobs:
         rm -rf package/network/utils/wireless-tools
         mv hanwckfop/package/network/utils/wireless-tools package/network/utils/wireless-tools
         
-        #git clone --depth 1 -b mt7981 https://github.com/padavanonly/immortalwrtARM.git padavanonly
-        #mv padavanonly/package/mtk package/mtk
-        svn co https://github.com/padavanonly/immortalwrtARM/branches/mt7981/package/mtk package/mtk
-        mv package/mtk/applications/luci-app-mtk/po/zh-cn package/mtk/applications/luci-app-mtk/po/zh_Hans
-        sed -i "s/mtkhqos_util/mtkhnat_util/" hanwckfop/defconfig/mt7981-ax3000.config
+        #svn co https://github.com/padavanonly/immortalwrtARM/branches/mt7981/package/mtk package/mtk
+        #mv package/mtk/applications/luci-app-mtk/po/zh-cn package/mtk/applications/luci-app-mtk/po/zh_Hans
+        #sed -i "s/mtkhqos_util/mtkhnat_util/" hanwckfop/defconfig/mt7981-ax3000.config
+		mv hanwckfop/package/mtk package/mtk
         
         rm -rf target/linux/generic
         mv hanwckfop/target/linux/generic target/linux/generic
