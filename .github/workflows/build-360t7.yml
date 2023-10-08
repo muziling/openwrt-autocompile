@@ -56,7 +56,7 @@ jobs:
         mkdir dl
         git clone --depth 1 https://github.com/hanwckf/immortalwrt-mt798x.git hanwckfop
         cd hanwckfop
-        wget https://github.com/redfrog999/immortalwrt-mt798x/commit/d797a500da5caac197c940958bbdb3f5c2440eaa.patch -q --no-check-certificate -O hnat_nf_hook.patch
+        #wget https://github.com/redfrog999/immortalwrt-mt798x/commit/d797a500da5caac197c940958bbdb3f5c2440eaa.patch -q --no-check-certificate -O hnat_nf_hook.patch
         wget https://github.com/hanwckf/immortalwrt-mt798x/commit/94e7f6047cf498dbea96a45551043265bfdf1709.patch -q --no-check-certificate -O mtk_wifi_vif_cfg.patch
         find . -maxdepth 1 -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
         cd ..
