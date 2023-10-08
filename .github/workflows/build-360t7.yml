@@ -1,3 +1,5 @@
+#sed -i 's@geoip.dat@geoip.dat\n\twget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
+#sed -i 's@geoip_cn.txt.$(GEOIP_VER)@geoip_cn.txt.$(GEOIP_VER)\nwget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
 
 name: 360t7-CI
 
@@ -108,7 +110,7 @@ jobs:
         mv hanwckfop/package/emortal/autocore package/mycustom/autocore
         
         #xray 科学用，luci-app-xray防火墙规则没开关，可能会导致无线中继功能异常
-        git clone --depth 1 -b master https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
+        git clone --depth 1 -b v2.1.2 https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
         sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/fw3/root/usr/share/xray/gen_ipset_rules.lua
         sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
         sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
@@ -127,8 +129,6 @@ jobs:
 
         git clone --depth=1 https://github.com/fw876/helloworld.git package/mycustom/helloworld
         git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
-        #sed -i 's@geoip.dat@geoip.dat\n\twget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
-        #sed -i 's@geoip_cn.txt.$(GEOIP_VER)@geoip_cn.txt.$(GEOIP_VER)\nwget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
         git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
         mkdir -p package/mycustom/muzipkg/my-files/files
         wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
