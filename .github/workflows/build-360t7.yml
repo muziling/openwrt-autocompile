@@ -48,6 +48,8 @@ jobs:
         cd openwrt
         COMMIT2ID=`git log -2 --pretty=format:"%H" |sed -n '2p'`
         sed -i 's/REBOOT=.*/REBOOT='"${COMMIT2ID}"'/g' scripts/getver.sh
+        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .257/g" include/kernel-5.4
+        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.257 = 2e775970521ea7ff6eb613fc85a6e34cec73feaeb67b88a77a2fbd4f75483df0/g" include/kernel-5.4
         cd ..
 
     - name: Clone 3rd code
@@ -128,6 +130,9 @@ jobs:
         #git clone --depth 1 -b luci2 https://github.com/BI7PRK/luci-app-v2ray.git package/mycustom/luci-app-v2ray
 
         git clone --depth=1 https://github.com/fw876/helloworld.git package/mycustom/helloworld
+        wget https://github.com/fw876/helloworld/raw/308bb43029afb662e896bd146ae702d3de1b55d5/hysteria/Makefile -q --no-check-certificate -O package/mycustom/helloworld/hysteria/Makefile
+        sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=2.0.4/g" package/mycustom/helloworld/hysteria/Makefile
+        sed -i "s/PKG_HASH:=.*/PKG_HASH:=cca4b80fa8bfb509ed6da98638962937c7ce5f56bff0d104e5721da1b6ab058f/g" package/mycustom/helloworld/hysteria/Makefile
         git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
         git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
         mkdir -p package/mycustom/muzipkg/my-files/files
