@@ -169,8 +169,6 @@ jobs:
         echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}'  >feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
         sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
 
-        
-        
         sed -i "s/option lang .*/option lang 'zh_cn' /g" feeds/luci/modules/luci-base/root/etc/config/luci
         sed -i 's|mediaurlbase.*$|mediaurlbase /luci-static/edge|g' feeds/luci/modules/luci-base/root/etc/config/luci
 
