@@ -117,7 +117,7 @@ jobs:
         sed -i 's|procd_append_param command -confdir|procd_append_param command -c|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
         sed -i 's|procd_append_param command /var/etc/xray|procd_append_param command /var/etc/xray/config_custom.json|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
         sed -i 's/service dnsmasq restart/atest=btest/g' package/mycustom/luci-app-xray/fw3/root/etc/hotplug.d/iface/01-transparent-proxy-ipset.fw3
-        sed -i "s|option wan_bp_list '.*|option wan_bp_list '/etc/mosdns/rule/geoip_cn.txt"|g' package/mycustom/luci-app-xray/fw3/root/etc/config/xray_fw3
+        sed -i "s|option wan_bp_list '.*|option wan_bp_list '/etc/mosdns/rule/geoip_cn.txt'|g" package/mycustom/luci-app-xray/fw3/root/etc/config/xray_fw3
         
         #git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
         #sed -i '/include $(INCLUDE_DIR)\/package.mk/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
