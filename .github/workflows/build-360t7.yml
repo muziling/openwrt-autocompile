@@ -160,6 +160,7 @@ jobs:
         
         mv hanwckfop/package/utils/mhz package/mycustom/muzipkg
         
+        cat feeds.conf*
         ./scripts/feeds update -a
         
         wget https://github.com/immortalwrt/luci/raw/openwrt-21.02/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js -q --no-check-certificate -O feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
