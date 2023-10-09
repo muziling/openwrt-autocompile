@@ -193,6 +193,7 @@ jobs:
     - name: Compile the firmware
       id: compile
       run: |
+        cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) V=sc || make -j1 V=s || make -j1
         echo "::set-output name=status::success"
