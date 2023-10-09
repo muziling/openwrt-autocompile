@@ -179,12 +179,10 @@ jobs:
         sed -i 's|mediaurlbase.*$|mediaurlbase /luci-static/edge|g' feeds/luci/modules/luci-base/root/etc/config/luci
 
         rm -rf feeds/packages/lang/golang
-        ls -l feeds/packages/lang/
-        svn --version
-        svn co https://github.com/openwrt/packages/trunk/lang/golang  feeds/packages/lang/golang
-        
-        svn co https://github.com/openwrt/packages/trunk/net/natmap  package/mycustom/natmap
-        svn co https://github.com/openwrt/luci/trunk/applications/luci-app-natmap  package/mycustom/luci-app-natmap
+        svn co https://github.com/openwrt/packages/trunk/lang/golang  "feeds/packages/lang/golang"
+
+        svn co https://github.com/openwrt/packages/trunk/net/natmap  "package/mycustom/natmap"
+        svn co https://github.com/openwrt/luci/trunk/applications/luci-app-natmap  "package/mycustom/luci-app-natmap"
         sed -i 's|include.*luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|g' package/mycustom/luci-app-natmap/Makefile
 
         cat feeds.conf*
