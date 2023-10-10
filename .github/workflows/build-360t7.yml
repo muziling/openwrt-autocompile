@@ -192,6 +192,7 @@ jobs:
         sed -i 's/PKG_INSTALL:=1/PKG_FORTIFY_SOURCE:=0\nPKG_INSTALL:=1/g' feeds/packages/libs/glib2/Makefile
         
         ./scripts/feeds install -a
+        ./scripts/feeds install -a
         
         cp hanwckfop/defconfig/mt7981-ax3000.config .config
         echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
