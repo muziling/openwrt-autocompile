@@ -195,6 +195,9 @@ jobs:
         
         cp hanwckfop/defconfig/mt7981-ax3000.config .config
         echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
+        sed -i '/mediatek_mt7981_DEVICE_/d' .config
+        echo CONFIG_TARGET_DEVICE_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=y >> .config
+        echo CONFIG_TARGET_DEVICE_PACKAGES_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=\"\" >> .config
         
     - name: Download package
       run: |
