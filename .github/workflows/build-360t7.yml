@@ -202,8 +202,10 @@ jobs:
     - name: Download package
       run: |
         [ -e 360t7/Makefile ] && mv -f 360t7/Makefile openwrt/target/linux/mediatek/Makefile
+        cat openwrt/target/linux/mediatek/Makefile
         cd openwrt
         make defconfig
+        grep 'CONFIG_PACKAGE_hysteria=y' .config && echo 'begin compile' || runnotexistcommand1
         make download -j8
         find dl -size -1024c -exec rm -f {} \;
 
