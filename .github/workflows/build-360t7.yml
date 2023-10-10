@@ -206,6 +206,7 @@ jobs:
         cat openwrt/target/linux/mediatek/Makefile
         cd openwrt
         make defconfig
+        grep 'hysteria' .config
         grep 'CONFIG_PACKAGE_hysteria=y' .config && echo 'begin compile' || runnotexistcommand1
         make download -j8
         find dl -size -1024c -exec rm -f {} \;
