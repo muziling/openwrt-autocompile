@@ -207,6 +207,8 @@ jobs:
         cd openwrt
         make defconfig
         grep 'hysteria' .config
+        grep 'iperf3' .config
+        cat .config
         grep 'CONFIG_PACKAGE_hysteria=y' .config && echo 'begin compile' || runnotexistcommand1
         make download -j8
         find dl -size -1024c -exec rm -f {} \;
