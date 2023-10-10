@@ -185,10 +185,11 @@ jobs:
         svn co https://github.com/openwrt/luci/trunk/applications/luci-app-natmap  "package/mycustom/luci-app-natmap"
         sed -i 's|include.*luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|g' package/mycustom/luci-app-natmap/Makefile
 
-        cd feeds/packages/
-        wget https://github.com/openwrt/packages/commit/7bbea01d7e2473faedb570cbcf2b64da8004e85a.patch -q --no-check-certificate -O disable_glib2_fortify_source.patch
-        git apply disable_glib2_fortify_source.patch
-        cd ../../
+        #cd feeds/packages/
+        #wget https://github.com/openwrt/packages/commit/7bbea01d7e2473faedb570cbcf2b64da8004e85a.patch -q --no-check-certificate -O disable_glib2_fortify_source.patch
+        #git apply disable_glib2_fortify_source.patch
+        #cd ../../
+        sed -i 's/PKG_INSTALL:=1/PKG_FORTIFY_SOURCE:=0\nPKG_INSTALL:=1/g' feeds/packages/libs/glib2/Makefile
         
         ./scripts/feeds install -a
         
