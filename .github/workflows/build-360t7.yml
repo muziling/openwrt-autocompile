@@ -48,8 +48,8 @@ jobs:
         cd openwrt
         COMMIT2ID=`git log -2 --pretty=format:"%H" |sed -n '2p'`
         sed -i 's/REBOOT=.*/REBOOT='"${COMMIT2ID}"'/g' scripts/getver.sh
-        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .257/g" include/kernel-5.4
-        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.257 = 2e775970521ea7ff6eb613fc85a6e34cec73feaeb67b88a77a2fbd4f75483df0/g" include/kernel-5.4
+        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .260/g" include/kernel-5.4
+        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.260 = 9830820714c8f5985c50071cc9e1b40533ee81a4f6c704916c7148d16e54ebfe/g" include/kernel-5.4
         cd ..
 
     - name: Clone 3rd code
@@ -64,6 +64,8 @@ jobs:
         wget https://github.com/hanwckf/immortalwrt-mt798x/commit/94e7f6047cf498dbea96a45551043265bfdf1709.patch -q --no-check-certificate -O mtk_wifi_vif_cfg.patch
         find . -maxdepth 1 -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
         #new ver kernel has fixed
+        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .260/g" include/kernel-5.4
+        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.260 = 9830820714c8f5985c50071cc9e1b40533ee81a4f6c704916c7148d16e54ebfe/g" include/kernel-5.4
         rm -f target/linux/mediatek/patches-5.4/0504-macsec-revert-async-support.patch
         cd ..
         mv hanwckfop/dl/* dl
@@ -108,13 +110,19 @@ jobs:
         sed -i "s/add_list system.ntp.server='2.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
         sed -i "s/add_list system.ntp.server='3.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
         
+        sed -i "s/add_list system.ntp.server='time1.apple.com.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='time1.google.com.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='time.cloudflare.com.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='pool.ntp.org.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
+        
         sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
         
         mkdir -p package/mycustom
         mv hanwckfop/package/emortal/autocore package/mycustom/autocore
         
         #xray 科学用，luci-app-xray防火墙规则没开关，可能会导致无线中继功能异常
-        git clone --depth 1 -b v2.1.2 https://github.com/yichya/luci-app-xray package/mycustom/luci-app-xray
+		#fw4 git clone https://github.com/immortalwrt-collections/luci-app-xray.git
+        git clone --depth 1 https://github.com/muziling/luci-app-xray-fw3.git package/mycustom/luci-app-xray
         sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/fw3/root/usr/share/xray/gen_ipset_rules.lua
         sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
         sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
@@ -131,10 +139,10 @@ jobs:
         #v2ray 反向连接回家里用
         #git clone --depth 1 -b luci2 https://github.com/BI7PRK/luci-app-v2ray.git package/mycustom/luci-app-v2ray
 
-        git clone --depth=1 https://github.com/fw876/helloworld.git package/mycustom/helloworld
-        wget https://github.com/fw876/helloworld/raw/308bb43029afb662e896bd146ae702d3de1b55d5/hysteria/Makefile -q --no-check-certificate -O package/mycustom/helloworld/hysteria/Makefile
-        sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=2.0.4/g" package/mycustom/helloworld/hysteria/Makefile
-        sed -i "s/PKG_HASH:=.*/PKG_HASH:=cca4b80fa8bfb509ed6da98638962937c7ce5f56bff0d104e5721da1b6ab058f/g" package/mycustom/helloworld/hysteria/Makefile
+        git clone --depth=1 -b main https://github.com/fw876/helloworld.git package/mycustom/helloworld
+        #wget https://github.com/fw876/helloworld/raw/308bb43029afb662e896bd146ae702d3de1b55d5/hysteria/Makefile -q --no-check-certificate -O package/mycustom/helloworld/hysteria/Makefile
+        #sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=2.0.4/g" package/mycustom/helloworld/hysteria/Makefile
+        #sed -i "s/PKG_HASH:=.*/PKG_HASH:=cca4b80fa8bfb509ed6da98638962937c7ce5f56bff0d104e5721da1b6ab058f/g" package/mycustom/helloworld/hysteria/Makefile
         git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
         git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
         mkdir -p package/mycustom/muzipkg/my-files/files
@@ -200,10 +208,39 @@ jobs:
         echo CONFIG_TARGET_DEVICE_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=y >> .config
         echo CONFIG_TARGET_DEVICE_PACKAGES_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=\"\" >> .config
         
+		echo CONFIG_PACKAGE_kmod-leds-gpio=y   >> .config
+		echo CONFIG_PACKAGE_kmod-gpio-button-hotplug=y   >> .config
+		echo CONFIG_PACKAGE_uboot-envtools=y   >> .config
+		echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
+		echo CONFIG_PACKAGE_luci-proto-ipv6=y   >> .config
+		echo CONFIG_PACKAGE_luci-proto-ppp=y   >> .config
+		echo CONFIG_PACKAGE_kmod-tun=y   >> .config
+		echo CONFIG_PACKAGE_kmod-ipt-nat6=y   >> .config
+		echo CONFIG_PACKAGE_ntpdate=y   >> .config
+		echo CONFIG_PACKAGE_luci-app-ddns=y   >> .config
+		echo CONFIG_PACKAGE_ddns-scripts=y   >> .config
+		echo CONFIG_PACKAGE_luci-theme-edge=y   >> .config
+		echo CONFIG_PACKAGE_uhttpd=y   >> .config
+		echo CONFIG_PACKAGE_wget-ssl=y   >> .config
+		echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
+		echo CONFIG_PACKAGE_nginx-all-module=y   >> .config
+		echo CONFIG_PACKAGE_lua-cjson=y   >> .config
+		echo CONFIG_PACKAGE_jq=y   >> .config
+		echo CONFIG_PACKAGE_iperf3=y   >> .config
+		echo CONFIG_PACKAGE_luci-app-mosdns=y   >> .config
+		echo CONFIG_PACKAGE_my-files=y   >> .config
+		echo CONFIG_PACKAGE_xray-core=y   >> .config
+		echo CONFIG_PACKAGE_luci-app-xray-fw3=y   >> .config
+		echo CONFIG_PACKAGE_luci-app-natmap=y   >> .config
+		echo CONFIG_PACKAGE_hysteria=y   >> .config
+		echo CONFIG_PACKAGE_autocore-arm=y   >> .config
+		echo CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y   >> .config
+		echo CONFIG_PACKAGE_vnt=y   >> .config
+		
     - name: Download package
       run: |
-        [ -e 360t7/Makefile ] && mv -f 360t7/Makefile openwrt/target/linux/mediatek/Makefile
-        cat openwrt/target/linux/mediatek/Makefile
+        #[ -e 360t7/Makefile ] && mv -f 360t7/Makefile openwrt/target/linux/mediatek/Makefile
+        #cat openwrt/target/linux/mediatek/Makefile
         cd openwrt
         make defconfig
         grep 'hysteria' .config
