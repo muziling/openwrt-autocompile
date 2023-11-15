@@ -198,7 +198,8 @@ jobs:
         #cd ../../
         sed -i 's/PKG_INSTALL:=1/PKG_FORTIFY_SOURCE:=0\nPKG_INSTALL:=1/g' feeds/packages/libs/glib2/Makefile
         sed -i '/dnsmasq-full \\/d' include/target.mk
-        sed -i '/firewall \\/d' include/target.mk
+        #luci依赖sed -i '/firewall \\/d' include/target.mk
+        sed -i '/ipv6helper \\/d' include/target.mk
 
         ./scripts/feeds install -a
         ./scripts/feeds install -a
@@ -218,6 +219,7 @@ jobs:
         echo CONFIG_PACKAGE_uhttpd=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
 
+        echo CONFIG_PACKAGE_ipv6helper=y   >> .config
         echo CONFIG_PACKAGE_dnsmasq-full=y   >> .config
         echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-ipv6=y   >> .config
