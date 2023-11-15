@@ -197,6 +197,8 @@ jobs:
         #git apply disable_glib2_fortify_source.patch
         #cd ../../
         sed -i 's/PKG_INSTALL:=1/PKG_FORTIFY_SOURCE:=0\nPKG_INSTALL:=1/g' feeds/packages/libs/glib2/Makefile
+        sed -i '/dnsmasq-full \\/d' include/target.mk
+        sed -i '/firewall \\/d' include/target.mk
 
         ./scripts/feeds install -a
         ./scripts/feeds install -a
@@ -210,18 +212,22 @@ jobs:
         echo CONFIG_PACKAGE_kmod-leds-gpio=y   >> .config
         echo CONFIG_PACKAGE_kmod-gpio-button-hotplug=y   >> .config
         echo CONFIG_PACKAGE_uboot-envtools=y   >> .config
+        echo CONFIG_PACKAGE_autocore-arm=y   >> .config
+        echo CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y   >> .config
+        echo CONFIG_PACKAGE_ntpdate=y   >> .config
+        echo CONFIG_PACKAGE_uhttpd=y   >> .config
+        echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
+
+        echo CONFIG_PACKAGE_dnsmasq-full=y   >> .config
         echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-ipv6=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-ppp=y   >> .config
         echo CONFIG_PACKAGE_kmod-tun=y   >> .config
         echo CONFIG_PACKAGE_kmod-ipt-nat6=y   >> .config
-        echo CONFIG_PACKAGE_ntpdate=y   >> .config
         echo CONFIG_PACKAGE_luci-app-ddns=y   >> .config
         echo CONFIG_PACKAGE_ddns-scripts=y   >> .config
         echo CONFIG_PACKAGE_luci-theme-edge=y   >> .config
-        echo CONFIG_PACKAGE_uhttpd=y   >> .config
         echo CONFIG_PACKAGE_wget-ssl=y   >> .config
-        echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
         echo CONFIG_PACKAGE_nginx-all-module=y   >> .config
         echo CONFIG_PACKAGE_lua-cjson=y   >> .config
         echo CONFIG_PACKAGE_jq=y   >> .config
@@ -232,8 +238,6 @@ jobs:
         echo CONFIG_PACKAGE_luci-app-xray-fw3=y   >> .config
         echo CONFIG_PACKAGE_luci-app-natmap=y   >> .config
         echo CONFIG_PACKAGE_hysteria=y   >> .config
-        echo CONFIG_PACKAGE_autocore-arm=y   >> .config
-        echo CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y   >> .config
         echo CONFIG_PACKAGE_vnt=y   >> .config
 
     - name: Download package
