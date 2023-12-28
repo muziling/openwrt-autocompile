@@ -48,8 +48,8 @@ jobs:
         cd openwrt
         COMMIT2ID=`git log -2 --pretty=format:"%H" |sed -n '2p'`
         sed -i 's/REBOOT=.*/REBOOT='"${COMMIT2ID}"'/g' scripts/getver.sh
-        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .260/g" include/kernel-5.4
-        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.260 = 9830820714c8f5985c50071cc9e1b40533ee81a4f6c704916c7148d16e54ebfe/g" include/kernel-5.4
+        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .263/g" include/kernel-5.4
+        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.263 = 50d0db9a94118b2d45f2ea1ed7b094cfd39f32829e4a2b51473dd3a8257735f8/g" include/kernel-5.4
         cd ..
 
     - name: Clone 3rd code
@@ -64,9 +64,10 @@ jobs:
         wget https://github.com/hanwckf/immortalwrt-mt798x/commit/94e7f6047cf498dbea96a45551043265bfdf1709.patch -q --no-check-certificate -O mtk_wifi_vif_cfg.patch
         find . -maxdepth 1 -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
         #new ver kernel has fixed
-        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .260/g" include/kernel-5.4
-        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.260 = 9830820714c8f5985c50071cc9e1b40533ee81a4f6c704916c7148d16e54ebfe/g" include/kernel-5.4
+        sed -i "s/LINUX_VERSION-5.4 .*/LINUX_VERSION-5.4 = .265/g" include/kernel-5.4
+        sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.265 = 4dae99e49f466d4689e128ec023754908147159d7462019a83c7da1f25df9b15/g" include/kernel-5.4
         rm -f target/linux/mediatek/patches-5.4/0504-macsec-revert-async-support.patch
+        sed -i 's/memory {/memory@40000000 {/g' target/linux/mediatek/patches-5.4/0005-dts-mt7622-add-gsw.patch
         cd ..
         mv hanwckfop/dl/* dl
 
@@ -105,53 +106,8 @@ jobs:
         mkdir -p package/network/utils/iptables/patches
         mv hanwckfop/package/network/utils/iptables/patches/900-bcm-fullconenat.patch package/network/utils/iptables/patches/900-bcm-fullconenat.patch
 
-        sed -i "s/add_list system.ntp.server='0.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
-        sed -i "s/add_list system.ntp.server='1.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
-        sed -i "s/add_list system.ntp.server='2.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
-        sed -i "s/add_list system.ntp.server='3.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
-
-        sed -i "s/add_list system.ntp.server='time1.apple.com.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
-        sed -i "s/add_list system.ntp.server='time1.google.com.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
-        sed -i "s/add_list system.ntp.server='time.cloudflare.com.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
-        sed -i "s/add_list system.ntp.server='pool.ntp.org.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
-
-        sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
-
         mkdir -p package/mycustom
         mv hanwckfop/package/emortal/autocore package/mycustom/autocore
-
-        #xray 科学用，luci-app-xray防火墙规则没开关，可能会导致无线中继功能异常
-        #fw4 git clone https://github.com/immortalwrt-collections/luci-app-xray.git
-        git clone --depth 1 https://github.com/muziling/luci-app-xray-fw3.git package/mycustom/luci-app-xray
-        sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/fw3/root/usr/share/xray/gen_ipset_rules.lua
-        sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
-        sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
-        sed -i 's|procd_append_param command -confdir|procd_append_param command -c|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
-        sed -i 's|procd_append_param command /var/etc/xray|procd_append_param command /var/etc/xray/config_custom.json|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
-        sed -i 's/service dnsmasq restart/atest=btest/g' package/mycustom/luci-app-xray/fw3/root/etc/hotplug.d/iface/01-transparent-proxy-ipset.fw3
-        sed -i "s|option wan_bp_list '.*|option wan_bp_list '/etc/mosdns/rule/geoip_cn.txt'|g" package/mycustom/luci-app-xray/fw3/root/etc/config/xray_fw3
-
-        #git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
-        #sed -i '/include $(INCLUDE_DIR)\/package.mk/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
-        #fix make menuconfig error
-        #sed -i '/DEPENDS/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
-
-        #v2ray 反向连接回家里用
-        #git clone --depth 1 -b luci2 https://github.com/BI7PRK/luci-app-v2ray.git package/mycustom/luci-app-v2ray
-
-        git clone --depth=1 -b main https://github.com/fw876/helloworld.git package/mycustom/helloworld
-        #wget https://github.com/fw876/helloworld/raw/308bb43029afb662e896bd146ae702d3de1b55d5/hysteria/Makefile -q --no-check-certificate -O package/mycustom/helloworld/hysteria/Makefile
-        #sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=2.0.4/g" package/mycustom/helloworld/hysteria/Makefile
-        #sed -i "s/PKG_HASH:=.*/PKG_HASH:=cca4b80fa8bfb509ed6da98638962937c7ce5f56bff0d104e5721da1b6ab058f/g" package/mycustom/helloworld/hysteria/Makefile
-        git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
-        git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
-        mkdir -p package/mycustom/muzipkg/my-files/files
-        wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
-
-        #git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/mycustom/luci-theme-argon
-        git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
-
-        git clone --depth=1 https://github.com/kuoruan/openwrt-upx.git package/mycustom/openwrt-upx
 
         #for shadowsocks, impletement encrypt algorithm
         mv hanwckfop/package/libs/openssl/Config.in package/libs/openssl/Config.in
@@ -177,10 +133,44 @@ jobs:
         wget https://github.com/immortalwrt/luci/raw/openwrt-21.02/modules/luci-base/root/usr/libexec/rpcd/luci -q --no-check-certificate -O feeds/luci/modules/luci-base/root/usr/libexec/rpcd/luci
         wget https://github.com/immortalwrt/luci/raw/openwrt-21.02/modules/luci-base/htdocs/luci-static/resources/icons/wifi_big.png -q --no-check-certificate -O feeds/luci/modules/luci-base/htdocs/luci-static/resources/icons/wifi_big.png
 
-        wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
-        chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
-        echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}'  >feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
-        sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
+        #https://github.com/immortalwrt/packages/tree/openwrt-21.02/net/ddns-scripts_aliyun
+        #wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/package/lean/ddns-scripts_aliyun/update_aliyun_com.sh -q --no-check-certificate -O feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        #chmod +x feeds/packages/net/ddns-scripts/files/usr/lib/ddns/update_aliyun_com.sh
+        #echo -e '{\n\t"name": "aliyun.com",\n\t"ipv4": {\n\t\t"url": "update_aliyun_com.sh"\n\t}\n}'  >feeds/packages/net/ddns-scripts/files/usr/share/ddns/default/aliyun.com.json
+        #sed -i 's|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh|$(INSTALL_BIN) ./files/usr/lib/ddns/dynamic_dns_updater.sh $(1)/usr/lib/ddns\n\t$(INSTALL_BIN) ./files/usr/lib/ddns/update_aliyun_com.sh|' feeds/packages/net/ddns-scripts/Makefile
+
+        #xray 科学用，luci-app-xray防火墙规则没开关，可能会导致无线中继功能异常
+        #fw4 git clone https://github.com/immortalwrt-collections/luci-app-xray.git
+        git clone --depth 1 https://github.com/muziling/luci-app-xray-fw3.git package/mycustom/luci-app-xray
+        sed -i 's/create tp_spec_dst_bp hash:net hashsize 64.*$/create tp_spec_dst_bp hash:net hashsize 64 maxelem 1000000/g' package/mycustom/luci-app-xray/fw3/root/usr/share/xray/gen_ipset_rules.lua
+        sed -i 's/flush_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's/setup_dnsmasq$//g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's|procd_append_param command -confdir|procd_append_param command -c|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i 's|procd_append_param command /var/etc/xray|procd_append_param command /var/etc/xray/config_custom.json|g' package/mycustom/luci-app-xray/fw3/root/etc/init.d/xray_fw3
+        sed -i "s|option wan_bp_list '.*|option wan_bp_list '/etc/mosdns/geoip_cn.txt'|g" package/mycustom/luci-app-xray/fw3/root/etc/config/xray_fw3
+        sed -i 's/service dnsmasq restart/atest=btest/g' package/mycustom/luci-app-xray/fw3/root/etc/hotplug.d/iface/01-transparent-proxy-ipset.fw3
+
+        #git clone --depth 1 https://github.com/Mitsuhaxy/luci-i18n-xray-zh-cn.git package/mycustom/luci-i18n-xray-zh-cn
+        #sed -i '/include $(INCLUDE_DIR)\/package.mk/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
+        #fix make menuconfig error
+        #sed -i '/DEPENDS/d' package/mycustom/luci-i18n-xray-zh-cn/Makefile
+
+        #v2ray 反向连接回家里用
+        #git clone --depth 1 -b luci2 https://github.com/BI7PRK/luci-app-v2ray.git package/mycustom/luci-app-v2ray
+
+        git clone --depth=1 -b main https://github.com/fw876/helloworld.git package/mycustom/helloworld
+        #wget https://github.com/fw876/helloworld/raw/308bb43029afb662e896bd146ae702d3de1b55d5/hysteria/Makefile -q --no-check-certificate -O package/mycustom/helloworld/hysteria/Makefile
+        #sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=2.0.4/g" package/mycustom/helloworld/hysteria/Makefile
+        #sed -i "s/PKG_HASH:=.*/PKG_HASH:=cca4b80fa8bfb509ed6da98638962937c7ce5f56bff0d104e5721da1b6ab058f/g" package/mycustom/helloworld/hysteria/Makefile
+        git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/mycustom/openwrt-mos
+        git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
+        mkdir -p package/mycustom/muzipkg/my-files/files
+        wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
+
+        #git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon.git package/mycustom/luci-theme-argon
+        git clone --depth 1 -b master https://github.com/garypang13/luci-theme-edge package/mycustom/luci-theme-edge
+
+        git clone --depth=1 https://github.com/kuoruan/openwrt-upx.git package/mycustom/openwrt-upx
 
         sed -i "s/option lang .*/option lang 'zh_cn' /g" feeds/luci/modules/luci-base/root/etc/config/luci
         sed -i 's|mediaurlbase.*$|mediaurlbase /luci-static/edge|g' feeds/luci/modules/luci-base/root/etc/config/luci
@@ -197,18 +187,43 @@ jobs:
         #git apply disable_glib2_fortify_source.patch
         #cd ../../
         sed -i 's/PKG_INSTALL:=1/PKG_FORTIFY_SOURCE:=0\nPKG_INSTALL:=1/g' feeds/packages/libs/glib2/Makefile
+        
+        sed -i 's/+luci-app-firewall //g' feeds/luci/collections/luci/Makefile
         sed -i '/dnsmasq-full \\/d' include/target.mk
         #luci依赖sed -i '/firewall \\/d' include/target.mk
         sed -i '/ipv6helper \\/d' include/target.mk
 
+        sed -i "s/add_list system.ntp.server='0.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='1.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='2.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='3.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
+
+        sed -i "s/add_list system.ntp.server='time1.apple.com.*/add_list system.ntp.server='ntp1.aliyun.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='time1.google.com.*/add_list system.ntp.server='time1.cloud.tencent.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='time.cloudflare.com.*/add_list system.ntp.server='time.ustc.edu.cn'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='pool.ntp.org.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
+
+        sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
+
         ./scripts/feeds install -a
         ./scripts/feeds install -a
 
-        cp hanwckfop/defconfig/mt7981-ax3000.config .config
-        echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
+        sed -i '/option port /d' package/network/services/dnsmasq/files/dhcp.conf
+        sed -i '/list dhcp_option /d' package/network/services/dnsmasq/files/dhcp.conf
+        sed -i "s/^config dnsmasq/config dnsmasq\n	option port '0'/g" package/network/services/dnsmasq/files/dhcp.conf
+        sed -i "s/^config dhcp lan/config dhcp lan\n	list dhcp_option '6,192.168.200.1'/g" package/network/services/dnsmasq/files/dhcp.conf
+
+        sed -i 's/MT7981_FW_DIR := mt7981-fw-20230306/MT7981_FW_DIR := mt7981-fw-20230330/g' package/mtk/drivers/mt_wifi/Makefile
+        echo "net.core.rmem_max=16777216" >> package/base-files/files/etc/sysctl.conf
+        echo "net.core.wmem_max=16777216" >> package/base-files/files/etc/sysctl.conf
+
+        sed -i ":label;N;s/mtketh-max-gmac = <2>;\n\tstatus = \"okay\";/mtketh-max-gmac = <2>;\n\tmtketh-ppe-num = <2>;\n\tstatus = \"okay\";/;b label" target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi
+
+        cp hanwckfop/defconfig/mt7981-ax3000-mtwifi-cfg.config .config
         sed -i '/mediatek_mt7981_DEVICE_/d' .config
         echo CONFIG_TARGET_DEVICE_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=y >> .config
         echo CONFIG_TARGET_DEVICE_PACKAGES_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=\"\" >> .config
+        echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
 
         echo CONFIG_PACKAGE_kmod-leds-gpio=y   >> .config
         echo CONFIG_PACKAGE_kmod-gpio-button-hotplug=y   >> .config
@@ -218,8 +233,12 @@ jobs:
         echo CONFIG_PACKAGE_ntpdate=y   >> .config
         echo CONFIG_PACKAGE_uhttpd=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
-
         echo CONFIG_PACKAGE_ipv6helper=y   >> .config
+        sed -i 's/192.168.[0-9].*"/192.168.2.1"/g' package/base-files/files/bin/config_generate
+        sed -i "s/hostname='.*'/hostname='oprelay'/g" package/base-files/files/bin/config_generate
+
+        sed -i 's/192.168.[0-9].*"/192.168.222.1"/g' package/base-files/files/bin/config_generate
+        sed -i "s/hostname='.*'/hostname='opmain'/g" package/base-files/files/bin/config_generate
         echo CONFIG_PACKAGE_dnsmasq-full=y   >> .config
         echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-ipv6=y   >> .config
@@ -228,6 +247,7 @@ jobs:
         echo CONFIG_PACKAGE_kmod-ipt-nat6=y   >> .config
         echo CONFIG_PACKAGE_luci-app-ddns=y   >> .config
         echo CONFIG_PACKAGE_ddns-scripts=y   >> .config
+        echo CONFIG_PACKAGE_ddns-scripts_aliyun=y   >> .config
         echo CONFIG_PACKAGE_luci-theme-edge=y   >> .config
         echo CONFIG_PACKAGE_wget-ssl=y   >> .config
         echo CONFIG_PACKAGE_nginx-all-module=y   >> .config
@@ -241,7 +261,17 @@ jobs:
         echo CONFIG_PACKAGE_luci-app-natmap=y   >> .config
         echo CONFIG_PACKAGE_hysteria=y   >> .config
         echo CONFIG_PACKAGE_vnt=y   >> .config
+        echo CONFIG_PACKAGE_curl=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-smartdns=y  >> .config
+        echo CONFIG_PACKAGE_hysteria-helper=y  >> .config
+        echo CONFIG_PACKAGE_xray-helper=y  >> .config
+        echo CONFIG_PACKAGE_vnts=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-vlmcsd=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-nlbwmon=y   >> .config
+        echo CONFIG_PACKAGE_sing-box=y   >> .config
 
+        sed -i 's/192.168.[0-9].*"/192.168.200.1"/g' package/base-files/files/bin/config_generate
+        sed -i "s/hostname='.*'/hostname='opmain'/g" package/base-files/files/bin/config_generate
     - name: Download package
       run: |
         #[ -e 360t7/Makefile ] && mv -f 360t7/Makefile openwrt/target/linux/mediatek/Makefile
