@@ -1,0 +1,151 @@
+
+name: BetterJoy-New-CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  
+jobs:
+
+  build_BetterJoy:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # 下载代码
+    - name: checkout source code
+      shell: cmd
+      run: |
+        git clone --depth 1 -b master --single-branch https://github.com/d3xMachina/BetterJoy.git betterjoy
+        cd betterjoy
+        git apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ../betterjoy-new.patch
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Resetting connection/连接重置中/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using USB/使用USB中/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using Bluetooth/使用蓝牙中/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Dropped.\"/\"中止.\"/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Connection lost. Is the controller connected/连接丢失。手柄是否已连接/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Dropped (invalid handle)/中止 (无效句柄)/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Starting poll thread/启动 轮询 线程中/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Poll cannot start/轮询 线程无法启动/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using user {stick1Name} stick calibration data/使用用户 {stick1Name} 的摇杆校准数据/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using factory {stick1Name} stick calibration data/使用原厂 {stick1Name} 的摇杆校准数据/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using user {stick2Name} stick calibration data/使用用户 {stick2Name} 的摇杆校准数据/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using factory {stick2Name} stick calibration data/使用原厂 {stick2Name} 的摇杆校准数据/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using user sensors calibration data/使用用户的 传感器 校准数据/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Using factory sensors calibration data/使用原厂的 传感器 校准数据/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Some sensor calibrations datas are missing, fallback to default ones/部分 传感器 校准数据丢失，改用默认的一个/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Error while reading calibration data/读取 校准数据 出错/" BetterJoy/Joycon.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Double click the tray icon to maximise/双击托盘图标最大化/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Exit\"/\"退出\"/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Connected Controllers/已连接的手柄/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Locate\"/\"定位\"/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Click on Joycons to join\/split them/在 Joycons 上按按以 加入\/分离 他们/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Config\"/\"配置\"/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Start in Tray/启动在托盘/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Add Controllers/添加手柄/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Apply\"/\"应用\"/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Calibrate\"/\"校准\"/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Map Buttons/映射按键/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Double click the tray icon to maximise/双击托盘图标最大化/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Resume session/恢复 会话/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Suspend session/暂停 会话/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Select...\"/\"选择...\"/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Resetting connection/连接重置中/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Calibrate\"/\"校准\"/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Click on a controller to calibrate/在一个手柄上按一下以校准/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Calibrating IMU.../校准IMU.../" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Please keep the controller flat/请将手柄保持平整/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Calibration will start in /校准将开始于 /" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/ seconds/ 秒后/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No IMU data received, proceed to stick calibration anyway. Is the controller working/未收到 IMU 数据，继续进行摇杆校准吗？手柄是否工作中/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/IMU Calibration completed/IMU 校准完成/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Calibrating Sticks center position/校准摇杆中心位置/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Please keep the sticks at the center position/请将摇杆保持在中心位置/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No stick positions received, calibration canceled. Is the controller working/未收到摇杆位置，校准已取消。手柄是否工作中" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Sticks center position calibration completed/摇杆中心位置校准完成/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Calibrating Sticks min and max position/校准摇杆的最小和最大位置/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Please move the sticks in a circle when the calibration starts/校准开始时请移动摇杆一圈/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Sticks min and max position Calibration completed/摇杆最小和最大位置校准完成/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Controller disconnected, calibration canceled/手柄已断开，校准取消/" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not initialize hidapi/无法初始化 hidapi/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\" connected.\"/\" 已连接.\"/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not connect /无法连接 /" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/. Dropped.\"/. 已中止.\"/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not connect the virtual controller for the unjoined joycon/无法为还未加入的 Joycon连接虚拟手柄/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/ disconnected.\"/ 未连接.\"/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not connect the virtual controller for the split joycon/无法为分离的 Joycon连接虚拟手柄/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not connect to VIGEmBus. Make sure VIGEmBus driver is installed correctly/无法连接到 VIGEmBus. 需确认 VIGEmBus 驱动是否已确安装/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not connect to VIGEmBus. VIGEmBus is busy. Try restarting your computer or reinstalling VIGEmBus driver/无法连接到VIGEmBus. VIGEmBus 正忙. 可以尝试重启电脑或重新安装 VIGEmBus 驱动/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Could not connect to VIGEmBus. The installed VIGEmBus driver is not compatible. Install a newer version of VIGEmBus driver/无法连接到 VIGEmBus. 已安装的 VIGEmBus 驱动不兼容. 需安装新版本的 VIGEmBus 驱动/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/All systems go/所有系统都在运行/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/HIDHide is not installed/HIDHide 未安装/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to set HIDHide in whitelist mode/无法设置 HIDHide 在白名单模式中/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to add program to whitelist/无法添加程序到白名单/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to hide devices/无法隐藏设备/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/HIDHide is enabled/HIDHide 已启用/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to get device instance/无法获取设备实例/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to get device parent instance/无法获取设备父级实例/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to add controller to block-list /无法添加手柄到阻止列表 /" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to remove program from whitelist/无法从白名单中移除程序/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to purge blacklisted devices/无法清除黑名单中的设备/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Unable to disable HIDHide/无法禁用 HIDHide/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Instance already running/程序已经在运行中啦/" BetterJoy/Program.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Capture\"/\"拍照键\"/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Home\"/\"主页键\"/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/SL Left Joycon/SL 左 Joycon/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/SL Right Joycon/SL 右 Joycon/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Okay\"/\"确定\"/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Apply\"/\"应用\"/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Re-Centre Gyro/重新居中陀螺仪/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Activate Gyro/激活陀螺仪/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Shake Input/震动输入/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Map Special Buttons/映射特殊按键/" BetterJoy/Reassign.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Settings\"/\"设置\"/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Type\"/\"类型\"/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Close\"/\"关闭\"/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/"Apply"/\"应用\"/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/All Devices/所有设备/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Switch Controllers/Switch手柄/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Re-\\r\\nfresh/刷新/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Motion server is OFF/体感服务状态是 OFF/" BetterJoy/UdpServer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Starting server on /服务启动在 /" BetterJoy/UdpServer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No accelerometer reported/没有已报告的加速度计/" BetterJoy/UdpServer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No gyroscope reported/没有已报告的陀螺仪/" BetterJoy/UdpServer.cs
+
+    # 安装 .NET Core
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.202
+
+    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+
+    # 安装 NuGet
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.NuGetAPIKey }}
+        nuget-version: '5.x'
+
+    # 还原 NuGet 包
+    - name: NuGet restore
+      run: |
+        cd betterjoy
+        nuget restore
+
+    # 编译整个项目
+    - name: Build the solution
+      run: |
+        cd betterjoy
+        msbuild .\BetterJoy.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@master
+      with:
+        name: BetterJoy
+        path: betterjoy/BetterJoy/bin/x64/Release

@@ -1,0 +1,132 @@
+ BetterJoy/App.config | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/BetterJoy/App.config b/BetterJoy/App.config
+index 44dc2a7..1ef96a2 100644
+--- a/BetterJoy/App.config
++++ b/BetterJoy/App.config
+@@ -155,6 +155,46 @@
+ 		<!-- Shake Input = 6 -->
+ 		<!-- Default: 0 -->
+ 		<add key="DebugType" value="0" />
++        <add key="_IP" value="IP" />
++        <add key="_Port" value="端口" />
++        <add key="_MotionServer" value="体感服务" />
++        <add key="_LowFreqRumble" value="振动频率下限(强振可设160)" />
++        <add key="_HighFreqRumble" value="振动频率上限(强振可设320,不能高于1200)" />
++        <add key="_EnableRumble" value="启用振动" />
++        <add key="_EnableShakeInput" value="启用晃动输入(仅支持DS4)" />
++        <add key="_ShakeInputSensitivity" value="晃动输入灵敏度" />
++        <add key="_ShakeInputDelay" value="晃动输入时延(不能低于15)" />
++        <add key="_SwapAB" value="互换AB键" />
++        <add key="_SwapXY" value="互换XY键" />
++        <add key="_AllowCalibration" value="允许校准(用于第三方手柄)" />
++        <add key="_SticksDeadzone" value="摇杆盲区" />
++        <add key="_SticksRange" value="摇杆范围" />
++        <add key="_SticksSquared" value="摇杆平方区域" />
++        <add key="_GyroAnalogSliders" value="陀螺仪倾斜控制" />
++        <add key="_GyroAnalogSensitivity" value="陀螺仪倾斜控制(-400反方向)" />
++        <add key="_PurgeAffectedDevices" value="防止退出后手柄不可用" />
++        <add key="_PurgeWhitelist" value="防止被其它程序干扰" />
++        <add key="_UseHidHide" value="false提高steam等程序兼容性,true隐藏pro/joycons以防止冲突" />
++        <add key="_HomeLEDOn" value="Home指示灯常亮"/>
++        <add key="_GyroToJoyOrMouse" value="陀螺仪倾斜当作摇杆或鼠标移动"/>
++        <add key="_UseFilteredIMU" value="是否使用过滤后的IMU或原始陀螺仪值(原始更灵敏)"/>
++        <add key="_AHRS_beta" value="AHRS的Beta值,影响滤波器的发散度"/>
++        <add key="_GyroMouseSensitivityX" value="陀螺仪模拟鼠标X轴灵敏度"/>
++        <add key="_GyroMouseSensitivityY" value="陀螺仪模拟鼠标Y轴灵敏度"/>
++        <add key="_GyroStickSensitivityX" value="陀螺仪模拟摇杆X轴灵敏度"/>
++        <add key="_GyroStickSensitivityY" value="陀螺仪模拟摇杆Y轴灵敏度"/>
++        <add key="_GyroStickReduction" value="摇杆范围(1没有变化,1.5范围减半)"/>
++        <add key="_GyroHoldToggle" value="陀螺仪激活(true为需要已映射的按键长按,false为每按一下切换)"/>
++        <add key="_GyroMouseLeftHanded" value="当两个joycon连接时,鼠标移动需要右边joycon的陀螺仪运动"/>
++        <add key="_DragToggle" value="已映射的鼠标按键拖动行为"/>
++        <add key="_ShowAsXInput" value="识别成Xbox 360手柄,否则此软件只能用在支持UDP服务的模拟器" />
++        <add key="_ShowAsDS4" value="ShowAsDS4"/>
++        <add key="_AutoPowerOff" value="退出软件后关闭手柄" />
++        <add key="_PowerOffInactivity" value="控制器不活动后关闭(分钟,-1为不限时间)" />
++        <add key="_HomeLongPowerOff" value="按住Home键两秒以上关闭控制器(只连左手柄时为按拍照键)" />
++        <add key="_ChangeOrientationDoubleClick" value="双击joycon(L3,R3)上的摇杆以更改joycon方向" />
++        <add key="_DoNotRejoinJoycons" value="false为单击左上手柄图标以让手柄分离来垂直使用,true为双击" />
++        <add key="_DebugType" value="日志内容(0不打印,1全部,2通讯,3线程,4IMU,5振动,6摇杆输入)" />
+ 	</appSettings>
+ 	<runtime>
+ 		<assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+ BetterJoy/MainForm.Designer.cs | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/BetterJoy/MainForm.Designer.cs b/BetterJoy/MainForm.Designer.cs
+index e47085f..f6d880a 100644
+--- a/BetterJoy/MainForm.Designer.cs
++++ b/BetterJoy/MainForm.Designer.cs
+@@ -295,7 +295,7 @@
+             groupBox1.Margin = new System.Windows.Forms.Padding(2);
+             groupBox1.Name = "groupBox1";
+             groupBox1.Padding = new System.Windows.Forms.Padding(2);
+-            groupBox1.Size = new System.Drawing.Size(355, 352);
++            groupBox1.Size = new System.Drawing.Size(605, 352);
+             groupBox1.TabIndex = 9;
+             groupBox1.TabStop = false;
+             groupBox1.Text = "Config";
+@@ -304,15 +304,16 @@
+             // 
+             settingsTable.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+             settingsTable.AutoScroll = true;
+-            settingsTable.ColumnCount = 2;
+-            settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.90411F));
+-            settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.09589F));
++            settingsTable.ColumnCount = 3;
++            settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
++            settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
++            settingsTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+             settingsTable.Location = new System.Drawing.Point(5, 20);
+             settingsTable.Margin = new System.Windows.Forms.Padding(2);
+             settingsTable.Name = "settingsTable";
+             settingsTable.RowCount = 1;
+             settingsTable.RowStyles.Add(new System.Windows.Forms.RowStyle());
+-            settingsTable.Size = new System.Drawing.Size(350, 328);
++            settingsTable.Size = new System.Drawing.Size(600, 328);
+             settingsTable.TabIndex = 1;
+             // 
+             // rightPanel
+@@ -322,7 +323,7 @@
+             rightPanel.Location = new System.Drawing.Point(337, 1);
+             rightPanel.Margin = new System.Windows.Forms.Padding(2, 2, 14, 2);
+             rightPanel.Name = "rightPanel";
+-            rightPanel.Size = new System.Drawing.Size(364, 397);
++            rightPanel.Size = new System.Drawing.Size(614, 397);
+             rightPanel.TabIndex = 11;
+             rightPanel.Visible = false;
+             // 
+@@ -330,7 +331,7 @@
+             // 
+             settingsApply.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+             settingsApply.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
+-            settingsApply.Location = new System.Drawing.Point(288, 367);
++            settingsApply.Location = new System.Drawing.Point(538, 367);
+             settingsApply.Margin = new System.Windows.Forms.Padding(2);
+             settingsApply.Name = "settingsApply";
+             settingsApply.Size = new System.Drawing.Size(71, 24);
+ BetterJoy/MainForm.cs | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/BetterJoy/MainForm.cs b/BetterJoy/MainForm.cs
+index 2e3528d..e5d0a26 100644
+--- a/BetterJoy/MainForm.cs
++++ b/BetterJoy/MainForm.cs
+@@ -60,6 +60,7 @@ namespace BetterJoy
+             var childSize = new Size(180, 20);
+             for (var i = 0; i != myConfigs.Length; i++)
+             {
++                if (myConfigs[i].Substring(0,1) == "_") continue;
+                 settingsTable.RowCount++;
+                 settingsTable.Controls.Add(
+                     new Label
+@@ -87,6 +88,7 @@ namespace BetterJoy
+ 
+                 childControl.MouseClick += cbBox_Changed;
+                 settingsTable.Controls.Add(childControl, 1, i);
++                settingsTable.Controls.Add(new Label() { Text = ConfigurationManager.AppSettings["_" + myConfigs[i]], TextAlign = ContentAlignment.BottomLeft, AutoEllipsis = true, Size = new Size(290, 20) }, 2, i);
+             }
+ 
+             // Trick to have bottom padding in the console control
