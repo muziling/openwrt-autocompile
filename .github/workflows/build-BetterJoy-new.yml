@@ -106,7 +106,7 @@ jobs:
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Settings\"/\"设置\"/" BetterJoy/ThirdpartyControllers.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Type\"/\"类型\"/" BetterJoy/ThirdpartyControllers.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Close\"/\"关闭\"/" BetterJoy/ThirdpartyControllers.Designer.cs
-        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/"Apply"/\"应用\"/" BetterJoy/ThirdpartyControllers.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Apply\"/\"应用\"/" BetterJoy/ThirdpartyControllers.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/All Devices/所有设备/" BetterJoy/ThirdpartyControllers.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Switch Controllers/Switch手柄/" BetterJoy/ThirdpartyControllers.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Re-\\r\\nfresh/刷新/" BetterJoy/ThirdpartyControllers.Designer.cs
