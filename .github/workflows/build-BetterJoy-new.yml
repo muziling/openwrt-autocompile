@@ -136,7 +136,7 @@ jobs:
     - name: NuGet restore
       run: |
         cd betterjoy
-        nuget restore
+        nuget restore -Verbosity detailed
 
     # 编译整个项目
     - name: Build the solution
