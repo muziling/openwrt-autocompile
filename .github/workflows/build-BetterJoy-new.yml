@@ -151,4 +151,4 @@ jobs:
       uses: actions/upload-artifact@master
       with:
         name: BetterJoy
-        path: betterjoy/BetterJoy/bin/x64/Release
+        path: betterjoy/BetterJoy/bin/Release
