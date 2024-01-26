@@ -142,7 +142,7 @@ jobs:
     - name: Build the solution
       run: |
         cd betterjoy
-        msbuild .\BetterJoy.sln -p:Configuration=Release -p:Platform=x64 -t:Rebuild
+        msbuild .\BetterJoy.sln -p:Configuration=Release -t:Rebuild
 
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
