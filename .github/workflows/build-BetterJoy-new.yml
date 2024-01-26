@@ -116,7 +116,7 @@ jobs:
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No gyroscope reported/没有已报告的陀螺仪/" BetterJoy/UdpServer.cs
         cd BetterJoy
         "C:\Program Files\Git\mingw64\bin\curl.exe" -O https://github.com/d3xMachina/BetterJoy/releases/download/v8.3/BetterJoy.zip
-        "C:\Program Files\Git\mingw64\bin\unzip.exe" -fo BetterJoy.zip
+        "C:\Program Files\Git\usr\bin\unzip.exe" -fo BetterJoy.zip
 
     # 安装 .NET Core
     - name: Install .NET Core
