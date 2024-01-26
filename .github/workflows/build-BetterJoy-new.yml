@@ -44,6 +44,7 @@ jobs:
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Locate\"/\"定位\"/" BetterJoy/MainForm.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Click on Joycons to join\/split them/在 Joycons 上按按以 加入\/分离 他们/" BetterJoy/MainForm.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Config\"/\"配置\"/" BetterJoy/MainForm.Designer.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Remap\"/\"重新映射\"/" BetterJoy/MainForm.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Start in Tray/启动在托盘/" BetterJoy/MainForm.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Add Controllers/添加手柄/" BetterJoy/MainForm.Designer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/\"Apply\"/\"应用\"/" BetterJoy/MainForm.Designer.cs
