@@ -114,6 +114,9 @@ jobs:
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Starting server on /服务启动在 /" BetterJoy/UdpServer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No accelerometer reported/没有已报告的加速度计/" BetterJoy/UdpServer.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No gyroscope reported/没有已报告的陀螺仪/" BetterJoy/UdpServer.cs
+        cd BetterJoy/Drivers
+        wget https://github.com/nefarius/ViGEmBus/releases/download/v1.22.0/ViGEmBus_1.22.0_x64_x86_arm64.exe
+        wget https://github.com/nefarius/HidHide/releases/download/v1.4.192.0/HidHide_1.4.192_x64.exe
 
     # 安装 .NET Core
     - name: Install .NET Core
