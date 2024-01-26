@@ -130,7 +130,7 @@ jobs:
       uses: nuget/setup-nuget@v1
       with:
         nuget-api-key: ${{ secrets.NuGetAPIKey }}
-        nuget-version: '5.x'
+        nuget-version: '6.x'
 
     # 还原 NuGet 包
     - name: NuGet restore
