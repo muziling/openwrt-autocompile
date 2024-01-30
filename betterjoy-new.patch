@@ -130,3 +130,17 @@ index 2e3528d..e5d0a26 100644
              }
  
              // Trick to have bottom padding in the console control
+@@ -284,9 +286,11 @@ namespace BetterJoy
+         {
+             var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+             var settings = configFile.AppSettings.Settings;
+-
+-            for (var row = 0; row < ConfigurationManager.AppSettings.AllKeys.Length; row++)
++			
++            var myConfigs = ConfigurationManager.AppSettings.AllKeys;
++            for (var row = 0; row < myConfigs.Length; row++)
+             {
++                if (myConfigs[i].Substring(0,1) == "_") continue;
+                 var valCtl = settingsTable.GetControlFromPosition(1, row);
+                 var keyCtl = settingsTable.GetControlFromPosition(0, row).Text;
+ 
