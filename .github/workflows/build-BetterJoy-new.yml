@@ -65,7 +65,7 @@ jobs:
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/IMU Calibration completed/IMU 校准完成/" BetterJoy/MainForm.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Calibrating Sticks center position/校准摇杆中心位置/" BetterJoy/MainForm.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Please keep the sticks at the center position/请将摇杆保持在中心位置/" BetterJoy/MainForm.cs
-        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No stick positions received, calibration canceled. Is the controller working/未收到摇杆位置，校准已取消。手柄是否工作中" BetterJoy/MainForm.cs
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/No stick positions received, calibration canceled. Is the controller working/未收到摇杆位置，校准已取消。手柄是否工作中/" BetterJoy/MainForm.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Sticks center position calibration completed/摇杆中心位置校准完成/" BetterJoy/MainForm.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Calibrating Sticks min and max position/校准摇杆的最小和最大位置/" BetterJoy/MainForm.cs
         "C:\Program Files\Git\usr\bin\sed.exe" -i "s/Please move the sticks in a circle when the calibration starts/校准开始时请移动摇杆一圈/" BetterJoy/MainForm.cs

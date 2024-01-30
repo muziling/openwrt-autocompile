@@ -107,11 +107,11 @@ index e47085f..f6d880a 100644
              settingsApply.Margin = new System.Windows.Forms.Padding(2);
              settingsApply.Name = "settingsApply";
              settingsApply.Size = new System.Drawing.Size(71, 24);
- BetterJoy/MainForm.cs | 2 ++
- 1 file changed, 2 insertions(+)
+ BetterJoy/MainForm.cs | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/BetterJoy/MainForm.cs b/BetterJoy/MainForm.cs
-index 2e3528d..e5d0a26 100644
+index 2e3528d..af63dd1 100644
 --- a/BetterJoy/MainForm.cs
 +++ b/BetterJoy/MainForm.cs
 @@ -60,6 +60,7 @@ namespace BetterJoy
