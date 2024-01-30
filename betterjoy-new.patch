@@ -140,7 +140,7 @@ index 2e3528d..af63dd1 100644
 +            var myConfigs = ConfigurationManager.AppSettings.AllKeys;
 +            for (var row = 0; row < myConfigs.Length; row++)
              {
-+                if (myConfigs[i].Substring(0,1) == "_") continue;
++                if (myConfigs[row].Substring(0,1) == "_") continue;
                  var valCtl = settingsTable.GetControlFromPosition(1, row);
                  var keyCtl = settingsTable.GetControlFromPosition(0, row).Text;
  
