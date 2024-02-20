@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Initialization environment and make
         run: |
+          mkdir -p /opt/rh/
           yum install epel-release -y
           yum install wget unzip autoconf libtool gettext-devel automake gnulib readline-devel zlib-devel -y
           yum install centos-release-scl -y
