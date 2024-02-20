@@ -1,0 +1,30 @@
+name: build-lftp
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-lftp:
+    runs-on: ubuntu-latest
+    container: centos:7
+    steps:
+      - name: Initialization environment and make
+        run: |
+          yum install epel-release -y
+          yum install autoconf libtool gettext-devel automake gnulib readline-devel zlib-devel -y
+          yum install centos-release-scl -y
+          yum install devtoolset-11-gcc* -y
+          echo "/opt/rh/devtoolset-11/root/bin" >>"${GITHUB_PATH}"
+          mkdir /workdir
+          cd /workdir
+          wget https://github.com/tabraham/lftp/archive/refs/heads/master.zip
+          unzip master.zip
+          cd lftp-master
+          ./autogen.sh
+		  make
+
+      - name: Upload file
+        uses: actions/upload-artifact@v3
+        with:
+          name: lftp
+          path: /workdir/lftp-master
