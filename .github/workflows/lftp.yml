@@ -21,7 +21,7 @@ jobs:
           unzip master.zip
           cd lftp-master
           ./autogen.sh
-		  make
+          make
 
       - name: Upload file
         uses: actions/upload-artifact@v3
