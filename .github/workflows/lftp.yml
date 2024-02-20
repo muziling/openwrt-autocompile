@@ -14,7 +14,7 @@ jobs:
           yum install wget unzip autoconf libtool gettext-devel automake gnulib readline-devel zlib-devel -y
           yum install centos-release-scl -y
           yum install devtoolset-11-gcc* -y
-          echo "/opt/rh/devtoolset-11/root/bin" >>"${GITHUB_PATH}"
+          scl enable devtoolset-11 bash
           mkdir /workdir
           cd /workdir
           wget https://github.com/tabraham/lftp/archive/refs/heads/master.zip
