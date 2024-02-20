@@ -11,7 +11,7 @@ jobs:
       - name: Initialization environment and make
         run: |
           yum install epel-release -y
-          yum install autoconf libtool gettext-devel automake gnulib readline-devel zlib-devel -y
+          yum install wget autoconf libtool gettext-devel automake gnulib readline-devel zlib-devel -y
           yum install centos-release-scl -y
           yum install devtoolset-11-gcc* -y
           echo "/opt/rh/devtoolset-11/root/bin" >>"${GITHUB_PATH}"
