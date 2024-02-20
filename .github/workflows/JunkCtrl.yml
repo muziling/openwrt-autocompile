@@ -1,0 +1,57 @@
+
+name: JunkCtrl-CI
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  
+jobs:
+
+  build_BetterJoy:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # 下载代码
+    - name: checkout source code
+      shell: cmd
+      run: |
+        git clone --depth 1 -b main --single-branch https://github.com/patdrumm/JunkCtrl.git betterjoy
+
+    # 安装 .NET Core
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    # 添加 MSBuild.exe 到环境变量: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.3.1
+
+    # 安装 NuGet
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.NuGetAPIKey }}
+        nuget-version: '6.x'
+
+    # 还原 NuGet 包
+    - name: NuGet restore
+      run: |
+        cd betterjoy
+        nuget restore -Verbosity detailed
+
+    # 编译整个项目
+    - name: Build the solution
+      run: |
+        cd betterjoy
+        msbuild .\Junkctrl.sln -p:Configuration=Release -t:Rebuild
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@master
+      with:
+        name: BetterJoy
+        path: betterjoy/Junkctrl/bin/Release
