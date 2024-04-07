@@ -21,11 +21,11 @@ jobs:
       - name: Clone source code
         run: |
           git clone --depth 1 --single-branch --branch dev-v2-rtsp https://github.com/tresvecesseis/ExoPlayer.git boxdir
-          wget https://github.com/takagen99/Box/raw/main/gradlew -O boxdir/demos/main/gradlew
+          #wget https://github.com/takagen99/Box/raw/main/gradlew -O boxdir/demos/main/gradlew
 
       - name: Build with Gradle
         run: |
-          cd boxdir/demos/main
+          cd boxdir
           chmod +x gradlew
           ./gradlew assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
 
@@ -33,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: rstptest
-          path: boxdir/demos/main
+          path: boxdir
