@@ -1,4 +1,4 @@
-name: tvbox build
+name: testapp
 
 on:
   workflow_dispatch:
@@ -21,6 +21,7 @@ jobs:
       - name: Clone source code
         run: |
           git clone --depth 1 --single-branch --branch dev-v2-rtsp https://github.com/tresvecesseis/ExoPlayer.git boxdir
+          wget https://github.com/takagen99/Box/raw/main/gradlew -O boxdir/demos/main
 
       - name: Build with Gradle
         run: |
@@ -32,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: rstptest
-          path: boxdir/app/build/outputs/apk
+          path: boxdir/demos/main
