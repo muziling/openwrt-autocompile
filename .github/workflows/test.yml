@@ -29,7 +29,7 @@ jobs:
           cd boxdir
           chmod +x gradlew
           ./gradlew projects
-          ./gradlew demos:assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
+          ./gradlew demo:assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
 
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v3
