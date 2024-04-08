@@ -20,7 +20,8 @@ jobs:
 
       - name: Clone source code
         run: |
-          git clone --depth 1 --single-branch --branch dev-v2-rtsp https://github.com/tresvecesseis/ExoPlayer.git boxdir
+          #git clone --depth 1 --single-branch --branch dev-v2-rtsp https://github.com/tresvecesseis/ExoPlayer.git boxdir
+          git clone --depth 1 --single-branch --branch release https://github.com/androidx/media.git boxdir
           #wget https://github.com/takagen99/Box/raw/main/gradlew -O boxdir/demos/main/gradlew
 
       - name: Build with Gradle
