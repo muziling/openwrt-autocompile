@@ -27,7 +27,8 @@ jobs:
         run: |
           cd boxdir
           chmod +x gradlew
-          ./gradlew assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
+          ./gradlew projects
+          ./gradlew demos:assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
 
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v3
