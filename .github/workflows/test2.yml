@@ -1,0 +1,40 @@
+name: testapprtsp
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
+      - name: Clone source code
+        run: |
+          git clone --depth 1 --single-branch --branch dev-v2-rtsp https://github.com/tresvecesseis/ExoPlayer.git boxdir
+          sed -i 's/5.1.1/6.5/g' gradle/wrapper/gradle-wrapper.properties
+          sed -i 's/3.4.0/4.0.1/g' build.gradle
+          #git clone --depth 1 --single-branch --branch release https://github.com/androidx/media.git boxdir
+          #wget https://github.com/takagen99/Box/raw/main/gradlew -O boxdir/demos/main/gradlew
+
+      - name: Build with Gradle
+        run: |
+          cd boxdir
+          chmod +x gradlew
+          ./gradlew projects
+          ./gradlew demo:assemblerelease --build-cache --parallel --daemon --stacktrace --warning-mode all
+
+      - name: Upload App To Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rstptest
+          path: boxdir
