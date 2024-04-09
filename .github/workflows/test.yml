@@ -22,11 +22,24 @@ jobs:
         run: |
           #git clone --depth 1 --single-branch --branch dev-v2-rtsp https://github.com/tresvecesseis/ExoPlayer.git boxdir
           git clone --depth 1 --single-branch --branch release https://github.com/androidx/media.git boxdir
-          #wget https://github.com/takagen99/Box/raw/main/gradlew -O boxdir/demos/main/gradlew
+          wget https://github.com/muziling/openwrt-autocompile/raw/master/exoplayer-test.diff -O boxdir/exoplayer-test.diff
+          cd boxdir
+          git apply exoplayer-test.diff
+          sed -i '2 i{"name":"tv","samples":[{"name":"cctv1","uri":"rtsp://36.250.89.11:554/pltv/88888909/224/3221225703/10000100000000060000000000391319_0.smil"}]},' demos/main/src/main/assets/media.exolist.json
 
       - name: Build with Gradle
         run: |
           cd boxdir
+          signingConfigs='ICAgIHNpZ25pbmdDb25maWdzIHtcCiAgICAgICAgaWYgKHByb2plY3QuaGFzUHJvcGVydHkoIlJFTEVBU0VfU1RPUkVfRklMRSIpKSB7XAogICAgICAgICAgICBteUNvbmZpZyB7XAogICAgICAgICAgICAgICAgc3RvcmVGaWxlIGZpbGUoUkVMRUFTRV9TVE9SRV9GSUxFKVwKICAgICAgICAgICAgICAgIHN0b3JlUGFzc3dvcmQgUkVMRUFTRV9TVE9SRV9QQVNTV09SRFwKICAgICAgICAgICAgICAgIGtleUFsaWFzIFJFTEVBU0VfS0VZX0FMSUFTXAogICAgICAgICAgICAgICAga2V5UGFzc3dvcmQgUkVMRUFTRV9LRVlfUEFTU1dPUkRcCiAgICAgICAgICAgICAgICB2MVNpZ25pbmdFbmFibGVkIHRydWVcCiAgICAgICAgICAgICAgICB2MlNpZ25pbmdFbmFibGVkIHRydWVcCiAgICAgICAgICAgICAgICBlbmFibGVWM1NpZ25pbmcgPSB0cnVlXAogICAgICAgICAgICAgICAgZW5hYmxlVjRTaWduaW5nID0gdHJ1ZVwKICAgICAgICAgICAgfVwKICAgICAgICB9XAogICAgfVwKXA=='
+          signingConfig='ICAgICAgICAgICAgaWYgKHByb2plY3QuaGFzUHJvcGVydHkoIlJFTEVBU0VfU1RPUkVfRklMRSIpKSB7XAogICAgICAgICAgICAgICAgc2lnbmluZ0NvbmZpZyBzaWduaW5nQ29uZmlncy5teUNvbmZpZ1wKICAgICAgICAgICAgfVwK'
+          signingConfigs="$(echo "$signingConfigs" |base64 -d )"
+          signingConfig="$(echo "$signingConfig" |base64 -d )"
+          sed -i -e "/defaultConfig {/i\\$signingConfigs " -e "/debug {/a\\$signingConfig " -e "/release {/a\\$signingConfig " app/build.gradle
+          cp -f ../android.jks app/android.jks
+          sed -i '$a\RELEASE_STORE_FILE=./android.jks'     ./gradle.properties
+          sed -i '$a\RELEASE_KEY_ALIAS=muziling'            ./gradle.properties
+          sed -i '$a\RELEASE_STORE_PASSWORD=111111'       ./gradle.properties
+          sed -i '$a\RELEASE_KEY_PASSWORD=111111'         ./gradle.properties
           chmod +x gradlew
           ./gradlew projects
           ./gradlew demo:assembledebug --build-cache --parallel --daemon --stacktrace --warning-mode all
