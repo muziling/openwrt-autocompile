@@ -75,7 +75,7 @@ index 92a8fb0..ffa13f5 100644
     * @throws IllegalArgumentException When the media type is not supported/recognized.
     */
    public static String getMimeTypeFromRtpMediaType(String mediaType) {
-+    Log.d("muziling", "getMimeTypeFromRtpMediaType=" + mediaType)
++    Log.d("muziling", "getMimeTypeFromRtpMediaType=" + mediaType);
      switch (Ascii.toUpperCase(mediaType)) {
        case RTP_MEDIA_AC3:
          return MimeTypes.AUDIO_AC3;
