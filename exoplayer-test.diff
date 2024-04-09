@@ -43,8 +43,7 @@ index 66ac29c..cfc75e5 100644
          default:
            throw new IllegalStateException("Unsupported static paylod type " + rtpPayloadType);
        }
-diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/Rtp
-PayloadFormat.java
+diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
 index 92a8fb0..d5f89c0 100644
 --- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
 +++ b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
