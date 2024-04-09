@@ -88,7 +88,7 @@ index 92a8fb0..ce5163b 100644
        case RTP_MEDIA_H265:
          return MimeTypes.VIDEO_H265;
 diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
-index 468c635..143d61b 100644
+index 468c635..def641d 100644
 --- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
 +++ b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
 @@ -28,6 +28,7 @@ import static androidx.media3.exoplayer.rtsp.SessionDescription.ATTR_CONTROL;
@@ -99,7 +99,33 @@ index 468c635..143d61b 100644
  import android.util.Pair;
  import androidx.annotation.Nullable;
  import androidx.annotation.VisibleForTesting;
-@@ -222,6 +223,7 @@ import com.google.common.collect.ImmutableMap;
+@@ -171,14 +172,24 @@ import com.google.common.collect.ImmutableMap;
+    */
+   public RtspMediaTrack(
+       RtspHeaders rtspHeaders, MediaDescription mediaDescription, Uri sessionUri) {
++                 try {
+     checkArgument(
+         mediaDescription.attributes.containsKey(ATTR_CONTROL), "missing attribute control");
++                 } catch (Exception e) {
++                         throw e;
++                 }
+     payloadFormat = generatePayloadFormat(mediaDescription);
+     uri =
+         extractTrackUri(
+             rtspHeaders, sessionUri, castNonNull(mediaDescription.attributes.get(ATTR_CONTROL)));
+   }
+-
++    private String getRootCauseMessage(Throwable th) {
++        for (int i=0; i<10; i++) {
++            if (th.getCause() == null) return th.getLocalizedMessage();
++            else th = th.getCause();
++        }
++        return th.printStackTrace();
++    }
+   @Override
+   public boolean equals(@Nullable Object o) {
+     if (this == o) {
+@@ -222,6 +233,7 @@ import com.google.common.collect.ImmutableMap;
      }
  
      ImmutableMap<String, String> fmtpParameters = mediaDescription.getFmtpParametersAsMap();
