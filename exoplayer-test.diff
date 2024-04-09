@@ -14,7 +14,7 @@ index bd2052f..bd250f7 100644
      if (codec == null) {
        return null;
      }
-+    Log.d("muziling, getMediaMimeType codec=", codec);
++    Log.e("muziling, getMediaMimeType codec=", codec);
      codec = Ascii.toLowerCase(codec.trim());
      if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
        return MimeTypes.VIDEO_H264;
@@ -75,7 +75,7 @@ index 92a8fb0..ce5163b 100644
     * @throws IllegalArgumentException When the media type is not supported/recognized.
     */
    public static String getMimeTypeFromRtpMediaType(String mediaType) {
-+    Log.d("muziling", "getMimeTypeFromRtpMediaType=" + mediaType);
++    Log.e("muziling", "getMimeTypeFromRtpMediaType=" + mediaType);
      switch (Ascii.toUpperCase(mediaType)) {
        case RTP_MEDIA_AC3:
          return MimeTypes.AUDIO_AC3;
@@ -130,7 +130,7 @@ index 468c635..062ed22 100644
      }
  
      ImmutableMap<String, String> fmtpParameters = mediaDescription.getFmtpParametersAsMap();
-+    Log.d("muziling", "generatePayloadFormat=" + mimeType);
++    Log.e("muziling", "generatePayloadFormat=" + mimeType);
      switch (mimeType) {
        case MimeTypes.AUDIO_AAC:
          checkArgument(channelCount != C.INDEX_UNSET);
@@ -150,7 +150,7 @@ index 63883dc..e7a9d14 100644
    @Override
    @Nullable
    public RtpPayloadReader createPayloadReader(RtpPayloadFormat payloadFormat) {
-+    Log.d("muziling", "createPayloadReader=" + payloadFormat.format.sampleMimeType);
++    Log.e("muziling", "createPayloadReader=" + payloadFormat.format.sampleMimeType);
      switch (checkNotNull(payloadFormat.format.sampleMimeType)) {
        case MimeTypes.AUDIO_AC3:
          return new RtpAc3Reader(payloadFormat);
