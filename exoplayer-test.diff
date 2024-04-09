@@ -14,7 +14,7 @@ index bd2052f..12b3d90 100644
      if (codec == null) {
        return null;
      }
-+    Log.debug("muziling, getMediaMimeType codec=", codec);
++    Log.d("muziling, getMediaMimeType codec=", codec);
      codec = Ascii.toLowerCase(codec.trim());
      if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
        return MimeTypes.VIDEO_H264;
