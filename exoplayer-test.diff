@@ -1,7 +1,7 @@
-diff --git a/libraries/common/src/main/java/androidx/media3/common/MimeTypes.java b/libraries/common/src/main/java/androidx/media3/common/MimeTypes.java
+diff --git a/libraries/common/src/main/java/androidx/media3/common/MimeTypes.java b/libraries-mp2t/common/src/main/java/androidx/media3/common/MimeTypes.java
 index bd2052f..bd250f7 100644
 --- a/libraries/common/src/main/java/androidx/media3/common/MimeTypes.java
-+++ b/libraries/common/src/main/java/androidx/media3/common/MimeTypes.java
++++ b/libraries-mp2t/common/src/main/java/androidx/media3/common/MimeTypes.java
 @@ -16,6 +16,7 @@
  package androidx.media3.common;
  
@@ -14,14 +14,14 @@ index bd2052f..bd250f7 100644
      if (codec == null) {
        return null;
      }
-+    Log.e("muziling, getMediaMimeType codec=", codec);
++    Log.d("muziling, getMediaMimeType codec=", codec);
      codec = Ascii.toLowerCase(codec.trim());
      if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
        return MimeTypes.VIDEO_H264;
-diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java
+diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java
 index 66ac29c..cfc75e5 100644
 --- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java
-+++ b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java
++++ b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/MediaDescription.java
 @@ -118,6 +118,7 @@ import java.util.HashMap;
      private static final int RTP_STATIC_PAYLOAD_TYPE_PCMA = 8;
      private static final int RTP_STATIC_PAYLOAD_TYPE_L16_STEREO = 10;
@@ -43,10 +43,123 @@ index 66ac29c..cfc75e5 100644
          default:
            throw new IllegalStateException("Unsupported static paylod type " + rtpPayloadType);
        }
-diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
+diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpDataLoadable.java b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpDataLoadable.java
+index 7f2f959..8622713 100644
+--- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpDataLoadable.java
++++ b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpDataLoadable.java
+@@ -19,6 +19,7 @@ package androidx.media3.exoplayer.rtsp;
+ import static androidx.media3.common.util.Assertions.checkNotNull;
+ 
+ import android.os.Handler;
++import android.util.Log;
+ import androidx.annotation.Nullable;
+ import androidx.media3.common.C;
+ import androidx.media3.common.util.UnstableApi;
+@@ -29,6 +30,7 @@ import androidx.media3.extractor.DefaultExtractorInput;
+ import androidx.media3.extractor.Extractor;
+ import androidx.media3.extractor.ExtractorOutput;
+ import androidx.media3.extractor.PositionHolder;
++import androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES;
+ import java.io.IOException;
+ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+ 
+@@ -148,7 +150,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+     if (loadCancelled) {
+       loadCancelled = false;
+     }
+-
++    Log.d("muziling", "load  " + rtspMediaTrack.payloadFormat.mediaEncoding);
+     try {
+       if (dataChannel == null) {
+         dataChannel = rtpDataChannelFactory.createAndOpenDataChannel(trackId);
+diff --git a/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpMp2tExtractor.java b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpMp2tExtractor.java
+new file mode 100644
+index 0000000..9bac7ec
+--- /dev/null
++++ b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpMp2tExtractor.java
+@@ -0,0 +1,78 @@
++/*
++ * Copyright (C) 2018 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package androidx.media3.exoplayer.rtsp;
++
++import androidx.media3.exoplayer.rtsp.RtpPacket;
++import androidx.media3.extractor.Extractor;
++import androidx.media3.extractor.ExtractorInput;
++import androidx.media3.extractor.ExtractorOutput;
++import androidx.media3.extractor.PositionHolder;
++import androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory;
++import androidx.media3.extractor.ts.TsExtractor;
++
++import java.io.IOException;
++
++/**
++ * Facilitates the extraction of media samples from media stream formatted as MPEG-2 TS RTP payload
++ */
++public final class RtpMp2tExtractor implements Extractor {
++    private final TsExtractor extractor;
++
++    public RtpMp2tExtractor() {
++        this(0);
++    }
++
++    public RtpMp2tExtractor(@DefaultTsPayloadReaderFactory.Flags int defaultTsPayloadReaderFlags ) {
++        extractor = new TsExtractor(defaultTsPayloadReaderFlags);
++    }
++
++    @Override
++    public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
++        if (RtpPacket.sniffHeader(input) > 0) {
++            return true;
++        }
++
++        return false;
++    }
++
++    @Override
++    public void init(ExtractorOutput output) {
++        extractor.init(output);
++    }
++
++    @Override
++    public void seek(long position, long timeUs) {
++        extractor.seek(position, timeUs);
++    }
++
++    @Override
++    public void release() {
++        extractor.release();
++    }
++
++    @Override
++    public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
++            InterruptedException {
++        int bytesToSkip = RtpPacket.sniffHeader(input);
++
++        if (bytesToSkip > 0) {
++            input.skip(bytesToSkip);
++        }
++
++        return extractor.read(input, seekPosition);
++    }
++
++}
+diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
 index 92a8fb0..ce5163b 100644
 --- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
-+++ b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
++++ b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtpPayloadFormat.java
 @@ -17,6 +17,7 @@ package androidx.media3.exoplayer.rtsp;
  
  import static androidx.media3.common.util.Assertions.checkArgument;
@@ -75,7 +188,7 @@ index 92a8fb0..ce5163b 100644
     * @throws IllegalArgumentException When the media type is not supported/recognized.
     */
    public static String getMimeTypeFromRtpMediaType(String mediaType) {
-+    Log.e("muziling", "getMimeTypeFromRtpMediaType=" + mediaType);
++    Log.d("muziling", "getMimeTypeFromRtpMediaType=" + mediaType);
      switch (Ascii.toUpperCase(mediaType)) {
        case RTP_MEDIA_AC3:
          return MimeTypes.AUDIO_AC3;
@@ -87,10 +200,10 @@ index 92a8fb0..ce5163b 100644
          return MimeTypes.VIDEO_H264;
        case RTP_MEDIA_H265:
          return MimeTypes.VIDEO_H265;
-diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
-index 468c635..062ed22 100644
+diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
+index 468c635..3c1d263 100644
 --- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
-+++ b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
++++ b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/RtspMediaTrack.java
 @@ -28,6 +28,7 @@ import static androidx.media3.exoplayer.rtsp.SessionDescription.ATTR_CONTROL;
  import android.net.Uri;
  import android.text.TextUtils;
@@ -130,14 +243,14 @@ index 468c635..062ed22 100644
      }
  
      ImmutableMap<String, String> fmtpParameters = mediaDescription.getFmtpParametersAsMap();
-+    Log.e("muziling", "generatePayloadFormat=" + mimeType);
++    Log.d("muziling", "generatePayloadFormat=" + mimeType);
      switch (mimeType) {
        case MimeTypes.AUDIO_AAC:
          checkArgument(channelCount != C.INDEX_UNSET);
-diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java
+diff --git a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java
 index 63883dc..e7a9d14 100644
 --- a/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java
-+++ b/libraries/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java
++++ b/libraries-mp2t/exoplayer_rtsp/src/main/java/androidx/media3/exoplayer/rtsp/reader/DefaultRtpPayloadReaderFactory.java
 @@ -18,6 +18,7 @@ package androidx.media3.exoplayer.rtsp.reader;
  
  import static androidx.media3.common.util.Assertions.checkNotNull;
@@ -150,7 +263,7 @@ index 63883dc..e7a9d14 100644
    @Override
    @Nullable
    public RtpPayloadReader createPayloadReader(RtpPayloadFormat payloadFormat) {
-+    Log.e("muziling", "createPayloadReader=" + payloadFormat.format.sampleMimeType);
++    Log.d("muziling", "createPayloadReader=" + payloadFormat.format.sampleMimeType);
      switch (checkNotNull(payloadFormat.format.sampleMimeType)) {
        case MimeTypes.AUDIO_AC3:
          return new RtpAc3Reader(payloadFormat);
