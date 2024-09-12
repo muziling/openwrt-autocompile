@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: compile 3proxy (x64) with Visual C++
       run: |
-        git clone --depth 1 -b master --single-branch https://github.com/xsmolasses/3proxy.git .
+        git clone --depth 1 -b master --single-branch https://github.com/3proxy/3proxy.git .
         CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         SET "PATH=C:\Program Files\OpenSSL\bin;%PATH%"
         SET "INCLUDE=C:\Program Files\OpenSSL\include;%INCLUDE%"
@@ -22,6 +22,7 @@ jobs:
         REM SET "LIB=C:\Program Files\OpenSSL\lib\VC;%LIB%"
         SET "LIB=C:\Program Files\OpenSSL\lib\VC\static;%LIB%"
         openssl version
+        "C:\Program Files\Git\usr\bin\sed.exe" -i "s/COMPATLIBS =/COMPATLIBS =\nMAKEFILE = Makefile.msvc64/" Makefile.msvc64
         NMAKE /F Makefile.msvc64
       shell: CMD
 
