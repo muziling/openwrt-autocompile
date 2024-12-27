@@ -27,7 +27,7 @@ jobs:
 
       - name: Clone
         run: |
-          git clone --depth 1 -b master --single-branch https://github.com/labring/sealos.git .
+          git clone --depth 1 -b main --single-branch https://github.com/labring/sealos.git .
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3
