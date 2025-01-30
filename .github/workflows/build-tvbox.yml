@@ -22,11 +22,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: set up JDK 17
-        uses: actions/setup-java@v2
+      - name: set up JDK 23
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'adopt'
+          java-version: '23'
+          distribution: 'zulu'
 
       - name: Clone source code
         run: |
@@ -48,6 +48,10 @@ jobs:
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
           else
             git clone --depth 1 -b okjack https://github.com/FongMi/TV.git boxdir
+            sed -i 'import com.fongmi.android.tv.api.config.LiveConfig;/import com.fongmi.android.tv.api.config.LiveConfig;import com.fongmi.android.tv.bean.Config;/g'  boxdir/app/src/main/java/com/fongmi/android/tv/App.java
+            sed -i 's/});/});Config.vod().url("http://192.168.200.1:8000/tvbox").update();/g'  boxdir/app/src/main/java/com/fongmi/android/tv/App.java
+            sed -i 's/initConfig();/initConfig();LiveActivity.start(this);/g' boxdir/app/src/leanback/java/com/fongmi/android/tv/ui/activity/HomeActivity.java
+          
           fi
           #sed -i 's/putDefault(HawkConfig.HOME_REC.*/putDefault(HawkConfig.HOME_REC, 1);/g' boxdir/app/src/main/java/com/github/tvbox/osc/base/App.java
           #sed -i 's/urlBean.infoList = infoList;/urlBean.infoList = infoList;video.sourceKey=vod_play_from;/g' boxdir/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
