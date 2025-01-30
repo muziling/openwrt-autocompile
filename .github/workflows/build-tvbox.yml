@@ -11,6 +11,7 @@ on:
         - 'q215613905'
         - 'takagen99'
         - 'chengxue2020'
+        - 'okjack'
 
 jobs:
   build:
@@ -39,12 +40,14 @@ jobs:
             ln -s tvbox-takagen99 tvboxpatch
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
             #sed -i '246 ijumpActivity(LivePlayActivity.class);' boxdir/app/src/main/java/com/github/tvbox/osc/ui/fragment/UserFragment.java
-          else
+          elif [ "${{ inputs.author }}" == "chengxue2020" ]; then
             git clone --depth 1 https://github.com/chengxue2020/takagen99.git boxdir
             sed -i 's|applicationId .*|applicationId '\''com.github.tvbox.osc.muziling'\''|g' boxdir/app/build.gradle
             sed -i 's|<string name="app_source">.*|<string name="app_source">http://192.168.200.1:8000/tvbox</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
             ln -s tvbox-takagen99 tvboxpatch
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
+          else
+            git clone --depth 1 -b okjack https://github.com/FongMi/TV.git boxdir
           fi
           #sed -i 's/putDefault(HawkConfig.HOME_REC.*/putDefault(HawkConfig.HOME_REC, 1);/g' boxdir/app/src/main/java/com/github/tvbox/osc/base/App.java
           #sed -i 's/urlBean.infoList = infoList;/urlBean.infoList = infoList;video.sourceKey=vod_play_from;/g' boxdir/app/src/main/java/com/github/tvbox/osc/bean/AbsJson.java
@@ -58,9 +61,9 @@ jobs:
           #sed -i 's/com.github.getActivity:XXPermissions:13.6/com.github.getActivity:XXPermissions:16.8/g' boxdir/app/build.gradle
 
           cd boxdir
-          sudo -E apt-get -y install dos2unix
+          #sudo -E apt-get -y install dos2unix
           #dos2unix ../tvboxpatch/*.patch
-          dos2unix app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
+          #dos2unix app/src/main/java/com/github/tvbox/osc/ui/activity/HomeActivity.java
           #find -L ../tvboxpatch -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 --no-backup-if-mismatch -i
           #sed -i 's/C.CONTENT_TYPE_/C.TYPE_/g' app/src/main/java/xyz/doikki/videoplayer/exo/ExoMediaSourceHelper.java
 
