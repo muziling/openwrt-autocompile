@@ -12,6 +12,7 @@ on:
         - 'takagen99'
         - 'chengxue2020'
         - 'okjack'
+        - 'fongmi'
 
 jobs:
   build:
@@ -46,8 +47,14 @@ jobs:
             sed -i 's|<string name="app_source">.*|<string name="app_source">http://192.168.200.1:8000/tvbox</string>|g' boxdir/app/src/main/res/values-zh/strings.xml
             ln -s tvbox-takagen99 tvboxpatch
             cp -f tvboxpatch/film.png boxdir/app/src/main/res/drawable/app_icon.png
-          else
+          elif [ "${{ inputs.author }}" == "okjack" ]; then
             git clone --depth 1 -b okjack https://github.com/FongMi/TV.git boxdir
+            sed -i 's/import com.fongmi.android.tv.api.config.LiveConfig;/import com.fongmi.android.tv.api.config.LiveConfig;import com.fongmi.android.tv.bean.Config;/g'  boxdir/app/src/main/java/com/fongmi/android/tv/App.java
+            sed -i 's|});|});Config.vod().url("http://192.168.200.1:8000/tvbox").update();|g'  boxdir/app/src/main/java/com/fongmi/android/tv/App.java
+            sed -i 's/initConfig();/initConfig();LiveActivity.start(this);/g' boxdir/app/src/leanback/java/com/fongmi/android/tv/ui/activity/HomeActivity.java
+          
+          else
+            git clone --depth 1 -b release https://github.com/FongMi/TV.git boxdir
             sed -i 's/import com.fongmi.android.tv.api.config.LiveConfig;/import com.fongmi.android.tv.api.config.LiveConfig;import com.fongmi.android.tv.bean.Config;/g'  boxdir/app/src/main/java/com/fongmi/android/tv/App.java
             sed -i 's|});|});Config.vod().url("http://192.168.200.1:8000/tvbox").update();|g'  boxdir/app/src/main/java/com/fongmi/android/tv/App.java
             sed -i 's/initConfig();/initConfig();LiveActivity.start(this);/g' boxdir/app/src/leanback/java/com/fongmi/android/tv/ui/activity/HomeActivity.java
