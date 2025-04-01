@@ -1,0 +1,30 @@
+name: categraf
+
+env:
+  # Common versions
+  GO_VERSION: "1.24.1"
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  
+jobs:
+  goreleaser:
+    runs-on: ubuntu-22.04
+    
+    steps:
+    
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Clone and build
+        run: |
+          git clone --depth 1 -b v0.4.3 --single-branch https://github.com/flashcatcloud/categraf.git .
+          go mod tidy
+          go build  -ldflags="-s -w"
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{github.workspace}}/categraf
