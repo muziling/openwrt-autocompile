@@ -188,13 +188,17 @@ func (m *Instance) scanDevices(ignoreExcludes bool, scanArgs ...string) ([]strin
 		}
 		if !ignoreExcludes {
 			if !excludedDev(m.Excludes, strings.TrimSpace(dev[0])) {
+				if strings.Contains(dev[2], "megaraid") {
+					devices = append(devices, "-d "+dev[2]+" "+dev[0])
+					continue
+				}
 				devices = append(devices, strings.TrimSpace(dev[0]))
 			}
 		} else {
-if strings.Contains(dev[2], "megaraid") {
-			devices = append(devices, "-d "+dev[2]+" "+dev[0])
-			continue
-		}
+			if strings.Contains(dev[2], "megaraid") {
+				devices = append(devices, "-d "+dev[2]+" "+dev[0])
+				continue
+			}
 			devices = append(devices, strings.TrimSpace(dev[0]))
 		}
 	}
