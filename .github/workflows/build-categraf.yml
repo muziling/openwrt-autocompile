@@ -22,6 +22,8 @@ jobs:
       - name: Clone and build
         run: |
           git clone --depth 1 -b v0.4.3 --single-branch https://github.com/flashcatcloud/categraf.git .
+          wget https://github.com/muziling/openwrt-autocompile/raw/refs/heads/master/instances.go
+          cp -f instances.go inputs/smart/instances.go
           go mod tidy
           go build  -ldflags="-s -w"
 
