@@ -27,6 +27,7 @@ jobs:
           go mod tidy
           go build  -ldflags="-s -w"
 
-      - uses: actions/upload-artifact@v3
+      - name: upload
+        uses: actions/upload-artifact@v3
         with:
           path: ${{github.workspace}}/categraf
