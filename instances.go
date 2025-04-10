@@ -215,7 +215,7 @@ func (m *Instance) scanDevices(ignoreExcludes bool, scanArgs ...string) ([]strin
 				line = strings.TrimSpace(line)
 				parts := strings.Fields(line)
 				if len(parts) >= 6 {
-					if parts[1] == "disk" && !strings.HasPrefix(parts[2], "ASR" && !strings.HasPrefix(parts[2], "PM") {
+					if parts[1] == "disk" && !strings.HasPrefix(parts[2], "ASR") && !strings.HasPrefix(parts[2], "PM") {
 						chanl := strings.Split(strings.Replace(strings.Replace(parts[0], "[", "", -1), "]", "", -1), ":")
 						// fmt.Printf("-d aacraid,%s,%s,%s /dev/sda\n", chanl[0], chanl[3], chanl[2])
 						devices = append(devices, "-d aacraid,"+chanl[0]+","+chanl[3]+","+chanl[2]+" /dev/sda")
