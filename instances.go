@@ -448,7 +448,7 @@ func (m *Instance) gatherDisk(slist *types.SampleList, device string, wg *sync.W
 	}
 
 	deviceTags := map[string]string{}
-	deviceNode := strings.Field(device)
+	deviceNode := strings.Fields(device)
 	deviceTags["device"] = path.Base(deviceNode[0])
 	if deviceNode[0] == "-d" && len(deviceNode) >= 2 {
 		deviceTags["device"] = strings.Replace(deviceNode[1], ",", ":", -1)
