@@ -448,7 +448,11 @@ func (m *Instance) gatherDisk(slist *types.SampleList, device string, wg *sync.W
 	}
 
 	deviceTags := map[string]string{}
-	deviceTags["device"] = strings.Replace(strings.Replace(device, " ", "_", -1), ",", ":", -1)
+	deviceNode := strings.Field(device)
+	deviceTags["device"] = path.Base(deviceNode[0])
+	if deviceNode[0] == "-d" && len(deviceNode) >= 2 {
+		deviceTags["device"] = strings.Replace(deviceNode[1], ",", ":", -1)
+	}
 	deviceFields := make(map[string]interface{})
 	deviceFields["exit_status"] = exitStatus
 
