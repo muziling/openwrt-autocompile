@@ -1,0 +1,78 @@
+# copy the patches and .config (important!) and subdirectory from unraid server which located at /usr/src (like /usr/src/linux-4.19.94-Unraid/) to step kernel source directory
+# have a look .config, unraid use gcc12
+# https://elixir.bootlin.com/linux/v6.0/A/ident/blk_queue_split  找函数在新的内核里是否还在
+name: Unraid-kernel
+
+on:
+  workflow_dispatch:
+
+env:
+  ORI_KERNEL_VERSION: 6.12.47
+  MY_KERNEL_VERSION: 6.12.47
+  TZ: Asia/Shanghai
+
+jobs:
+  build_unraid:
+    name: Build unraid kernel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Install dependency tools
+        run: |
+          sudo -E apt-get -y install build-essential gcc-15 g++-15 patch git lzma squashfs-tools libelf-dev
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+
+      - name: Clone source code
+        run: |
+          cd /workdir
+          wget https://cdn.kernel.org/pub/linux/kernel/v${MY_KERNEL_VERSION:0:1}.x/linux-$MY_KERNEL_VERSION.tar.xz
+          xz -d linux-$MY_KERNEL_VERSION.tar.xz
+          tar xvf linux-$MY_KERNEL_VERSION.tar
+          #mv linux-5.19.16 linux-999
+
+      - name: Compile the kernel
+        run: |
+          cp linux-$ORI_KERNEL_VERSION-Unraid/.config /workdir/linux-$MY_KERNEL_VERSION
+          cp -r linux-$ORI_KERNEL_VERSION-Unraid/* /workdir/linux-$MY_KERNEL_VERSION
+          cp unraidbootfromhard.patch /workdir/linux-$MY_KERNEL_VERSION
+          cd /workdir/linux-$MY_KERNEL_VERSION
+          ls -l *.patch
+          find . -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
+
+          make oldconfig
+          cat .config
+          make -j$(nproc) bzImage
+          ls -l /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage
+          cp /workdir/linux-$MY_KERNEL_VERSION/arch/x86_64/boot/bzImage /workdir/bzImage
+          make -j$(nproc) modules
+          sudo make modules_install
+
+      - name: Compress kernel modules
+        run: |
+          cd /lib/modules/$MY_KERNEL_VERSION-Unraid/
+          sudo rm -f build
+          sudo rm -f source
+          sudo ln -s /usr/src/linux-$ORI_KERNEL_VERSION-Unraid build
+          sudo ln -s /usr/src/linux-$ORI_KERNEL_VERSION-Unraid source
+          cd /workdir
+          mksquashfs /lib/modules/$MY_KERNEL_VERSION-Unraid/ bzmodules -keep-as-directory -noappend
+
+      - name: Upload bzmodules file
+        uses: actions/upload-artifact@v4
+        with:
+          name: bzmodules
+          path: /workdir/bzmodules
+
+      - name: Upload bzImage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: bzImage
+          path: /workdir/bzImage

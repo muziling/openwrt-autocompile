@@ -1,5 +1,9 @@
 #sed -i 's@geoip.dat@geoip.dat\n\twget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
 #sed -i 's@geoip_cn.txt.$(GEOIP_VER)@geoip_cn.txt.$(GEOIP_VER)\nwget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > $(1)/etc/mosdns/geoip_cn.txt@g' package/mycustom/openwrt-mos/v2ray-geodata/Makefile
+#You can use the following commands to generate and refresh translation files:
+#./feeds/luci/build/i18n-scan.pl package/mtk/applications/luci-app-eqos-mtk > package/mtk/applications/luci-app-eqos-mtk/po/templates/eqos.pot
+#./feeds/luci/build/i18n-update.pl package/mtk/applications/luci-app-eqos-mtk/po
+#rm package/mtk/applications/luci-app-eqos-mtk/po/zh_Hans/eqos.po~
 
 name: 360t7-CI
 
@@ -54,6 +58,7 @@ jobs:
 
     - name: Clone 3rd code, deprecated
       run: |
+        #以openwrt官方为基础
         mv 360t7/*.patch openwrt
         cd openwrt
 
@@ -266,7 +271,7 @@ jobs:
         echo CONFIG_PACKAGE_lua-cjson=y   >> .config
         echo CONFIG_PACKAGE_jq=y   >> .config
         echo CONFIG_PACKAGE_iperf3=y   >> .config
-        echo CONFIG_PACKAGE_luci-app-mosdns=y   >> .config
+        #echo CONFIG_PACKAGE_luci-app-mosdns=y   >> .config
         echo CONFIG_PACKAGE_my-files=y   >> .config
         echo CONFIG_PACKAGE_xray-core=y   >> .config
         echo CONFIG_PACKAGE_luci-app-xray-fw3=y   >> .config
@@ -280,8 +285,8 @@ jobs:
         echo CONFIG_PACKAGE_vnts=y   >> .config
         echo CONFIG_PACKAGE_luci-app-vlmcsd=y   >> .config
         echo CONFIG_PACKAGE_luci-app-nlbwmon=y   >> .config
-        echo CONFIG_PACKAGE_sing-box=y   >> .config
         echo CONFIG_PACKAGE_tcpdump=y   >> .config
+        #echo CONFIG_PACKAGE_sing-box=y   >> .config
 
         sed -i 's/192.168.[0-9].*"/192.168.200.1"/g' package/base-files/files/bin/config_generate
         sed -i "s/hostname='.*'/hostname='opmain'/g" package/base-files/files/bin/config_generate
@@ -291,6 +296,7 @@ jobs:
       run: |
         cd hanwckfop
         git pull
+        rm -f sha256sums.asc*
         wget https://cdn.kernel.org/pub/linux/kernel/v5.x/sha256sums.asc
         kernelver=$(grep 'linux-5\.4' sha256sums.asc |awk -F. '{print $3}'|sort -n|tail -1)
         kernelsha=$(grep linux-5.4.${kernelver}.tar.xz sha256sums.asc|awk '{print $1}')
@@ -300,17 +306,38 @@ jobs:
         sed -i "s/LINUX_KERNEL_HASH-5.4.*/LINUX_KERNEL_HASH-5.4.${kernelver} = ${kernelsha}/g" include/kernel-5.4
         cat include/kernel-5.4
         
+        rm -f target/linux/generic/backport-5.4/430-mtd-spinand-macronix-*
+        rm -f target/linux/generic/backport-5.4/431-mtd-spinand-macronix-*
+        rm -f target/linux/generic/backport-5.4/432-mtd-spinand-macronix-*
+        rm -f target/linux/generic/backport-5.4/433-mtd-spinand-macronix-*
+        rm -f target/linux/generic/backport-5.4/434-mtd-spinand-macronix-*
+        rm -f target/linux/generic/backport-5.4/435-mtd-spinand-macronix-*
+        
+        wget -O target/linux/generic/pending-5.4/680-NET-skip-GRO-for-foreign-MAC-addresses.patch https://github.com/coolsnowwolf/lede/files/15217676/680-NET-skip-GRO-for-foreign-MAC-addresses.patch
+        
+        sed -i '/@@ -174/,$d' target/linux/generic/pending-5.4/680-NET-skip-GRO-for-foreign-MAC-addresses.patch
+        
         rm -f target/linux/mediatek/patches-5.4/0504-macsec-revert-async-support.patch
-        sed -i 's/memory {/memory@40000000 {/g' target/linux/mediatek/patches-5.4/0005-dts-mt7622-add-gsw.patch
+        sed -i '/@@ -633/,$d' target/linux/mediatek/patches-5.4/1024-pcie-add-multi-MSI-support.patch
+        #sed -i 's/memory {/memory@40000000 {/g' target/linux/mediatek/patches-5.4/0005-dts-mt7622-add-gsw.patch
+        #还会失败，直接删除吧
+        rm -f target/linux/mediatek/patches-5.4/0005-dts-mt7622-add-gsw.patch
+        rm -f target/linux/mediatek/patches-5.4/0993-arm64-dts-mediatek-Split-PCIe-node-for-MT2712-MT7622.patch
         cd ..
 
         mkdir -p package/mycustom
+git clone --depth=1 -b master https://github.com/fw876/helloworld.git package/mycustom/helloworld
+git checkout -- package/mycustom/helloworld/hysteria/Makefile
+git checkout -- package/mycustom/helloworld/xray-core/Makefile
+#git checkout -- package/mycustom/openwrt-mos/luci-app-mosdns/luasrc/controller/mosdns.lua
 
         cd package/mycustom/muzipkg;git pull;cd ../../..
         cd package/mycustom/helloworld;git pull;cd ../../..
-        cd package/mycustom/openwrt-mos;git pull;cd ../../..
-
+        #cd package/mycustom/openwrt-mos;git pull;cd ../../..
+#vi +86 package/mycustom/openwrt-mos/luci-app-mosdns/luasrc/controller/mosdns.lua
         ./scripts/feeds update -a
+vi package/mycustom/helloworld/hysteria/Makefile
+vi package/mycustom/helloworld/xray-core/Makefile
 
         rm -rf feeds/packages/lang/golang
         svn co "https://github.com/openwrt/packages/trunk/lang/golang" "feeds/packages/lang/golang"
@@ -326,8 +353,23 @@ jobs:
 
         sed -i 's|include.*luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|g' package/mycustom/luci-app-natmap/Makefile
 
-        mkdir -p package/mycustom/muzipkg/my-files/files
-        wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
+        #mkdir -p package/mycustom/muzipkg/my-files/files
+        #wget -O- "https://github.com/misakaio/chnroutes2/raw/master/chnroutes.txt" | grep -v "#" > package/mycustom/muzipkg/my-files/files/geoip_cn.txt
+#https://github.com/ruijzhan/chnroute/raw/master/gfwlist.txt
+#  https://gaoyifan.github.io/china-operator-ip/
+
+wget https://gaoyifan.github.io/china-operator-ip/china.txt -O /home/ubuntu/opmain/etc/ipset/china.ipset
+sed -i '/^[  ]*$/d' /home/ubuntu/opmain/etc/ipset/china.ipset
+sed -i 's/^/add china.ipset /g' /home/ubuntu/opmain/etc/ipset/china.ipset
+sed -i '1i create china.ipset hash:net family inet hashsize 1024 maxelem 65536' /home/ubuntu/opmain/etc/ipset/china.ipset
+
+
+wget https://gaoyifan.github.io/china-operator-ip/china6.txt -O /home/ubuntu/opmain/etc/ipset/china6.ipset
+sed -i '/^[  ]*$/d' /home/ubuntu/opmain/etc/ipset/china6.ipset
+sed -i 's/^/add china6.ipset /g' /home/ubuntu/opmain/etc/ipset/china6.ipset
+sed -i '1i create china6.ipset hash:net family inet6 hashsize 1024 maxelem 65536' /home/ubuntu/opmain/etc/ipset/china6.ipset
+
+
 
         sed -i 's/+luci-app-firewall //g' feeds/luci/collections/luci/Makefile
         sed -i '/dnsmasq-full \\/d' include/target.mk
@@ -348,9 +390,41 @@ jobs:
 
         sed -i "s/option lang .*/option lang 'zh_cn' /g" feeds/luci/modules/luci-base/root/etc/config/luci
 
+sed -i 's/START=80/START=99/g'  feeds/packages/net/nginx/files/nginx.init
         ./scripts/feeds install -a
         ./scripts/feeds install -a
 
+sed -i 's/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=f6e1c18551a00e01229fa12caa7b3fe33ad82785150fedcbe615fcc651ba2876/g' package/network/services/odhcpd/Makefile
+sed -i 's/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=2024-05-08/g' package/network/services/odhcpd/Makefile
+sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=a29882318a4ccb3ae26f7cc0145e06ad4ead224b/g' package/network/services/odhcpd/Makefile
+sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' package/network/services/odhcpd/Makefile
+
+sed -i 's/PKG_MIRROR_HASH:=.*/PKG_MIRROR_HASH:=25499b6a0d403815e6b04869a02d2d5a32582348bff2bc2626559d297425a908/g' package/network/ipv6/odhcp6c/Makefile
+sed -i 's/PKG_SOURCE_DATE:=.*/PKG_SOURCE_DATE:=2024-09-25/g' package/network/ipv6/odhcp6c/Makefile
+sed -i 's/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=b6ae9ffaeb0e18e9fa3d5be62faa8d3c9f340a58/g' package/network/ipv6/odhcp6c/Makefile
+sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' package/network/ipv6/odhcp6c/Makefile
+
+sed -i 's/PKG_HASH:=.*/PKG_HASH:=8e50309bd837bfec9649a812e066c09b6988b73d749b7d293c06c57d46a109e4/g' package/network/services/dnsmasq/Makefile
+sed -i 's/PKG_UPSTREAM_VERSION:=.*/PKG_UPSTREAM_VERSION:=2.90/g' package/network/services/dnsmasq/Makefile
+sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=3/g' package/network/services/dnsmasq/Makefile
+
+rm -f package/network/services/dnsmasq/patches/*  目录替换
+wget -O package/network/services/dnsmasq/patches/200-ubus_dns.patch https://github.com/openwrt/openwrt/raw/refs/heads/openwrt-24.10/package/network/services/dnsmasq/patches/200-ubus_dns.patch
+wget -O package/network/services/dnsmasq/patches/0001-Fix-spurious-resource-limit-exceeded-messages.patch https://github.com/openwrt/openwrt/raw/refs/heads/openwrt-24.10/package/network/services/dnsmasq/patches/0001-Fix-spurious-resource-limit-exceeded-messages.patch
+wget -O package/network/services/dnsmasq/patches/0002-PATCH-Fix-error-introduced-in-51471cafa5a4fa44d6fe49.patch https://github.com/openwrt/openwrt/raw/refs/heads/openwrt-24.10/package/network/services/dnsmasq/patches/0002-PATCH-Fix-error-introduced-in-51471cafa5a4fa44d6fe49.patch
+wget -O package/network/services/dnsmasq/patches/100-remove-old-runtime-kernel-support.patch https://github.com/openwrt/openwrt/raw/refs/heads/openwrt-24.10/package/network/services/dnsmasq/patches/100-remove-old-runtime-kernel-support.patch
+
+sed -i 's/PKG_VERSION:=.*/PKG_VERSION:=9.9p1/g' feeds/packages/net/openssh/Makefile
+sed -i 's/PKG_RELEASE:=.*/PKG_RELEASE:=1/g' feeds/packages/net/openssh/Makefile
+sed -i 's/PKG_HASH:=.*/PKG_HASH:=b343fbcdbff87f15b1986e6e15d6d4fc9a7d36066be6b7fb507087ba8f966c02/g' feeds/packages/net/openssh/Makefile
+sed -zi 's|PKG_SOURCE_URL:=https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/ \\\n.*https://ftp.spline.de/pub/OpenBSD/OpenSSH/portable/|PKG_SOURCE_URL:=https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/  \\\n		https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/|' feeds/packages/net/openssh/Makefile
+rm -f feeds/packages/net/openssh/patches/*  目录替换
+mkdir feeds/packages/net/openssh/patches/
+wget -O feeds/packages/net/openssh/patches/001-build-construct_utmp-when-USE_BTMP-is-set.patch https://github.com/openwrt/packages/raw/refs/heads/openwrt-24.10/net/openssh/patches/001-build-construct_utmp-when-USE_BTMP-is-set.patch
+wget -O feeds/packages/net/openssh/patches/900-sshd_config-include-dir.patch https://github.com/openwrt/packages/raw/refs/heads/openwrt-24.10/net/openssh/patches/900-sshd_config-include-dir.patch
+
+
+#有时需要 git reset HEAD  package/network/services/dnsmasq/files/dhcp.conf
         git checkout -- package/network/services/dnsmasq/files/dhcp.conf
         sed -i '/option port /d' package/network/services/dnsmasq/files/dhcp.conf
         sed -i '/list dhcp_option /d' package/network/services/dnsmasq/files/dhcp.conf
@@ -358,15 +432,21 @@ jobs:
         sed -i "s/^config dhcp lan/config dhcp lan\n	list dhcp_option '6,192.168.200.1'/g" package/network/services/dnsmasq/files/dhcp.conf
 
         git checkout -- package/mtk/drivers/mt_wifi/Makefile
-        sed -i 's/MT7981_FW_DIR := mt7981-fw-20230306/MT7981_FW_DIR := mt7981-fw-20230330/g' package/mtk/drivers/mt_wifi/Makefile
+        sed -i 's/MT7981_FW_DIR := mt7981-fw-.*/MT7981_FW_DIR := mt7981-fw-20230330/g' package/mtk/drivers/mt_wifi/Makefile
+        #sed -i 's/MT7981_FW_DIR := mt7981-fw-.*/MT7981_FW_DIR := mt7981-fw-20230717/g' package/mtk/drivers/mt_wifi/Makefile
+        #sed -i 's/MT7981_FW_DIR := mt7981-fw-.*/MT7981_FW_DIR := mt7981-fw-20240823/g' package/mtk/drivers/mt_wifi/Makefile
         sed -i '/net.core.rmem_max/d' package/base-files/files/etc/sysctl.conf
         sed -i '/net.core.wmem_max/d' package/base-files/files/etc/sysctl.conf
         echo "net.core.rmem_max=16777216" >> package/base-files/files/etc/sysctl.conf
         echo "net.core.wmem_max=16777216" >> package/base-files/files/etc/sysctl.conf
 
+        sed -i 's/assocthres$/assocthres kicklowexclude/g' package/mtk/applications/mtwifi-cfg/files/netifd/mtwifi.sh
+        sed -i '/kicklowexclude/d' package/mtk/applications/mtwifi-cfg/files/mtwifi-cfg/mtwifi_defs.lua
+        sed -i 's/\["kicklow"\] = {"KickStaRssiLow", "0"},/\["kicklow"\] = {"KickStaRssiLow", "0"},\n    \["kicklowexclude"\] = {"KickStaRssiExclude", "01:02:03:04:05:06"},/g' package/mtk/applications/mtwifi-cfg/files/mtwifi-cfg/mtwifi_defs.lua
+        #配合 package/mtk/drivers/mt_wifi/patches/999-kickout-exclude.diff
         #sed -i ":label;N;s/mtketh-max-gmac = <2>;\n\tstatus = \"okay\";/mtketh-max-gmac = <2>;\n\tmtketh-ppe-num = <2>;\n\tstatus = \"okay\";/;b label" target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi
-
-        cp hanwckfop/defconfig/mt7981-ax3000.config .config
+##DNS要配置绑定到ipv6，避免查询失败，手机认为网络有问题！！！！
+        cp defconfig/mt7981-ax3000.config .config
         sed -i '/mediatek_mt7981_DEVICE_/d' .config
         echo CONFIG_TARGET_DEVICE_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=y >> .config
         echo CONFIG_TARGET_DEVICE_PACKAGES_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=\"\" >> .config
@@ -374,21 +454,27 @@ jobs:
 
         echo CONFIG_PACKAGE_kmod-leds-gpio=y   >> .config
         echo CONFIG_PACKAGE_kmod-gpio-button-hotplug=y   >> .config
+        echo CONFIG_PACKAGE_kmod-gre=y   >> .config
+        echo CONFIG_PACKAGE_kmod-gre6=y   >> .config
+        echo CONFIG_PACKAGE_kmod-ipsec=y   >> .config
+        echo CONFIG_PACKAGE_kmod-ipip=y   >> .config
         echo CONFIG_PACKAGE_uboot-envtools=y   >> .config
         echo CONFIG_PACKAGE_autocore-arm=y   >> .config
         echo CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y   >> .config
         echo CONFIG_PACKAGE_ntpdate=y   >> .config
         echo CONFIG_PACKAGE_uhttpd=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
+        echo CONFIG_PACKAGE_vnt=y   >> .config
+        echo CONFIG_PACKAGE_tcpdump=y   >> .config
         echo CONFIG_PACKAGE_ipv6helper=y   >> .config
         #echo CONFIG_PACKAGE_kmod-mtd-rw=m   >> .config
-        sed -i 's/192.168.[0-9].*"/192.168.2.1"/g' package/base-files/files/bin/config_generate
+        sed -i 's/192.168.[0-9].*"/192.168.223.1"/g' package/base-files/files/bin/config_generate
         sed -i "s/hostname='.*'/hostname='oprelay'/g" package/base-files/files/bin/config_generate
 
         sed -i 's/192.168.[0-9].*"/192.168.222.1"/g' package/base-files/files/bin/config_generate
         sed -i "s/hostname='.*'/hostname='opmain'/g" package/base-files/files/bin/config_generate
         echo CONFIG_PACKAGE_dnsmasq-full=y   >> .config
-        echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-ipv6=y   >> .config
         echo CONFIG_PACKAGE_luci-proto-ppp=y   >> .config
         echo CONFIG_PACKAGE_kmod-tun=y   >> .config
@@ -404,11 +490,9 @@ jobs:
         echo CONFIG_PACKAGE_lua-cjson=y   >> .config
         echo CONFIG_PACKAGE_jq=y   >> .config
         echo CONFIG_PACKAGE_iperf3=y   >> .config
-        echo CONFIG_PACKAGE_luci-app-mosdns=y   >> .config
         echo CONFIG_PACKAGE_xray-core=y   >> .config
         echo CONFIG_PACKAGE_luci-app-natmap=y   >> .config
         echo CONFIG_PACKAGE_hysteria=y   >> .config
-        echo CONFIG_PACKAGE_vnt=y   >> .config
         echo CONFIG_PACKAGE_curl=y   >> .config
         echo CONFIG_PACKAGE_luci-app-smartdns=y  >> .config
         echo CONFIG_PACKAGE_hysteria-helper=y  >> .config
@@ -416,14 +500,257 @@ jobs:
         echo CONFIG_PACKAGE_vnts=y   >> .config
         echo CONFIG_PACKAGE_luci-app-vlmcsd=y   >> .config
         echo CONFIG_PACKAGE_luci-app-nlbwmon=y   >> .config
-        echo CONFIG_PACKAGE_tcpdump=y   >> .config
         echo CONFIG_PACKAGE_transparent-proxy=y   >> .config
+        echo CONFIG_PACKAGE_chinadns-ng=y   >> .config
+        echo CONFIG_PACKAGE_mosdns-helper=y   >> .config
+        echo CONFIG_PACKAGE_bash=y   >> .config
+        echo CONFIG_PACKAGE_bind-dig=y   >> .config
+adguard-home
+        #echo CONFIG_PACKAGE_luci-app-mosdns=y   >> .config
         #echo CONFIG_PACKAGE_sing-box=y   >> .config
         #echo CONFIG_PACKAGE_my-files=y   >> .config
         #echo CONFIG_PACKAGE_luci-app-xray-fw3=y   >> .config
-
         sed -i 's/192.168.[0-9].*"/192.168.200.1"/g' package/base-files/files/bin/config_generate
+        sed -i "s/hostname='.*'/hostname='ptmain'/g" package/base-files/files/bin/config_generate
+
+
+    - name: padavanonly immortalwrt-mt798x-24.10
+      run: |
+
+        mkdir -p package/mycustom
+git clone --depth=1 -b master https://github.com/fw876/helloworld.git package/mycustom/helloworld
+git clone --depth=1 https://github.com/muziling/openwrt-package.git package/mycustom/muzipkg
+git checkout -- package/mycustom/helloworld/hysteria/Makefile
+git checkout -- package/mycustom/helloworld/xray-core/Makefile
+
+
+git clone --depth=1 https://github.com/nikkinikki-org/OpenWrt-nikki package/mycustom/nikki
+
+
+        cd package/mycustom/muzipkg;git pull;cd ../../..
+        cd package/mycustom/helloworld;git pull;cd ../../..
+        cd package/mycustom/nikki;git pull;cd ../../..
+
+vi package/mycustom/helloworld/hysteria/Makefile
+vi package/mycustom/helloworld/xray-core/Makefile
+vi feeds/packages/net/dae/Makefile
+
+https://github.com/LostAttractor/dae/archive/refs/heads/next.zip
+
+
+printf '\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B' > /tmp/tmp.bin && dd if=/tmp/tmp.bin of=package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/e2p bs=1 seek=$((0x445)) conv=notrunc
+
+
+
+        ./scripts/feeds update -a
+
+
+#xray-core需要新版的golang
+        rm -rf feeds/packages/lang/golang
+        #svn co "https://github.com/openwrt/packages/trunk/lang/golang" "feeds/packages/lang/golang"
+
+
+function merge_package(){
+    # 参数1是分支名,参数2是库地址。所有文件下载到localdir=feeds/packages/lang。
+    # 同一个仓库下载多个文件夹直接在后面跟文件名或路径，空格分开。
+    trap 'rm -rf "$tmpdir"' EXIT
+    branch="$1" curl="$2" && shift 2
+    rootdir="$PWD"
+    localdir=feeds/packages/lang
+    [ -d "$localdir" ] || mkdir -p "$localdir"
+    tmpdir="$(mktemp -d)" || exit 1
+    git clone -b "$branch" --depth 1 --filter=blob:none --sparse "$curl" "$tmpdir"
+    cd "$tmpdir"
+    git sparse-checkout init --cone
+    git sparse-checkout set "$@"
+    mv -f "$@" "$rootdir"/"$localdir" && cd "$rootdir"
+}
+#merge_package master https://github.com/WYC-2020/openwrt-packages luci-app-eqos luci-app-openclash luci-app-ddnsto ddnsto 
+cd  feeds/packages/
+bash golang.sh merge_package master https://github.com/openwrt/packages lang/golang
+mv feeds/packages/lang/golang lang
+rmdir feeds/packages/lang
+rmdir feeds/packages
+rmdir feeds
+
+
+        sed -i '/dnsmasq-full \\/d' include/target.mk
+        sed -i '/default-settings/d' include/target.mk
+
+        sed -i "s/add_list system.ntp.server='time1.apple.com.*/add_list system.ntp.server='ntp.tencent.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='time1.google.com.*/add_list system.ntp.server='ntp2.aliyun.com'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='time.cloudflare.com.*/add_list system.ntp.server='ntp.ntsc.ac.cn'"/ package/base-files/files/bin/config_generate
+        sed -i "s/add_list system.ntp.server='pool.ntp.org.*/add_list system.ntp.server='cn.ntp.org.cn'"/ package/base-files/files/bin/config_generate
+
+        sed -i "s/set system\.\@system\[-1\].timezone='UTC'/set system\.\@system\[-1\]\.timezone='CST-8'\n\t\tset system\.\@system\[-1\]\.zonename='Asia\/Shanghai'/" package/base-files/files/bin/config_generate
+
+        sed -i "s/option lang .*/option lang 'zh_cn' /g" feeds/luci/modules/luci-base/root/etc/config/luci
+
+sed -i 's/START=80/START=99/g'  feeds/packages/net/nginx/files/nginx.init
+        ./scripts/feeds install -a
+        ./scripts/feeds install -a
+
+        sed -i '/net.core.rmem_max/d' package/base-files/files/etc/sysctl.conf
+        sed -i '/net.core.wmem_max/d' package/base-files/files/etc/sysctl.conf
+        echo "net.core.rmem_max=16777216" >> package/base-files/files/etc/sysctl.conf
+        echo "net.core.wmem_max=16777216" >> package/base-files/files/etc/sysctl.conf
+
+        sed -i 's/assocthres$/assocthres kicklowexclude/g' package/mtk/applications/mtwifi-cfg/files/netifd/mtwifi.sh
+        sed -i '/kicklowexclude/d' package/mtk/applications/mtwifi-cfg/files/mtwifi-cfg/mtwifi_defs.lua
+        sed -i 's/\["kicklow"\] = {"KickStaRssiLow", "0"},/\["kicklow"\] = {"KickStaRssiLow", "0"},\n    \["kicklowexclude"\] = {"KickStaRssiExclude", "01:02:03:04:05:06"},/g' package/mtk/applications/mtwifi-cfg/files/mtwifi-cfg/mtwifi_defs.lua
+        #配合 package/mtk/drivers/mt_wifi/patches/999-kickout-exclude.diff
+        #sed -i ":label;N;s/mtketh-max-gmac = <2>;\n\tstatus = \"okay\";/mtketh-max-gmac = <2>;\n\tmtketh-ppe-num = <2>;\n\tstatus = \"okay\";/;b label" target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-360-t7-base.dtsi
+##53端口的DNS要配置绑定到ipv6，避免查询失败，手机认为网络有问题！！！！
+
+wget https://gaoyifan.github.io/china-operator-ip/china.txt -O /home/debian/opmain/etc/ipset/china.ipset
+sed -i '/^[  ]*$/d' /home/debian/opmain/etc/ipset/china.ipset
+sed -i 's/^/add china.ipset /g' /home/debian/opmain/etc/ipset/china.ipset
+sed -i '1i create china.ipset hash:net family inet hashsize 1024 maxelem 65536' /home/debian/opmain/etc/ipset/china.ipset
+
+echo 'define china_set = {' > /home/debian/opmain/etc/ipset/china-addr.nft
+tail -n +2 /home/debian/opmain/etc/ipset/china.ipset |awk '{print $3}' | sed '$!s/$/,/' >> /home/debian/opmain/etc/ipset/china-addr.nft
+echo '}' >> /home/debian/opmain/etc/ipset/china-addr.nft
+
+wget https://gaoyifan.github.io/china-operator-ip/china6.txt -O /home/debian/opmain/etc/ipset/china6.ipset
+sed -i '/^[  ]*$/d' /home/debian/opmain/etc/ipset/china6.ipset
+sed -i 's/^/add china6.ipset /g' /home/debian/opmain/etc/ipset/china6.ipset
+sed -i '1i create china6.ipset hash:net family inet6 hashsize 1024 maxelem 65536' /home/debian/opmain/etc/ipset/china6.ipset
+
+wget https://github.com/openwrt/openwrt/raw/refs/heads/main/package/network/config/firewall4/Makefile -O package/network/config/firewall4/Makefile
+wget https://github.com/openwrt/openwrt/raw/refs/heads/main/package/network/utils/nftables/Makefile -O package/network/utils/nftables/Makefile
+rm package/network/utils/nftables/patches/001-drop-useless-file.patch
+wget https://github.com/immortalwrt/immortalwrt/raw/refs/heads/master/package/libs/libnftnl/Makefile -O package/libs/libnftnl/Makefile
+rm -f package/libs/libnftnl/patches/001-libnftnl-add-fullcone-expression-support.patch
+wget https://github.com/immortalwrt/immortalwrt/raw/refs/heads/master/package/libs/libnftnl/patches/001-libnftnl-add-fullcone-expression-support.patch -O  package/libs/libnftnl/patches/001-libnftnl-add-fullcone-expression-support.patch
+wget https://github.com/immortalwrt/immortalwrt/raw/refs/heads/master/package/libs/libnetfilter-conntrack/Makefile -O package/libs/libnetfilter-conntrack/Makefile
+rm -f package/libs/libnetfilter-conntrack/patches/0001-conntrack-fix-build-with-kernel-5_15-and-musl.patch
+
+rm target/linux/generic/backport-6.6/001-powerpc-kernel-Fix-pcc_save_regs-inclusion.patch
+rm target/linux/generic/pending-6.6/650-Revert-ipv6-save-dontfrag-in-cork.patch
+
+rm target/linux/mediatek/patches-6.6/999-2133-pwm-mediatek-add-longer-period-support.patch
+rm target/linux/mediatek/patches-6.6/999-2136-add-pwm-hw-breathing-light-feature.patch
+vi +129 target/linux/mediatek/patches-6.6/999-2800-trng-driver-porting.patch
+rm target/linux/mediatek/patches-6.6/999-3026-mtk-wed-add-mt7992-hw-path-support.patch
+vi +70 +91 target/linux/mediatek/patches-6.6/999-3028-mtk-wed-add-hwpath-wmm-support.patch
+rm target/linux/mediatek/patches-6.6/999-3031-add-mt7987-hwpath-support.patch
+vi +40 target/linux/mediatek/patches-6.6/999-3032-net-ethernet-mtk_wed-add-ppe-drop.patch
+cp target/linux/mediatek/dts/mt7981b-glinet-gl-mt2500.dtsi target/linux/mediatek/dts/mt7981b-glinet-gl-mt2500.dts
+
+        cp defconfig/mt7981-ax3000.config .config
+        sed -i '/mediatek_mt7981_DEVICE_/d' .config
+        echo CONFIG_TARGET_DEVICE_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=y >> .config
+        echo CONFIG_TARGET_DEVICE_PACKAGES_mediatek_mt7981_DEVICE_mt7981-360-t7-108M=\"\" >> .config
+        echo CONFIG_TARGET_mediatek_filogic=y >> .config
+        echo CONFIG_TARGET_mediatek_filogic_DEVICE_qihoo_360t7=y >> .config
+        echo CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_qihoo_360t7=y >> .config
+        echo CONFIG_LUCI_LANG_zh_Hans=y >> .config
+
+        echo CONFIG_PACKAGE_kmod-leds-gpio=y   >> .config
+        echo CONFIG_PACKAGE_kmod-gpio-button-hotplug=y   >> .config
+        echo CONFIG_PACKAGE_kmod-gre=y   >> .config
+        echo CONFIG_PACKAGE_kmod-gre6=y   >> .config
+        echo CONFIG_PACKAGE_kmod-ipsec=y   >> .config
+        echo CONFIG_PACKAGE_kmod-ipip=y   >> .config
+        echo CONFIG_PACKAGE_uboot-envtools=y   >> .config
+        echo CONFIG_PACKAGE_autocore-arm=y   >> .config
+        echo CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y   >> .config
+        echo CONFIG_PACKAGE_ntpdate=y   >> .config
+        echo CONFIG_PACKAGE_uhttpd=y   >> .config
+        echo CONFIG_PACKAGE_luci-proto-relay=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-firewall=y   >> .config
+        echo CONFIG_PACKAGE_vnt=y   >> .config
+        echo CONFIG_PACKAGE_tcpdump=y   >> .config
+        echo CONFIG_PACKAGE_ipv6helper=y   >> .config
+        echo CONFIG_PACKAGE_curl=y   >> .config
+        #echo CONFIG_PACKAGE_kmod-mtd-rw=m   >> .config
+
+        sed -i "s/hostname='.*'/hostname='oprelay'/g" package/base-files/files/bin/config_generate
+
+
         sed -i "s/hostname='.*'/hostname='opmain'/g" package/base-files/files/bin/config_generate
+        echo CONFIG_PACKAGE_dnsmasq-full=y   >> .config
+        echo CONFIG_PACKAGE_luci-proto-ipv6=y   >> .config
+        echo CONFIG_PACKAGE_luci-proto-ppp=y   >> .config
+        echo CONFIG_PACKAGE_kmod-tun=y   >> .config
+
+        echo CONFIG_PACKAGE_luci-app-ddns=y   >> .config
+        echo CONFIG_PACKAGE_ddns-scripts=y   >> .config
+        echo CONFIG_PACKAGE_ddns-scripts_aliyun=y   >> .config
+        echo CONFIG_PACKAGE_ddns-scripts-dnspod=y   >> .config
+        echo CONFIG_PACKAGE_ddns-scripts-cloudflare=y   >> .config
+        echo CONFIG_PACKAGE_wget-ssl=y   >> .config
+        echo CONFIG_PACKAGE_xray-core=y   >> .config
+        echo CONFIG_PACKAGE_hysteria=y   >> .config
+        # echo CONFIG_PACKAGE_luci-app-smartdns=y  >> .config
+        echo CONFIG_PACKAGE_hysteria-helper=y  >> .config
+        echo CONFIG_PACKAGE_xray-helper=y  >> .config
+        echo CONFIG_PACKAGE_vnts=y   >> .config
+        echo CONFIG_PACKAGE_chinadns-ng=y   >> .config
+        echo CONFIG_PACKAGE_mosdns-helper=y   >> .config
+        
+        echo CONFIG_PACKAGE_nginx-all-module=y   >> .config
+        echo CONFIG_PACKAGE_lua-cjson=y   >> .config
+        echo CONFIG_PACKAGE_jq=y   >> .config
+        echo CONFIG_PACKAGE_iperf3=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-vlmcsd=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-nlbwmon=y   >> .config
+        echo CONFIG_PACKAGE_bash=y   >> .config
+        echo CONFIG_PACKAGE_bind-dig=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-nikki=y   >> .config
+
+        # echo CONFIG_PACKAGE_transparent-proxy=y   >> .config
+        # echo CONFIG_PACKAGE_kmod-ipt-nat6=y   >> .config
+        # echo CONFIG_PACKAGE_kmod-ipt-socket=y   >> .config
+        # echo CONFIG_PACKAGE_kmod-nft-socket=y   >> .config
+        echo CONFIG_PACKAGE_luci-app-natmap=y   >> .config
+        echo CONFIG_PACKAGE_luci-theme-edge=y   >> .config
+        
+        
+        echo CONFIG_PACKAGE_dae=y   >> .config
+        echo CONFIG_PACKAGE_dae-geoip=y   >> .config
+        echo CONFIG_PACKAGE_dae-geosite=y   >> .config
+        echo CONFIG_PACKAGE_nginx-full=y   >> .config
+        #echo CONFIG_PACKAGE_daed=y   >> .config
+        #echo CONFIG_PACKAGE_daed-geoip=y   >> .config
+        #echo CONFIG_PACKAGE_daed-geosite=y   >> .config
+        echo CONFIG_PACKAGE_kmod-xdp-sockets-diag=y   >> .config
+        echo CONFIG_PACKAGE_kmod-sched-core=y   >> .config
+        echo CONFIG_PACKAGE_kmod-sched-bpf=y   >> .config
+        echo CONFIG_PACKAGE_kmod-nft-bridge=y   >> .config
+        echo CONFIG_KERNEL_XDP_SOCKETS=y         >> .config
+
+        echo CONFIG_KERNEL_BPF=y                 >> .config
+        echo CONFIG_KERNEL_BPF_SYSCALL=y         >> .config
+        echo CONFIG_KERNEL_BPF_JIT=y             >> .config
+        echo CONFIG_KERNEL_BPF_STREAM_PARSER=y   >> .config
+        echo CONFIG_KERNEL_BPF_EVENTS=y          >> .config
+        echo CONFIG_KERNEL_CGROUPS=y             >> .config
+        echo CONFIG_KERNEL_DEBUG_INFO=y          >> .config
+        echo CONFIG_KERNEL_DEBUG_INFO_BTF=y      >> .config
+        echo CONFIG_KERNEL_KPROBES=y             >> .config
+        echo CONFIG_KERNEL_KPROBE_EVENTS=y       >> .config
+        echo CONFIG_KERNEL_NET_INGRESS=y         >> .config
+        echo CONFIG_KERNEL_NET_EGRESS=y          >> .config
+        echo CONFIG_KERNEL_NET_SCH_INGRESS=m     >> .config
+        echo CONFIG_KERNEL_NET_CLS_BPF=m         >> .config
+        echo CONFIG_KERNEL_NET_CLS_ACT=y         >> .config
+        
+        vi +475 config/Config-kernel.in
+        把 CONFIG_KERNEL_DEBUG_INFO_REDUCED default y改成n
+        然后make defconfig
+        #make menuconfig,去掉CONFIG_KERNEL_DEBUG_INFO_REDUCED，然后会新出现CONFIG_KERNEL_DEBUG_INFO_BTF，选中
+
+
+
+        #echo CONFIG_PACKAGE_iptables-mod-socket=y   >> .config
+adguard-home
+        #echo CONFIG_PACKAGE_luci-app-mosdns=y   >> .config
+        echo CONFIG_PACKAGE_sing-box=y   >> .config
+        #echo CONFIG_PACKAGE_my-files=y   >> .config
+        #echo CONFIG_PACKAGE_luci-app-xray-fw3=y   >> .config
+
+        sed -i "s/hostname='.*'/hostname='ptmain'/g" package/base-files/files/bin/config_generate
 
     - name: Download package
       run: |
@@ -443,6 +770,10 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
+        #线程太多，内存要足够，要不会失败，8G内存可以开6线程
+        make -j6 V=sc tools/llvm-bpf/compile
+        make -j $(nproc) V=sc toolchain/install
+        make download
         make -j$(nproc) V=sc || make -j1 V=s || make -j1
         echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
@@ -473,3 +804,22 @@ jobs:
       with:
         name: OpenWrt_firmware
         path: ${{ env.FIRMWARE }}
+
+
+=========================
+For those who are trying to install gcc13 and g++13 in Debian 12, try to download the tar.gz file and extract it
+
+https://gcc.gnu.org/pub/gcc/releases/gcc-13.4.0/
+
+Run the following commands inside of the extracted folder:
+
+./contrib/download_prerequisites
+./configure --disable-multilib --enable-languages=c,c++
+make -j3
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/local/bin/gcc 60 --slave /usr/bin/g++ g++ /usr/local/bin/g++
+If you type g++ --version, it should look like this
+
+g++ (GCC) 13.2.0
+Copyright (C) 2023 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

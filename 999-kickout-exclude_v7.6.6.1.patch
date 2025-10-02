@@ -1,0 +1,128 @@
+ mt_wifi/embedded/ap/ap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mt_wifi/embedded/ap/ap.c b/mt_wifi/embedded/ap/ap.c
+index 9e4493b..e0f37d1 100644
+--- a/mt_wifi/embedded/ap/ap.c
++++ b/mt_wifi/embedded/ap/ap.c
+@@ -3965,11 +3965,11 @@ VOID MacTableMaintenance(RTMP_ADAPTER *pAd)
+ 		avgRssi = RTMPAvgRssi(pAd, &pEntry->RssiSample);
+ 
+ 		if ( pEntry->RssiSample.Rssi_Updated && pMbss->RssiLowForStaKickOut &&
+-			(avgRssi < pMbss->RssiLowForStaKickOut)) {
++			(avgRssi < pMbss->RssiLowForStaKickOut) && !MAC_ADDR_EQUAL(pEntry->Addr, pMbss->RssiLowForStaExcludeKickOut)) {
+ 			bDisconnectSta = TRUE;
+ 			MTWF_DBG(pAd, DBG_CAT_AP, DBG_SUBCAT_ALL, DBG_LVL_NOTICE,
+-					 "Disassoc STA "MACSTR", RSSI Kickout Thres[%d]-[%d]\n",
+-					  MAC2STR(pEntry->Addr), pMbss->RssiLowForStaKickOut,	avgRssi);
++					 "Disassoc STA "MACSTR", RSSI Kickout Thres[%d]-[%d], exclude STA "MACSTR"\n",
++					  MAC2STR(pEntry->Addr), pMbss->RssiLowForStaKickOut,	avgRssi, MAC2STR(pMbss->RssiLowForStaExcludeKickOut));
+ #ifdef WIFI_DIAG
+ 			if (pEntry && IS_ENTRY_CLIENT(pEntry))
+ 				diag_conn_error(pAd, pEntry->func_tb_idx, pEntry->Addr,
+ mt_wifi/embedded/ap/ap_cfg.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/mt_wifi/embedded/ap/ap_cfg.c b/mt_wifi/embedded/ap/ap_cfg.c
+index fda395c..f238663 100644
+--- a/mt_wifi/embedded/ap/ap_cfg.c
++++ b/mt_wifi/embedded/ap/ap_cfg.c
+@@ -420,6 +420,8 @@ INT Set_AP_ASSOC_REQ_RSSI_THRESHOLD(RTMP_ADAPTER *pAd, RTMP_STRING *arg);
+ 
+ INT	Set_AP_KickStaRssiLow_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg);
+ 
++INT	Set_AP_KickStaRssiExclude_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg);
++
+ INT Set_BasicRate_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg);
+ 
+ #ifdef REDUCE_TCP_ACK_SUPPORT
+@@ -1251,6 +1253,7 @@ static struct {
+ #endif /* SPECIFIC_TX_POWER_SUPPORT */
+ 	{"AssocReqRssiThres",           Set_AP_ASSOC_REQ_RSSI_THRESHOLD},
+ 	{"KickStaRssiLow",				Set_AP_KickStaRssiLow_Proc},
++	{"KickStaRssiExclude",			Set_AP_KickStaRssiExclude_Proc},
+ 	{"Steeringthresold",				Set_AP_SteeringThreshold_Proc},
+ 	{"PtkRekey",					Set_PtkRekey_Proc},
+ #ifdef OCE_SUPPORT
+@@ -14556,6 +14559,46 @@ INT Set_AP_KickStaRssiLow_Proc(
+ 	return TRUE;
+ }
+ 
++/*
++    ==========================================================================
++    Description:
++	Set exclude device mac for AP kicking out a STA.
++    Return:
++	TRUE if all parameters are OK, FALSE otherwise
++    ==========================================================================
++*/
++INT Set_AP_KickStaRssiExclude_Proc(RTMP_ADAPTER *pAd, RTMP_STRING *arg)
++{
++	INT i;
++	RTMP_STRING *value;
++	POS_COOKIE pObj = (POS_COOKIE) pAd->OS_Cookie;
++	UCHAR           apidx = pObj->ioctl_if;
++
++	pObj = (POS_COOKIE) pAd->OS_Cookie;
++	NdisZeroMemory(pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut, MAC_ADDR_LEN);
++
++	if (strlen(arg) == 17) { /* Mac address acceptable format 01:02:03:04:05:06 length 17 */
++		for (i = 0, value = rstrtok(arg, ":"); value; value = rstrtok(NULL, ":"), i++) {
++			if ((strlen(value) != 2) || (!isxdigit(*value)) || (!isxdigit(*(value + 1))))
++				return FALSE;  /* Invalid */
++
++			AtoH(value, &pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[i], 1);
++		}
++
++		if (i != 6)
++			return FALSE;  /* Invalid */
++	}
++
++	MTWF_DBG(pAd, DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_INFO, "I/F(ra%d) RssiLowForStaExcludeKickOut=(%2X:%2X:%2X:%2X:%2X:%2X)\n", apidx,
++			 pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[0],
++			 pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[1],
++			 pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[2],
++			 pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[3],
++			 pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[4],
++			 pAd->ApCfg.MBSSID[apidx].RssiLowForStaExcludeKickOut[5]);
++	return TRUE;
++}
++
+ /*
+     ==========================================================================
+     Description:
+ mt_wifi/embedded/include/rtmp.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/mt_wifi/embedded/include/rtmp.h b/mt_wifi/embedded/include/rtmp.h
+index d684e12..f9e2590 100644
+--- a/mt_wifi/embedded/include/rtmp.h
++++ b/mt_wifi/embedded/include/rtmp.h
+@@ -2971,6 +2971,7 @@ typedef struct _BSS_STRUCT {
+ 	/* YF@20120417: Avoid connecting to AP in Poor Env, value 0 fOr disable. */
+ 	CHAR AssocReqRssiThreshold;
+ 	CHAR RssiLowForStaKickOut;
++	UCHAR RssiLowForStaExcludeKickOut[MAC_ADDR_LEN];
+ 	CHAR SteeringThreshold;
+ 
+ #ifdef CUSTOMER_VENDOR_IE_SUPPORT
+ mt_wifi/embedded/fsm/ap_mgmt_assoc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/mt_wifi/embedded/fsm/ap_mgmt_assoc.c b/mt_wifi/embedded/fsm/ap_mgmt_assoc.c
+index 8acfa51..8961ee7 100644
+--- a/mt_wifi/embedded/fsm/ap_mgmt_assoc.c
++++ b/mt_wifi/embedded/fsm/ap_mgmt_assoc.c
+@@ -1853,9 +1853,10 @@ static VOID ap_cmm_peer_assoc_req_action(
+ 			  rssi);
+ 
+ 	if ((pAd->ApCfg.MBSSID[pEntry->func_tb_idx].AssocReqRssiThreshold != 0) &&
+-		(rssi < pAd->ApCfg.MBSSID[pEntry->func_tb_idx].AssocReqRssiThreshold)) {
++		(rssi < pAd->ApCfg.MBSSID[pEntry->func_tb_idx].AssocReqRssiThreshold) &&
++		!MAC_ADDR_EQUAL(pEntry->Addr, pMbss->RssiLowForStaExcludeKickOut)) {
+ 		MTWF_DBG(pAd, DBG_CAT_AP, DBG_SUBCAT_ALL, DBG_LVL_ERROR,
+-				 "Reject this ASSOC_REQ due to Weak Signal.\n");
++				 "Reject "MACSTR" ASSOC_REQ due to Weak Signal.\n", MAC2STR(pEntry->Addr));
+ #ifdef OCE_SUPPORT
+ 		if (IS_OCE_ENABLE(wdev)) {
+ 			struct oce_info *oceInfo = &pEntry->oceInfo;

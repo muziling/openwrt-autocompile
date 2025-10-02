@@ -1,0 +1,15 @@
+--- a/drivers/thunderbolt/nhi.c.orig  2025-07-18 17:49:29.168742225 -0700
++++ b/drivers/thunderbolt/nhi.c       2025-07-18 17:51:00.022188620 -0700
+@@ -46,9 +46,10 @@
+ #define QUIRK_AUTO_CLEAR_INT   BIT(0)
+ #define QUIRK_E2E              BIT(1)
+
+-static bool host_reset = true;
++/* limetech - lets default this to false */
++static bool host_reset = false;
+ module_param(host_reset, bool, 0444);
+-MODULE_PARM_DESC(host_reset, "reset USB4 host router (default: true)");
++MODULE_PARM_DESC(host_reset, "reset USB4 host router (default: false)");
+
+ static int ring_interrupt_index(const struct tb_ring *ring)
+ {
