@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependency tools
         run: |
-          sudo -E apt-get -y install build-essential gcc-15 g++-15 patch git lzma squashfs-tools libelf-dev
+          sudo -E apt-get -y install build-essential gcc g++ patch git lzma squashfs-tools libelf-dev
           sudo timedatectl set-timezone "$TZ"
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
