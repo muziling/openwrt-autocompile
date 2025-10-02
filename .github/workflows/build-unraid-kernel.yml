@@ -42,7 +42,6 @@ jobs:
         run: |
           cp linux-$ORI_KERNEL_VERSION-Unraid/.config /workdir/linux-$MY_KERNEL_VERSION
           cp -r linux-$ORI_KERNEL_VERSION-Unraid/* /workdir/linux-$MY_KERNEL_VERSION
-          cp unraidbootfromhard.patch /workdir/linux-$MY_KERNEL_VERSION
           cd /workdir/linux-$MY_KERNEL_VERSION
           ls -l *.patch
           find . -type f -iname '*.patch' -print0|xargs -n1 -0 patch -p 1 -i
