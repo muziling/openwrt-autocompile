@@ -2,7 +2,7 @@ name: categraf
 
 env:
   # Common versions
-  GO_VERSION: "1.24.1"
+  GO_VERSION: "1.26.5"
 
 on:
   repository_dispatch:
@@ -21,9 +21,11 @@ jobs:
 
       - name: Clone and build
         run: |
-          git clone --depth 1 -b v0.4.3 --single-branch https://github.com/flashcatcloud/categraf.git .
+          git clone --depth 1 -b v0.5.15 --single-branch https://github.com/flashcatcloud/categraf.git .
           wget https://github.com/muziling/openwrt-autocompile/raw/refs/heads/master/instances.go
           mv -f instances.go inputs/smart/instances.go
+          sed -i '/"EXT4-fs error"$/a \   XfsFsError = " metadata I/O error in "' inputs/dmesg/dmesg.go
+          sed -i '/^		Ext4FsError:                      0,$/a \		XfsFsError:                       0,' inputs/dmesg/dmesg.go
           go mod tidy
           go build  -ldflags="-s -w"
 
