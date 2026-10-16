@@ -23,7 +23,9 @@ jobs:
         run: |
           git clone --depth 1 -b v0.5.15 --single-branch https://github.com/flashcatcloud/categraf.git .
           wget https://github.com/muziling/openwrt-autocompile/raw/refs/heads/master/instances.go
+          wget https://github.com/muziling/openwrt-autocompile/raw/refs/heads/master/var.go
           mv -f instances.go inputs/smart/instances.go
+          mv -f var.go inputs/smart/var.go
           sed -i '/"EXT4-fs error"$/a \   XfsFsError = " metadata I/O error in "' inputs/dmesg/dmesg.go
           sed -i '/^		Ext4FsError:                      0,$/a \		XfsFsError:                       0,' inputs/dmesg/dmesg.go
           go mod tidy
